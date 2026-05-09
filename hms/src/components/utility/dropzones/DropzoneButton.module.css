@@ -1,0 +1,23 @@
+.wrapper {
+  width: 100%;
+}
+
+.dropzone {
+  min-height: 220px;
+  border: 2px dashed var(--mantine-color-primary-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.control {
+  width: 250px;
+  margin: 20px auto 0 auto;
+  display: block;
+}
+
+.description {
+  text-align: center;
+  margin-top: 10px;
+} 
