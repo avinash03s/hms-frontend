@@ -14,6 +14,9 @@ import HomePage from "../pages/PublicPage";
 import DoctorAppointmentDetailsPage from "../pages/doctor/DoctorAppointmentDetailsPage";
 import DoctorDashboardPage from "../pages/doctor/DoctorDashboardPage";
 import PatientDashboardPage from "../pages/patient/PatientDashbordPage";
+import DoctorReportsPage from "../pages/doctor/DoctorReportsPage";
+import PatientReportsPage from "../pages/patient/PatientReportsPage";
+// import DoctorReportsPage from "../pages/doctor/DoctorReportsPage";
 // import HomePage from "../pages/PublicPage";
 
 const AppRoutes = () => {
@@ -39,7 +42,7 @@ const AppRoutes = () => {
           <Route path="profile" element={<DoctorProfilePage />} />
           <Route path="appointments" element={<DoctorAppointmentPage />} />
           <Route path="appointments/:id" element={<DoctorAppointmentDetailsPage />} />
-          <Route path="pharmacy" element={<Random />} />
+          <Route path="reports" element={<DoctorReportsPage />} />
           <Route path="patients" element={<Random />} />
           <Route path="doctors" element={<Random />} />
         </Route>
@@ -49,6 +52,7 @@ const AppRoutes = () => {
           <Route path="dashboard" element={<PatientDashboardPage />} />
           <Route path="profile" element={<PatientProfilePage />} />
           <Route path="appointments" element={<PatientAppointmentPage />} />
+          <Route path="reports" element={<PatientReportsPage />} />
           <Route path="book" element={<Random />} />
         </Route>
 

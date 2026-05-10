@@ -1,4 +1,4 @@
-import { IconHeartbeat, IconLayoutGrid, IconCalendarCheck,  IconUser, IconVaccine } from "@tabler/icons-react";
+import { IconHeartbeat, IconLayoutGrid, IconCalendarCheck,  IconUser, IconReportMedical } from "@tabler/icons-react";
 import { Avatar } from "@mantine/core";
 import { Text } from '@mantine/core';
 import { NavLink } from "react-router-dom";
@@ -21,7 +21,7 @@ const links = [
         name: "Appointments", url: "/doctor/appointments", icons: <IconCalendarCheck stroke={1.5} />
     },
     {
-        name: "Reports", url: "/doctor/pharmacy", icons: <IconVaccine stroke={1.5} />
+        name: "Reports", url: "/doctor/reports", icons: <IconReportMedical stroke={1.5} />
     },
 ]
 

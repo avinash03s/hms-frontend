@@ -33,6 +33,7 @@ const LogiPage = () => {
       successNotification("Login Successfully")
       dispatch(setJwt(_data))
       dispatch(setUser(jwtDecode(_data)))
+      
     }).catch((eroor) => {
       errorNotification(eroor?.response?.data?.errorMessage);
     }).finally(() => setLoading(false))
@@ -71,7 +72,7 @@ const LogiPage = () => {
         </div>
 
         <div className="w-[450px] backdrop-blur-md p-10 py-8 rounded-lg">
-          <form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col gap-5 [&_input]:placeholder-neutral-100 [&_.mantine-Input-input]:!border-white focus-within:[&_.mantine-Input-input]:!border-pink-400 [&_.mantine-Input-input]:!border [&_input]:!pl-2 [&_svg]:text-white [&_input]:text-white'>
+          <form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col gap-5 [&_input]:placeholder-neutral-100 [&_.mantine-Input-input]:!border-white focus-within:[&_.mantine-Input-input]:!border-primary-400 [&_.mantine-Input-input]:!border [&_input]:!pl-2 [&_svg]:text-white [&_input]:text-white'>
             <div className='self-center font-medium font-heading text-white text-xl'>Login</div>
             <TextInput {...form.getInputProps('email')} className='transition duration-300' variant="unstyled" size="md" placeholder="Email" />
             <PasswordInput {...form.getInputProps('password')} className='transition duration-300' variant="unstyled" size="md" placeholder="Password" />
