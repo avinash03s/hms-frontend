@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom"
 import { getAppointmentDetails } from "../../../service/AppointmentService";
 import { formatDateWithTime } from "../../../utility/DateUtility";
-import { IconClipboardHeart, IconStethoscope, IconVaccine } from "@tabler/icons-react";
+import { IconClipboardHeart,} from "@tabler/icons-react";
 import AppointmentReport from "./AppointmentReport";
 
 const AppointmentDetails = () => {
@@ -60,14 +60,14 @@ const AppointmentDetails = () => {
                 )}
             </Card>
 
-            <Tabs variant="pills" my='md' defaultValue="medical">
+            <Tabs variant="pills" my='md' defaultValue="report">
                 <Tabs.List>
-                    <Tabs.Tab value="medical" leftSection={<IconStethoscope size={20} />}>
+                    {/* <Tabs.Tab value="medical" leftSection={<IconStethoscope size={20} />}>
                         Medical History
                     </Tabs.Tab>
                     <Tabs.Tab value="prescription" leftSection={<IconVaccine size={20} />}>
                         Prescription
-                    </Tabs.Tab>
+                    </Tabs.Tab> */}
                     <Tabs.Tab value="report" leftSection={<IconClipboardHeart size={20} />}>
                         Report
                     </Tabs.Tab>

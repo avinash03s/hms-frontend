@@ -6,7 +6,7 @@ import { Column } from 'primereact/column';
 import { InputIcon } from 'primereact/inputicon';
 import { Tag } from 'primereact/tag';
 import { TextInput } from '@mantine/core';
-import { IconEdit, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconSearch, IconTrash } from '@tabler/icons-react';
 import { useDisclosure } from "@mantine/hooks";
 import { getDoctorDropdown } from "../../../service/DoctorProfileService";
 import { DateTimePicker } from "@mantine/dates";
@@ -188,9 +188,9 @@ const Appointment = () => {
 
     const actionBodyTemplate = (rowData: any) => {
         return <div>
-            <ActionIcon className="flex gap-10">
+            {/* <ActionIcon className="flex gap-10">
                 <IconEdit size={20} stroke={1.5} />
-            </ActionIcon>
+            </ActionIcon> */}
             <ActionIcon color="red" onClick={() => handleDelete(rowData)}>
                 <IconTrash size={20} stroke={1.5} />
             </ActionIcon>

@@ -5,45 +5,35 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux"
 import { doctorDepartments, doctorSpecializations } from "../../../data/DropDownData";
 import { useDisclosure } from "@mantine/hooks";
-import { getDoctor, updateDoctor } from "../../../service/DoctorProfileService";
+import { getDoctor, updateDoctor, uploadProfilePhoto } from "../../../service/DoctorProfileService";
 import { useForm } from "@mantine/form";
 import { formatDate } from "../../../utility/DateUtility";
 import { errorNotification, successNotification } from "../../../utility/Notification";
-
-
-// const doctor: any = {
-//     name: "Dr. John Doe",
-//     email: "dr.john.doe@example.com",
-//     dob: "1985-07-20",
-//     phone: "+91 9123456789",
-//     address: "456, Oak Avenue, New Delhi, India",
-//     licenseNo: "DL12345XYZ",
-//     specialization: "Cardiology",
-//     department: "Cardiology",
-//     totalExp: 10, // years of experience
-//     profilePicture: "https://randomuser.me/api/portraits/men/75.jpg",
-// };
-
+import { useDispatch } from "react-redux";
+import { setUser } from "../../../slices/UserSlices";
 
 const Profile = () => {
 
+
+    const dispatch = useDispatch();
     const user = useSelector((state: any) => state.user)
     const [editMode, setEdit] = useState(false);
     const [opened, { open, close }] = useDisclosure(false);
-    
+
     const [profile, setProfile] = useState<any>({});
+    const [file, setFile] = useState<File | null>(null);
     useEffect(() => {
-    if (user?.profileId) {
-        getDoctor(user.profileId)
-            .then((data) => {
-                console.log("DOCTOR API RESPONSE:", data); // 🔥 IMPORTANT
-                setProfile(data);
-            })
-            .catch((error) => {
-                console.log("ERROR:", error);
-            });
-    }
-}, [user?.profileId]);
+        if (user?.profileId) {
+            getDoctor(user.profileId)
+                .then((data) => {
+                    console.log("DOCTOR API RESPONSE:", data); //IMPORTANT
+                    setProfile(data);
+                })
+                .catch((error) => {
+                    console.log("ERROR:", error);
+                });
+        }
+    }, [user?.profileId]);
 
     const form = useForm({
         initialValues: {
@@ -73,12 +63,45 @@ const Profile = () => {
         setEdit(true);
     }
 
+    const handlePhotoUpload = async () => {
+        if (!file) {
+            errorNotification("Please select PNG image");
+            return;
+        }
+        if (file.type !== "image/png") {
+            errorNotification("Only PNG image allowed");
+            return;
+        }
+        try {
+            const response = await uploadProfilePhoto(
+                file,
+                profile?.profilePictureId
+            );
+            const updatedProfile = {
+                ...profile,
+                profilePictureId: response.id,
+            };
+            await updateDoctor(updatedProfile);
+            setProfile(updatedProfile);
+            dispatch(setUser({
+                ...user,
+                profilePictureId: response.id,
+            }));
+            successNotification("Photo Uploaded Successfully");
+            setFile(null);
+            close();
+        } catch (error: any) {
+            errorNotification(
+                error?.response?.data?.errorMessage || "Upload failed"
+            );
+        }
+    };
+
     const handleSubmit = () => {
         const result = form.validate();
-
         if (result.hasErrors) {
             const firstError = Object.values(result.errors)[0];
-            errorNotification(firstError as string); // 🔥 popup show
+            errorNotification(firstError as string); //popup show
             return;
         }
 
@@ -104,7 +127,16 @@ const Profile = () => {
             <div className="flex justify-between items-center">
                 <div className="flex gap-5 items-center">
                     <div className="flex flex-col items-center gap-3">
-                        <Avatar variant="filled" src="/avatar.png" size="xl" alt="it's me" />
+                        <Avatar
+                            variant="filled"
+                            src={
+                                profile?.profilePictureId
+                                    ? `http://localhost:9000/profile/files/${profile.profilePictureId}`
+                                    : "/avatar.png"
+                            }
+                            size="xl"
+                            alt="it's me"
+                        />
                         {editMode && <Button size="sm" onClick={open} variant="filled">Upload</Button>}
                     </div>
                     <div className="flex flex-col gap-3">
@@ -191,13 +223,30 @@ const Profile = () => {
                                     <NumberInput {...form.getInputProps("totalExperience")} maxLength={2} max={50} clampBehavior="strict" placeholder="Total Experience" />
                                 </Table.Td>
                             ) : (
-                                <Table.Td className="text-xl">{profile.totalExperience ?? '-'}{profile.totalExperience?'years':''}</Table.Td>
+                                <Table.Td className="text-xl">{profile.totalExperience ?? '-'}{profile.totalExperience ? 'years' : ''}</Table.Td>
                             )}
                         </Table.Tr>
                     </Table.Tbody>
                 </Table>
             </div>
-            <Modal centered opened={opened} onClose={close} title={<span className="text-xl">Upload Profile Photo</span>}></Modal>
+            <Modal
+                centered
+                opened={opened}
+                onClose={close}
+                title={<span className="text-xl">Upload Profile Photo</span>}>
+                <div className="flex flex-col gap-4">
+                    <input
+                        type="file"
+                        accept="image/png"
+                        onChange={(e: any) => {
+                            setFile(e.target.files[0]);
+                        }}
+                    />
+                    <Button mt="md" onClick={handlePhotoUpload}>
+                        Upload
+                    </Button>
+                </div>
+            </Modal>
         </div >
     )
 }

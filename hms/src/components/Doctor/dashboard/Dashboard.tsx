@@ -156,7 +156,7 @@ const Dashboard = () => {
                 const docRes: DoctorDTO = await getDoctor(profileId);
                 setDoctor(docRes);
 
-                const apptRes: AppointmentDTO[] = await getAppointmentsByDoctor(userId);
+                const apptRes: AppointmentDTO[] = await getAppointmentsByDoctor(profileId);
 
                 const enriched: AppointmentDTO[] = await Promise.all(
                     apptRes.map(async (appt) => {
