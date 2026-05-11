@@ -302,7 +302,10 @@ const Reports = () => {
 
   const user = useSelector((state: any) => state.user);
   const doctorName: string = user?.name ?? "Doctor";
-  const doctorId = localStorage.getItem("doctorId") ?? user?.id;
+  // const doctorId = localStorage.getItem("doctorId") ?? user?.id;
+  const doctorId = user?.profileId;
+
+  console.log("user from redux:", JSON.stringify(user));
 
   useEffect(() => {
     if (!doctorId) {
@@ -412,7 +415,7 @@ const Reports = () => {
       {/* Empty */}
       {!loading && !error && filtered.length === 0 && (
         <div style={{ textAlign: "center", padding: "48px 16px", color: "#9ca3af", fontSize: 14 }}>
-          {search ? "Koi prescription nahi mili is search ke liye." : "Abhi tak koi prescription nahi likhi."}
+          {search ? "No prescription find for this search." : "No any prescription."}
         </div>
       )}
 

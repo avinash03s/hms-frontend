@@ -95,8 +95,8 @@ const formatBloodGroup = (bg: string): string => {
     return bg.replace("_POSITIVE", "+").replace("_NEGATIVE", "−");
 };
 
-const getInitials = (name: string): string =>
-    name?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() ?? "PT";
+// const getInitials = (name: string): string =>
+//     name?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() ?? "PT";
 
 const calcAge = (dob: string): number => {
     if (!dob) return 0;
@@ -396,9 +396,18 @@ const Dashboard = () => {
                     <div className="flex items-center gap-5">
                         {/* Avatar with blood group badge */}
                         <div className="relative flex-shrink-0">
-                            <div className="w-[68px] h-[68px] rounded-[16px] bg-white/20 border-2 border-white/30 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                                {getInitials(patient?.name ?? "")}
+                            <div className="w-[68px] h-[68px] rounded-[16px] overflow-hidden border-2 border-white/30 shadow-lg">
+                                <img
+                                    src={
+                                        patient?.profilePictureId
+                                            ? `http://localhost:9000/profile/files/${patient.profilePictureId}`
+                                            : "/avatar.png"
+                                    }
+                                    alt="profile"
+                                    className="w-full h-full object-cover"
+                                />
                             </div>
+
                             {/* Blood group badge — replaces the online dot from Doctor */}
                             <div
                                 className="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl flex items-center justify-center text-white text-[10px] font-bold shadow-md border-2 border-blue-500"
@@ -461,10 +470,10 @@ const Dashboard = () => {
 
             {/* ── Stat Cards — same shadow/hover as Doctor Dashboard ── */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard label="Total Visits"  value={appointments.length} colorClass="text-teal-600"  iconClass="ti-building-hospital" dotColor="bg-teal-50"  />
-                <StatCard label="Upcoming"      value={upcoming.length}     colorClass="text-blue-600"  iconClass="ti-calendar-event"    dotColor="bg-blue-50"  />
-                <StatCard label="Completed"     value={completed}           colorClass="text-green-600" iconClass="ti-circle-check"      dotColor="bg-green-50" />
-                <StatCard label="Cancelled"     value={cancelled}           colorClass="text-red-600"   iconClass="ti-circle-x"          dotColor="bg-red-50"   />
+                <StatCard label="Total Visits" value={appointments.length} colorClass="text-teal-600" iconClass="ti-building-hospital" dotColor="bg-teal-50" />
+                <StatCard label="Upcoming" value={upcoming.length} colorClass="text-blue-600" iconClass="ti-calendar-event" dotColor="bg-blue-50" />
+                <StatCard label="Completed" value={completed} colorClass="text-green-600" iconClass="ti-circle-check" dotColor="bg-green-50" />
+                <StatCard label="Cancelled" value={cancelled} colorClass="text-red-600" iconClass="ti-circle-x" dotColor="bg-red-50" />
             </div>
 
             {/* ── Charts Row — same 2-col grid as Doctor Dashboard ─── */}

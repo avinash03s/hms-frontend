@@ -184,6 +184,16 @@ const PrescriptionModal = ({
 
             <div style={{ padding: "18px 22px" }}>
 
+                
+                    {/* AI Summary Panel — shown inline below header */}
+                    {/* {showSummary && (
+                        <AISummaryPanel
+                            prescription={p}
+                            patientName={patientName}
+                            onClose={() => setShowSummary(false)}
+                        />
+                    )} */}
+
                 {/* Info Grid */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
                     {[

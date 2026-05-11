@@ -5,12 +5,12 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux"
 import { bloodGroups } from "../../../data/DropDownData";
 import { useDisclosure } from "@mantine/hooks";
-import { getPatient, updatePatient } from "../../../service/PatientProfileService";
+import { getPatient, updatePatient, uploadProfilePhoto } from "../../../service/PatientProfileService";
 import { formatDate } from "../../../utility/DateUtility";
 import { useForm } from "@mantine/form";
 import { errorNotification, successNotification } from "../../../utility/Notification";
 import { arrayToCSV } from "../../../utility/OtherUtility";
-import DropzoneButton from "../../utility/dropzones/DropzoneButton";
+// import DropzoneButton from "../../utility/dropzones/DropzoneButton";
 
 // const patient: any = {
 //     name: "Avinash Surwase",
@@ -32,23 +32,24 @@ const Profile = () => {
     const [editMode, setEdit] = useState(false);
     const [opened, { open, close }] = useDisclosure(false);
     const [profile, setProfile] = useState<any>({});
+    const [file, setFile] = useState<File | null>(null);
     useEffect(() => {
-    if (user?.profileId) {
-        console.log("CALL API:", user.profileId);
+        if (user?.profileId) {
+            console.log("CALL API:", user.profileId);
 
-        getPatient(user.profileId)
-            .then((data) => {
-                setProfile({
-                    ...data,
-                    allergies: data.allergies ? JSON.parse(data.allergies) : [],
-                    chronicDisease: data.chronicDisease ? JSON.parse(data.chronicDisease) : []
+            getPatient(user.profileId)
+                .then((data) => {
+                    setProfile({
+                        ...data,
+                        allergies: data.allergies ? JSON.parse(data.allergies) : [],
+                        chronicDisease: data.chronicDisease ? JSON.parse(data.chronicDisease) : []
+                    });
+                })
+                .catch((error) => {
+                    console.log("ERROR:", error);
                 });
-            })
-            .catch((error) => {
-                console.log("ERROR:", error);
-            });
-    }
-}, [user?.profileId]); // 🔥 dependency add
+        }
+    }, [user?.profileId]); // 🔥 dependency add
 
     const form = useForm({
         initialValues: {
@@ -80,12 +81,51 @@ const Profile = () => {
         setEdit(true);
     }
 
+    const handlePhotoUpload = async () => {
+        if (!file) {
+            errorNotification("Please select PNG image");
+            return;
+        }
+        if (file.type !== "image/png") {
+            errorNotification("Only PNG image allowed");
+            return;
+        }
+        try {
+            const response = await uploadProfilePhoto(
+                file,
+                profile?.profilePictureId
+            );
+            const updatedProfile = {
+                ...profile,
+                profilePictureId: response.id,
+                allergies: profile.allergies
+                    ? JSON.stringify(profile.allergies)
+                    : null,
+                chronicDisease: profile.chronicDisease
+                    ? JSON.stringify(profile.chronicDisease)
+                    : null,
+            };
+            await updatePatient(updatedProfile);
+            setProfile({
+                ...profile,
+                profilePictureId: response.id
+            });
+            successNotification("Photo Uploaded");
+            setFile(null);
+            close();
+        } catch (error: any) {
+            errorNotification(
+                error?.response?.data?.errorMessage || "Upload failed"
+            );
+        }
+    };
+    
     const handleSubmit = () => {
         const result = form.validate();
 
         if (result.hasErrors) {
             const firstError = Object.values(result.errors)[0];
-            errorNotification(firstError as string); // 🔥 popup show
+            errorNotification(firstError as string); //popup show
             return;
         }
 
@@ -111,7 +151,16 @@ const Profile = () => {
             <div className="flex justify-between items-center">
                 <div className="flex gap-5 items-center">
                     <div className="flex flex-col items-center gap-3">
-                        <Avatar variant="filled" src="/avatar.png" size="xl" alt="it's me" />
+                        <Avatar
+                            variant="filled"
+                            src={
+                                profile?.profilePictureId
+                                    ? `http://localhost:9000/profile/files/${profile.profilePictureId}`
+                                    : "/avatar.png"
+                            }
+                            size="xl"
+                            alt="it's me"
+                        />
                         {editMode && <Button size="sm" onClick={open} variant="filled">Upload</Button>}
                     </div>
                     <div className="flex flex-col gap-3">
@@ -204,8 +253,23 @@ const Profile = () => {
                     </Table.Tbody>
                 </Table>
             </div>
-            <Modal centered opened={opened} onClose={close} title={<span className="text-xl">Upload Profile Photo</span>}>
-            <DropzoneButton/>
+            <Modal
+                centered
+                opened={opened}
+                onClose={close}
+                title={<span className="text-xl">Upload Profile Photo</span>}>
+                <div className="flex flex-col gap-4">
+                    <input
+                        type="file"
+                        accept="image/png"
+                        onChange={(e: any) => {
+                            setFile(e.target.files[0]);
+                        }}
+                    />
+                    <Button mt="md" onClick={handlePhotoUpload}>
+                        Upload
+                    </Button>
+                </div>
             </Modal>
         </div >
     )
