@@ -16,6 +16,7 @@ import DoctorDashboardPage from "../pages/doctor/DoctorDashboardPage";
 import PatientDashboardPage from "../pages/patient/PatientDashbordPage";
 import DoctorReportsPage from "../pages/doctor/DoctorReportsPage";
 import PatientReportsPage from "../pages/patient/PatientReportsPage";
+import NotFoundPage from "../pages/NotFoundPage";
 // import DoctorReportsPage from "../pages/doctor/DoctorReportsPage";
 // import HomePage from "../pages/PublicPage";
 
@@ -28,14 +29,13 @@ const AppRoutes = () => {
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
-        <Route path="/" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}>
-          <Route path="/dashboard" element={<Random />} />
-          <Route path="/pharmacy" element={<Random />} />
-          <Route path="/patients" element={<Random />} />
-          <Route path="/doctors" element={<Random />} />
+        <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}>
+          <Route path="dashboard" element={<Random />} />
+          <Route path="doctors" element={<Random />} />
+          <Route path="patients" element={<Random />} />
+          <Route path="appointments" element={<Random />} />
+          <Route path="reports" element={<Random />} />
         </Route>
-
-        {/* Doctor */}
 
         <Route path="/doctor" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}>
           <Route path="dashboard" element={<DoctorDashboardPage />} />
@@ -43,11 +43,8 @@ const AppRoutes = () => {
           <Route path="appointments" element={<DoctorAppointmentPage />} />
           <Route path="appointments/:id" element={<DoctorAppointmentDetailsPage />} />
           <Route path="reports" element={<DoctorReportsPage />} />
-          <Route path="patients" element={<Random />} />
-          <Route path="doctors" element={<Random />} />
         </Route>
 
-        {/* Patient */}
         <Route path="/patient" element={<ProtectedRoute><PatientDashboard /></ProtectedRoute>}>
           <Route path="dashboard" element={<PatientDashboardPage />} />
           <Route path="profile" element={<PatientProfilePage />} />
@@ -55,7 +52,7 @@ const AppRoutes = () => {
           <Route path="reports" element={<PatientReportsPage />} />
           <Route path="book" element={<Random />} />
         </Route>
-
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );

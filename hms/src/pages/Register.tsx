@@ -80,7 +80,7 @@ const RegisterPage = () => {
         <div className="w-[450px] backdrop-blur-md p-10 py-8 rounded-lg">
           <form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col gap-5 [&_input]:placeholder-neutral-100 [&_.mantine-Input-input]:!border-white focus-within:[&_.mantine-Input-input]:!border-primary-500 [&_.mantine-Input-input]:!border [&_input]:!pl-2 [&_svg]:text-white [&_input]:text-white'>
             <div className='self-center font-medium font-heading text-white text-xl'>Register</div>
-            <SegmentedControl {...form.getInputProps("role")} fullWidth size="md" color='#24AE9E' bg="none" className='[&_*]:!text-white border border-white' data={[{ label: 'Patient', value: "PATIENT" }, { label: 'Doctor', value: "DOCTOR" },]} />
+            <SegmentedControl {...form.getInputProps("role")} fullWidth size="md" color='#24AE9E' bg="none" className='[&_*]:!text-white border border-white' data={[{ label: 'Patient', value: "PATIENT" }, { label: 'Doctor', value: "DOCTOR" },{ label: 'Admin', value: "ADMIN" },]} />
             {/*  { label: 'Admin', value: "ADMIN" }, */}
             <TextInput {...form.getInputProps('name')} className='transition duration-300' variant="unstyled" size="md" placeholder="Name" />
             <TextInput {...form.getInputProps('email')} className='transition duration-300' variant="unstyled" size="md" placeholder="Email" />
