@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom"
 import Header from "../components/header/Header"
-import Sidebar from "../components/Doctor/sidebar/Sidebar"
+import Sidebar from "../components/admin/sidebar/Sidebar"
 
 
 const AdminDashboard = () => {
