@@ -13,7 +13,7 @@ import { dosageFrequencies, symptoms, tests } from "../../../data/DropDownData";
 import { IconTrash } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
 import {
-    createAppointmentReport, createPrescription
+    createAppointmentReport
 } from "../../../service/AppointmentService";
 import {
     errorNotification,
@@ -112,11 +112,12 @@ const AppointmentReport = ({ appointment }: any) => {
             appointmentId,
         };
 
+        console.log("REPORT DATA", reportData);
         setLoading(true);
 
         Promise.all([
             createAppointmentReport(reportData),
-            createPrescription(prescriptionData)
+            // createPrescription(prescriptionData) ///denger line
         ])
             .then(() => {
                 successNotification("Report Created Successfully");

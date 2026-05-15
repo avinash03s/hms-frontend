@@ -33,7 +33,7 @@ const LogiPage = () => {
       successNotification("Login Successfully")
       dispatch(setJwt(_data))
       dispatch(setUser(jwtDecode(_data)))
-      
+
     }).catch((eroor) => {
       errorNotification(eroor?.response?.data?.errorMessage);
     }).finally(() => setLoading(false))
@@ -76,6 +76,13 @@ const LogiPage = () => {
             <div className='self-center font-medium font-heading text-white text-xl'>Login</div>
             <TextInput {...form.getInputProps('email')} className='transition duration-300' variant="unstyled" size="md" placeholder="Email" />
             <PasswordInput {...form.getInputProps('password')} className='transition duration-300' variant="unstyled" size="md" placeholder="Password" />
+
+            <div className='text-right -mt-3'>
+              <Link to="/forgot-password" className='text-white/60 text-xs hover:text-primary-400 transition-colors duration-200'>
+                Forgot password?
+              </Link>
+            </div>
+
             <Button loading={loading} radius="md" size="md" type='submit' color='#24AE9E'>Login</Button>
             <div className='text-neutral-100 text-sm self-center'>Don't have an account? <Link to="/register" className='hover:underline'>Create account</Link></div>
           </form>
