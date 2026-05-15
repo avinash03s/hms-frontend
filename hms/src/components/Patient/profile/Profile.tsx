@@ -10,20 +10,6 @@ import { formatDate } from "../../../utility/DateUtility";
 import { useForm } from "@mantine/form";
 import { errorNotification, successNotification } from "../../../utility/Notification";
 import { arrayToCSV } from "../../../utility/OtherUtility";
-// import DropzoneButton from "../../utility/dropzones/DropzoneButton";
-
-// const patient: any = {
-//     name: "Avinash Surwase",
-//     email: "surwaseavinash85@gmail.com",
-//     dob: "2005-08-15",
-//     phone: "+91 9876543210",
-//     address: "Beed Maharashtra",
-//     aadharNo: "1234-5678-9012",
-//     bloodGroup: "O+",
-//     allergies: "Peanuts",
-//     chronicDisease: "Diabetes",
-//     profilePicture: "https://randomuser.me/api/portraits/men/75.jpg",
-// };
 
 
 const Profile = () => {

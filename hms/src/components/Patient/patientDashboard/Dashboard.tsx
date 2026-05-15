@@ -17,7 +17,6 @@ Chart.register(
   DoughnutController, ArcElement, Tooltip
 );
 
-// ── Types ────────────────────────────────────────────────────────────────
 interface PatientDTO {
   id: number;
   name: string;
@@ -52,7 +51,6 @@ interface AppointmentDTO {
   doctorSpecialization?: string;
 }
 
-// ── Constants ─────────────────────────────────────────────────────────────
 const REASON_COLORS = ["#0D9488", "#2563EB", "#D97706", "#DC2626", "#7C3AED", "#EC4899"];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -70,7 +68,6 @@ const STATUS_STYLE: Record<string, { bg: string; color: string; dot: string }> =
   PENDING:    { bg: "#FFFBEB", color: "#92400E", dot: "#F59E0B" },
 };
 
-// ── Helpers ───────────────────────────────────────────────────────────────
 const calcAge = (dob: string) =>
   dob ? Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : 0;
 
@@ -103,7 +100,7 @@ const parseListField = (val: string | string[] | null | undefined): string[] => 
 const getInitials = (name: string) =>
   name?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() ?? "PT";
 
-// ── Inline style helpers ──────────────────────────────────────────────────
+
 const S = {
   // layout
   page: {
@@ -197,7 +194,6 @@ const S = {
   } as React.CSSProperties,
 };
 
-// ── Sub-components ────────────────────────────────────────────────────────
 const StatCard = ({
   label, value, iconClass, iconBg, valueColor,
 }: {
@@ -305,7 +301,6 @@ const EmptyState = ({ icon, text }: { icon: string; text: string }) => (
   </div>
 );
 
-// ── Main Component ────────────────────────────────────────────────────────
 const Dashboard = () => {
   const user: any = useSelector((state: any) => state.user);
   const profileId = user?.profileId;
@@ -321,7 +316,6 @@ const Dashboard = () => {
   const visitsChartRef = useRef<Chart | null>(null);
   const donutChartRef  = useRef<Chart | null>(null);
 
-  // ── Fetch ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!profileId || !userId) return;
     const fetchAll = async () => {
@@ -358,7 +352,6 @@ const Dashboard = () => {
     fetchAll();
   }, [profileId, userId]);
 
-  // ── Derived ────────────────────────────────────────────────────
   const today       = new Date().toISOString().split("T")[0];
   const todayAppts  = appointments.filter((a) => getDatePart(a.appointmentTime) === today && a.status !== "CANCELLED");
   const upcoming    = appointments.filter((a) => new Date(a.appointmentTime) > new Date() && a.status !== "CANCELLED");
@@ -385,7 +378,6 @@ const Dashboard = () => {
     .sort((a, b) => new Date(a.appointmentTime).getTime() - new Date(b.appointmentTime).getTime())
     .slice(0, 6);
 
-  // ── Visits chart ───────────────────────────────────────────────
   useEffect(() => {
     if (loading || !visitsRef.current) return;
     visitsChartRef.current?.destroy();
@@ -420,10 +412,8 @@ const Dashboard = () => {
         },
       },
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, appointments]);
 
-  // ── Donut chart ────────────────────────────────────────────────
   useEffect(() => {
     if (loading || !donutRef.current || reasonLabels.length === 0) return;
     donutChartRef.current?.destroy();
@@ -449,16 +439,13 @@ const Dashboard = () => {
         },
       },
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, appointments]);
 
-  // ── Cleanup ────────────────────────────────────────────────────
   useEffect(() => () => {
     visitsChartRef.current?.destroy();
     donutChartRef.current?.destroy();
   }, []);
 
-  // ── Loading ────────────────────────────────────────────────────
   if (loading) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "80vh" }}>
@@ -474,7 +461,6 @@ const Dashboard = () => {
     );
   }
 
-  // ── Error ──────────────────────────────────────────────────────
   if (error) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "80vh" }}>
@@ -494,11 +480,9 @@ const Dashboard = () => {
 
   const bloodColor = BLOOD_COLORS[patient?.bloodGroup ?? ""] ?? "#94A3B8";
 
-  // ── Render ─────────────────────────────────────────────────────
   return (
     <div style={S.page}>
 
-      {/* ── HERO ─────────────────────────────────────────────── */}
       <div style={S.hero}>
         {/* Decorative blobs */}
         <div style={{ position: "absolute", top: -60, right: -60, width: 240, height: 240, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
@@ -575,7 +559,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* ── STAT CARDS (guaranteed 4-col) ────────────────────── */}
       <div style={S.statGrid}>
         <StatCard label="Total Visits" value={appointments.length} iconClass="ti-building-hospital" iconBg="#E0F7F6" valueColor="#0D9488" />
         <StatCard label="Upcoming"     value={upcoming.length}     iconClass="ti-calendar-event"   iconBg="#EFF6FF" valueColor="#2563EB" />
@@ -583,7 +566,6 @@ const Dashboard = () => {
         <StatCard label="Cancelled"    value={cancelled}            iconClass="ti-circle-x"         iconBg="#FEF2F2" valueColor="#EF4444" />
       </div>
 
-      {/* ── CHARTS ROW ───────────────────────────────────────── */}
       <div style={S.grid2}>
 
         {/* Visits line chart */}
@@ -645,7 +627,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* ── APPOINTMENTS + TODAY ──────────────────────────────── */}
       <div style={S.grid2}>
 
         {/* Upcoming appointments */}
