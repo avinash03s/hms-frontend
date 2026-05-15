@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import { getPrescriptionsByDoctor } from "../../../service/AppointmentService";
 import { getPatient } from "../../../service/PatientProfileService";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 interface MedicineDTO {
   id: number;
   medicineName: string;
@@ -31,7 +30,6 @@ interface PrescriptionDTO {
   patientAddress?: string;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const formatFrequency = (freq: string): string => {
   const map: Record<string, string> = {
     "1-0-0": "Morning only",
@@ -51,7 +49,7 @@ const formatDate = (d: string) =>
 const formatBloodGroup = (bg: string) =>
   bg?.replace("_POSITIVE", " +ve").replace("_NEGATIVE", " -ve") ?? "";
 
-// ─── PDF Download ─────────────────────────────────────────────────────────────
+
 const downloadPDF = (p: PrescriptionDTO, doctorName: string) => {
   const win = window.open("", "_blank");
   if (!win) return;
@@ -170,7 +168,6 @@ const downloadPDF = (p: PrescriptionDTO, doctorName: string) => {
   setTimeout(() => { win.print(); win.close(); }, 500);
 };
 
-// ─── Detail Modal ─────────────────────────────────────────────────────────────
 const PrescriptionModal = ({
   prescription: p,
   onClose,
@@ -292,7 +289,7 @@ const PrescriptionModal = ({
   </div>
 );
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+
 const Reports = () => {
   const [reports, setReports] = useState<PrescriptionDTO[]>([]);
   const [loading, setLoading] = useState(true);
