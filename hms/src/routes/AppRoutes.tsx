@@ -17,6 +17,13 @@ import PatientDashboardPage from "../pages/patient/PatientDashbordPage";
 import DoctorReportsPage from "../pages/doctor/DoctorReportsPage";
 import PatientReportsPage from "../pages/patient/PatientReportsPage";
 import NotFoundPage from "../pages/NotFoundPage";
+import DoctorsPage from "../pages/admin/DoctorsPage";
+import PatientsPage from "../pages/admin/PatientsPage";
+import AppointmentsPage from "../pages/admin/AppointmentsPage";
+import DashboardPage from "../pages/admin/DashboardPage";
+import DoctorDashboard from "../layouts/DoctorDashboard";
+import AnalyticsPage from "../pages/admin/AnalyticsPage";
+import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 // import DoctorReportsPage from "../pages/doctor/DoctorReportsPage";
 // import HomePage from "../pages/PublicPage";
 
@@ -28,16 +35,17 @@ const AppRoutes = () => {
 
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+        <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
 
         <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}>
-          <Route path="dashboard" element={<Random />} />
-          <Route path="doctors" element={<Random />} />
-          <Route path="patients" element={<Random />} />
-          <Route path="appointments" element={<Random />} />
-          <Route path="reports" element={<Random />} />
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="doctors" element={<DoctorsPage />} />
+          <Route path="patients" element={<PatientsPage />} />
+          <Route path="appointments" element={<AppointmentsPage />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
         </Route>
 
-        <Route path="/doctor" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}>
+        <Route path="/doctor" element={<ProtectedRoute><DoctorDashboard /></ProtectedRoute>}>
           <Route path="dashboard" element={<DoctorDashboardPage />} />
           <Route path="profile" element={<DoctorProfilePage />} />
           <Route path="appointments" element={<DoctorAppointmentPage />} />

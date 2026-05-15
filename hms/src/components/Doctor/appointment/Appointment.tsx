@@ -209,6 +209,7 @@ const Appointments = () => {
             ...values,
             appointmentTime: new Date(values.appointmentTime).toISOString()
         };
+        console.log("Payload:", payload);
         setLoading(true);
         scheduleAppointment(payload).then(() => {
             close();
@@ -284,9 +285,6 @@ const Appointments = () => {
 
                 <Column field="reason" header="Reason" sortable filter
                     filterPlaceholder="Search by name" style={{ minWidth: '14rem' }} />
-
-                {/* <Column field="notes" header="Notes" sortable filter
-                    filterPlaceholder="Search by name" style={{ minWidth: '14rem' }} /> */}
 
                 <Column field="status" header="Status" sortable
                     filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '12rem' }}

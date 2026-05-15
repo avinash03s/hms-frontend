@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom"
 import { getAppointmentDetails } from "../../../service/AppointmentService";
 import { formatDateWithTime } from "../../../utility/DateUtility";
-import { IconClipboardHeart,} from "@tabler/icons-react";
+import { IconClipboardHeart, } from "@tabler/icons-react";
 import AppointmentReport from "./AppointmentReport";
 
 const AppointmentDetails = () => {
@@ -74,7 +74,7 @@ const AppointmentDetails = () => {
                 </Tabs.List>
 
                 {/* <Divider my='md/> */}
-                <Divider my="md"/>
+                <Divider my="md" />
 
                 <Tabs.Panel value="medical">
                     Medical
@@ -85,7 +85,7 @@ const AppointmentDetails = () => {
                 </Tabs.Panel>
 
                 <Tabs.Panel value="report">
-                    <AppointmentReport appointment={appointment}/>
+                    <AppointmentReport appointment={appointment} />
                 </Tabs.Panel>
             </Tabs>
 

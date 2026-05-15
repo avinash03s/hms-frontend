@@ -1,8 +1,10 @@
-import { IconHeartbeat, IconLayoutGrid, IconCalendarCheck,  IconUser, IconReportMedical } from "@tabler/icons-react";
+import { IconHeartbeat, IconLayoutGrid, IconCalendarCheck, IconUser, IconReportMedical } from "@tabler/icons-react";
 import { Avatar } from "@mantine/core";
 import { Text } from '@mantine/core';
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { getDoctor } from "../../../service/DoctorProfileService";
 
 
 const links = [
@@ -14,9 +16,6 @@ const links = [
         name: "Profile", url: "/doctor/profile", icons: <IconUser stroke={1.5} />
     },
 
-    // {
-    //     name: "Patients", url: "/doctor/patients", icons: <IconMoodHeart stroke={1.5} />
-    // },
     {
         name: "Appointments", url: "/doctor/appointments", icons: <IconCalendarCheck stroke={1.5} />
     },
@@ -26,7 +25,22 @@ const links = [
 ]
 
 const Sidebar = () => {
-    const user= useSelector((state:any)=>state.user);
+    const user = useSelector((state: any) => state.user);
+    const [doctor, setProfile] = useState<any>({});
+
+    useEffect(() => {
+
+        if (user?.profileId) {
+
+            getDoctor(user.profileId)
+                .then((data) => {
+                    setProfile(data);
+                });
+
+        }
+
+    }, [user])
+
     return (
         <div className="flex">
             <div className="w-64">
@@ -41,7 +55,18 @@ const Sidebar = () => {
                 <div className="flex flex-col mt-20 gap-5">
                     <div className="flex flex-col gap-1 items-center">
                         <div className="p-1 bg-white rounded-full shadow-lg">
-                            <Avatar variant="filled" src="avatar.png" size="xl" alt="it's me" />
+
+                            <Avatar
+                                variant="filled"
+                                src={
+                                    doctor?.profilePictureId
+                                        ? `http://localhost:9000/profile/files/${doctor.profilePictureId}`
+                                        : "/avatar.png"
+                                }
+                                size={90}
+                                alt="it's me"
+                            />
+
                         </div>
                         <span className="font-medium text-light">{user.name}</span>
                         <Text c="dimmed" size="xs" className="text-light">{user.role}</Text>

@@ -1,6 +1,6 @@
 import { Menu, Text, Avatar } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import {IconSettings,IconSearch,IconPhoto,IconMessageCircle,IconTrash,IconArrowsLeftRight} from "@tabler/icons-react";
+import { IconSettings, IconSearch, IconPhoto, IconMessageCircle, IconTrash, IconArrowsLeftRight } from "@tabler/icons-react";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { getDoctor } from "../../service/DoctorProfileService";
