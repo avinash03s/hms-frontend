@@ -9,6 +9,7 @@ import {
 import { getAppointmentsByPatient } from "../../../service/AppointmentService";
 import { getPatient } from "../../../service/PatientProfileService";
 import { getDoctor } from "../../../service/DoctorProfileService";
+import AIChatBot from "../../utility/AIChatBot";
 
 Chart.register(
   LineController, LineElement, PointElement,
@@ -703,7 +704,7 @@ const Dashboard = () => {
           )}
         </div>
       </div>
-
+          <AIChatBot/>
     </div>
   );
 };

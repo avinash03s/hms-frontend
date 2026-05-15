@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getPrescriptionsByPatient } from "../../../service/AppointmentService";
 import { IconReport } from "@tabler/icons-react";
+import AIChatBot from "../../utility/AIChatBot";
 
 //Types
 interface MedicineDTO {
@@ -446,6 +447,7 @@ const PatientReports = () => {
                     patientName={patientName}
                 />
             )}
+            <AIChatBot/>
         </div>
     );
 };
