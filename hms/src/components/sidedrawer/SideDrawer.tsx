@@ -3,6 +3,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconMenu2 } from "@tabler/icons-react";
 import Sidebar from "../Patient/sidebar/Sidebar";
 import DoctorSidebar from "../Doctor/sidebar/Sidebar"
+import AdminSidebar from "../admin/sidebar/Sidebar"
 import { useSelector } from "react-redux";
 
 const SideDrawer = () => {
@@ -15,11 +16,11 @@ const SideDrawer = () => {
                 opened={opened}
                 onClose={close}
                 withCloseButton={false}
-                p={0}
+                padding={0}
                 size="auto"
                 overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
             >
-                {user.role == "PATIENT" ? <Sidebar /> : user.role == "DOCTOR" ? <DoctorSidebar /> : null}
+                {user.role == "PATIENT" ? <Sidebar /> : user.role == "DOCTOR" ? <DoctorSidebar /> : user.role == "ADMIN"?<AdminSidebar/>:null}
             </Drawer>
 
             <ActionIcon onClick={open} variant="filled" size='lg' aria-label="Menu">

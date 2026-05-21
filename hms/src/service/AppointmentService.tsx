@@ -10,7 +10,7 @@ const cancelAppointment = async (id: any) => {
     return axiosInstance.put('/appointment/cancel/' + id)
         .then((response: any) => response.data)
         .catch((error: any) => { throw error; })
-}
+}   
 
 const getAppointment = async (id: any) => {
     return axiosInstance.get('/appointment/get/' + id)

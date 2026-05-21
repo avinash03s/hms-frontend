@@ -1,6 +1,25 @@
-import { useCallback, useEffect, useMemo, useState, } from "react";
-import { AreaChart, Area, PieChart, Pie, Cell,Tooltip, ResponsiveContainer, } from "recharts";
-import { getAllAppointments, getAllDoctors, getAllPatients, } from "../../../service/AdminService";
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
+
+import {
+    AreaChart,
+    Area,
+    PieChart,
+    Pie,
+    Cell,
+    Tooltip,
+    ResponsiveContainer,
+} from "recharts";
+
+import {
+    getAllAppointments,
+    getAllDoctors,
+    getAllPatients,
+} from "../../../service/AdminService";
 
 function pick(obj: any, ...keys: string[]): string {
     for (const k of keys) {
@@ -316,20 +335,6 @@ function buildSpecData(
     );
 }
 
-function getTodayAppointments(
-    appointments: NAppointment[]
-) {
-    const today = new Date()
-        .toISOString()
-        .split("T")[0];
-
-    return appointments.filter((a) =>
-        a.appointmentDate?.startsWith(
-            today
-        )
-    );
-}
-
 function fmtDateTime(raw: string) {
     if (!raw || raw === "—") {
         return {
@@ -543,6 +548,7 @@ const StatCard = ({
             padding:
                 "18px 20px 0 20px",
             overflow: "hidden",
+            width: "100%",
         }}
     >
         <div
@@ -550,6 +556,9 @@ const StatCard = ({
                 display: "flex",
                 justifyContent:
                     "space-between",
+                alignItems: "center",
+                gap: 12,
+                flexWrap: "wrap",
             }}
         >
             <div
@@ -562,6 +571,7 @@ const StatCard = ({
                     alignItems: "center",
                     justifyContent:
                         "center",
+                    flexShrink: 0,
                 }}
             >
                 {icon}
@@ -570,12 +580,15 @@ const StatCard = ({
             <div
                 style={{
                     textAlign: "right",
+                    minWidth: 0,
+                    flex: 1,
                 }}
             >
                 <div
                     style={{
                         fontSize: 12,
                         color: "#6b7280",
+                        wordBreak: "break-word",
                     }}
                 >
                     {label}
@@ -585,6 +598,7 @@ const StatCard = ({
                     style={{
                         fontSize: 32,
                         fontWeight: 800,
+                        wordBreak: "break-word",
                     }}
                 >
                     {count}
@@ -612,12 +626,15 @@ const SectionCard = ({
             padding: 18,
             boxShadow:
                 "0 1px 4px rgba(0,0,0,0.05)",
+            width: "100%",
+            overflow: "hidden",
         }}
     >
         <div
             style={{
                 fontWeight: 700,
                 marginBottom: 14,
+                wordBreak: "break-word",
             }}
         >
             {title}
@@ -648,17 +665,25 @@ const AppointRow = ({
                 display: "flex",
                 justifyContent:
                     "space-between",
+                flexWrap: "wrap",
+                gap: 10,
                 padding: 12,
                 borderRadius: 12,
                 background: "#fdf6ee",
                 marginBottom: 8,
             }}
         >
-            <div>
+            <div
+                style={{
+                    flex: 1,
+                    minWidth: 0,
+                }}
+            >
                 <div
                     style={{
                         fontWeight: 700,
                         fontSize: 13,
+                        wordBreak: "break-word",
                     }}
                 >
                     {a.patientName}
@@ -668,6 +693,7 @@ const AppointRow = ({
                     style={{
                         fontSize: 11,
                         color: "#9ca3af",
+                        wordBreak: "break-word",
                     }}
                 >
                     {a.doctorName}
@@ -677,6 +703,7 @@ const AppointRow = ({
             <div
                 style={{
                     textAlign: "right",
+                    minWidth: 110,
                 }}
             >
                 <div
@@ -845,38 +872,38 @@ const AdminDashboard = () => {
     return (
         <>
             <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap');
 
-      @keyframes shimmer {
-        0% {
-          background-position: 200% 0;
+        @keyframes shimmer {
+          0% {
+            background-position: 200% 0;
+          }
+
+          100% {
+            background-position: -200% 0;
+          }
         }
 
-        100% {
-          background-position: -200% 0;
+        *{
+          box-sizing:border-box;
         }
-      }
 
-      *{
-        box-sizing:border-box;
-      }
+        body {
+          margin: 0;
+          background: #f0f2f7;
+          font-family: 'DM Sans', sans-serif;
+        }
 
-      body {
-        margin: 0;
-        background: #f0f2f7;
-        font-family: 'DM Sans', sans-serif;
-      }
+        ::-webkit-scrollbar{
+          width:4px;
+          height:4px;
+        }
 
-      ::-webkit-scrollbar{
-        width:4px;
-        height:4px;
-      }
-
-      ::-webkit-scrollbar-thumb{
-        background:#d1d5db;
-        border-radius:20px;
-      }
-    `}</style>
+        ::-webkit-scrollbar-thumb{
+          background:#d1d5db;
+          border-radius:20px;
+        }
+      `}</style>
 
             {/* MAIN WRAPPER */}
             <div
@@ -885,24 +912,33 @@ const AdminDashboard = () => {
                     minHeight: "100vh",
                     marginLeft: "0px",
                     width: "100%",
+                    overflowX: "hidden",
                 }}
             >
                 <div
                     style={{
-                        padding: "22px",
+                        padding:
+                            window.innerWidth <
+                            768
+                                ? "12px"
+                                : "22px",
                     }}
                 >
-
                     {error && (
                         <div
                             style={{
-                                background: "#fee2e2",
-                                color: "#dc2626",
-                                padding: "12px 16px",
+                                background:
+                                    "#fee2e2",
+                                color:
+                                    "#dc2626",
+                                padding:
+                                    "12px 16px",
                                 borderRadius: 12,
                                 marginBottom: 18,
                                 fontSize: 13,
                                 fontWeight: 600,
+                                wordBreak:
+                                    "break-word",
                             }}
                         >
                             {error}
@@ -910,12 +946,12 @@ const AdminDashboard = () => {
                     )}
 
                     {/* STATS */}
-                    <div
-                        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mb-5"
-                    >
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 mb-5">
                         <StatCard
                             label="Appointments"
-                            count={appointments.length}
+                            count={
+                                appointments.length
+                            }
                             chartData={
                                 monthlyData.length
                                     ? monthlyData
@@ -930,8 +966,12 @@ const AdminDashboard = () => {
 
                         <StatCard
                             label="Patients"
-                            count={patients.length}
-                            chartData={fallback}
+                            count={
+                                patients.length
+                            }
+                            chartData={
+                                fallback
+                            }
                             color="#e8724a"
                             bgColor="#fef0e9"
                             iconBg="#fdd9c9"
@@ -941,8 +981,12 @@ const AdminDashboard = () => {
 
                         <StatCard
                             label="Doctors"
-                            count={doctors.length}
-                            chartData={fallback}
+                            count={
+                                doctors.length
+                            }
+                            chartData={
+                                fallback
+                            }
                             color="#4caf8e"
                             bgColor="#e8f7f2"
                             iconBg="#c5ece0"
@@ -952,17 +996,15 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* CHARTS */}
-                    <div
-                        className="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-5"
-                    >
-
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-5">
                         {/* PIE */}
                         <SectionCard title="Reason Distribution">
                             {loading ? (
                                 <>
                                     <Skeleton h={240} />
                                 </>
-                            ) : diseaseData.length === 0 ? (
+                            ) : diseaseData.length ===
+                              0 ? (
                                 <div className="h-[250px] flex items-center justify-center text-slate-400">
                                     No Data
                                 </div>
@@ -973,25 +1015,41 @@ const AdminDashboard = () => {
                                 >
                                     <PieChart>
                                         <Pie
-                                            data={diseaseData}
+                                            data={
+                                                diseaseData
+                                            }
                                             dataKey="value"
-                                            innerRadius={60}
-                                            outerRadius={90}
+                                            innerRadius={
+                                                60
+                                            }
+                                            outerRadius={
+                                                90
+                                            }
                                         >
-                                            {diseaseData.map((_, i) => (
-                                                <Cell
-                                                    key={i}
-                                                    fill={
-                                                        PIE_COLORS[
-                                                        i % PIE_COLORS.length
-                                                        ]
-                                                    }
-                                                />
-                                            ))}
+                                            {diseaseData.map(
+                                                (
+                                                    _,
+                                                    i
+                                                ) => (
+                                                    <Cell
+                                                        key={
+                                                            i
+                                                        }
+                                                        fill={
+                                                            PIE_COLORS[
+                                                                i %
+                                                                    PIE_COLORS.length
+                                                            ]
+                                                        }
+                                                    />
+                                                )
+                                            )}
                                         </Pie>
 
                                         <Tooltip
-                                            content={<CustomTooltip />}
+                                            content={
+                                                <CustomTooltip />
+                                            }
                                         />
                                     </PieChart>
                                 </ResponsiveContainer>
@@ -1008,13 +1066,23 @@ const AdminDashboard = () => {
                                 </>
                             ) : (
                                 appointments
-                                    .slice(0, 6)
-                                    .map((a, i) => (
-                                        <AppointRow
-                                            key={`${a.id}-${i}`}
-                                            a={a}
-                                        />
-                                    ))
+                                    .slice(
+                                        0,
+                                        6
+                                    )
+                                    .map(
+                                        (
+                                            a,
+                                            i
+                                        ) => (
+                                            <AppointRow
+                                                key={`${a.id}-${i}`}
+                                                a={
+                                                    a
+                                                }
+                                            />
+                                        )
+                                    )
                             )}
                         </SectionCard>
 
@@ -1029,40 +1097,62 @@ const AdminDashboard = () => {
                             ) : (
                                 <div className="space-y-3">
                                     {specData
-                                        .slice(0, 6)
-                                        .map((s, i) => (
-                                            <div
-                                                key={i}
-                                                className="flex items-center justify-between bg-[#fff7ed] border border-orange-100 px-4 py-3 rounded-xl"
-                                            >
-                                                <div>
-                                                    <div className="font-semibold text-sm">
-                                                        {s.name}
-                                                    </div>
-
-                                                    <div className="text-xs text-slate-400">
-                                                        Department
-                                                    </div>
-                                                </div>
-
-                                                <span
-                                                    className="px-3 py-1 rounded-full text-xs font-bold"
-                                                    style={{
-                                                        background:
-                                                            PIE_COLORS[
-                                                            i % PIE_COLORS.length
-                                                            ] + "22",
-
-                                                        color:
-                                                            PIE_COLORS[
-                                                            i % PIE_COLORS.length
-                                                            ],
-                                                    }}
+                                        .slice(
+                                            0,
+                                            6
+                                        )
+                                        .map(
+                                            (
+                                                s,
+                                                i
+                                            ) => (
+                                                <div
+                                                    key={
+                                                        i
+                                                    }
+                                                    className="flex flex-wrap items-center justify-between gap-3 bg-[#fff7ed] border border-orange-100 px-4 py-3 rounded-xl"
                                                 >
-                                                    {s.value}
-                                                </span>
-                                            </div>
-                                        ))}
+                                                    <div
+                                                        style={{
+                                                            minWidth: 0,
+                                                            flex: 1,
+                                                        }}
+                                                    >
+                                                        <div className="font-semibold text-sm break-words">
+                                                            {
+                                                                s.name
+                                                            }
+                                                        </div>
+
+                                                        <div className="text-xs text-slate-400">
+                                                            Department
+                                                        </div>
+                                                    </div>
+
+                                                    <span
+                                                        className="px-3 py-1 rounded-full text-xs font-bold"
+                                                        style={{
+                                                            background:
+                                                                PIE_COLORS[
+                                                                    i %
+                                                                        PIE_COLORS.length
+                                                                ] +
+                                                                "22",
+
+                                                            color:
+                                                                PIE_COLORS[
+                                                                    i %
+                                                                        PIE_COLORS.length
+                                                                ],
+                                                        }}
+                                                    >
+                                                        {
+                                                            s.value
+                                                        }
+                                                    </span>
+                                                </div>
+                                            )
+                                        )}
                                 </div>
                             )}
                         </SectionCard>
@@ -1070,16 +1160,20 @@ const AdminDashboard = () => {
 
                     {/* PATIENTS + DOCTORS */}
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-
                         {/* PATIENTS */}
                         <div
                             style={{
-                                background: "#f5efe6",
+                                background:
+                                    "#f5efe6",
                                 borderRadius: 20,
                                 padding: 16,
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                                boxShadow:
+                                    "0 2px 8px rgba(0,0,0,0.06)",
                                 maxHeight: 360,
-                                overflowY: "auto",
+                                overflowY:
+                                    "auto",
+                                overflowX:
+                                    "hidden",
                             }}
                         >
                             <h3
@@ -1100,75 +1194,130 @@ const AdminDashboard = () => {
                                     <Skeleton />
                                 </>
                             ) : (
-                                patients.slice(0, 8).map((p, i) => (
-                                    <div
-                                        key={i}
-                                        style={{
-                                            background: "#fff7ed",
-                                            border: "2px solid #f97316",
-                                            borderRadius: 16,
-                                            padding: "14px 16px",
-                                            marginBottom: 12,
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            alignItems: "center",
-                                        }}
-                                    >
-                                        <div>
+                                patients
+                                    .slice(
+                                        0,
+                                        8
+                                    )
+                                    .map(
+                                        (
+                                            p,
+                                            i
+                                        ) => (
                                             <div
+                                                key={
+                                                    i
+                                                }
                                                 style={{
-                                                    fontWeight: 800,
-                                                    fontSize: 16,
-                                                    marginBottom: 4,
+                                                    background:
+                                                        "#fff7ed",
+                                                    border:
+                                                        "2px solid #f97316",
+                                                    borderRadius: 16,
+                                                    padding:
+                                                        "14px 16px",
+                                                    marginBottom: 12,
+                                                    display:
+                                                        "flex",
+                                                    justifyContent:
+                                                        "space-between",
+                                                    alignItems:
+                                                        "flex-start",
+                                                    flexWrap:
+                                                        "wrap",
+                                                    gap: 12,
                                                 }}
                                             >
-                                                {p.fullName}
-                                            </div>
+                                                <div
+                                                    style={{
+                                                        flex: 1,
+                                                        minWidth: 0,
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            fontWeight: 800,
+                                                            fontSize: 16,
+                                                            marginBottom: 4,
+                                                            wordBreak:
+                                                                "break-word",
+                                                        }}
+                                                    >
+                                                        {
+                                                            p.fullName
+                                                        }
+                                                    </div>
 
-                                            <div
-                                                style={{
-                                                    fontSize: 14,
-                                                    color: "#6b7280",
-                                                }}
-                                            >
-                                                {p.email}
-                                            </div>
-                                        </div>
+                                                    <div
+                                                        style={{
+                                                            fontSize: 14,
+                                                            color: "#6b7280",
+                                                            wordBreak:
+                                                                "break-word",
+                                                        }}
+                                                    >
+                                                        {
+                                                            p.email
+                                                        }
+                                                    </div>
+                                                </div>
 
-                                        <div style={{ textAlign: "right" }}>
-                                            <div
-                                                style={{
-                                                    fontSize: 14,
-                                                    color: "#6b7280",
-                                                }}
-                                            >
-                                                {p.address}
-                                            </div>
+                                                <div
+                                                    style={{
+                                                        textAlign:
+                                                            "right",
+                                                        minWidth: 120,
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            fontSize: 14,
+                                                            color: "#6b7280",
+                                                            wordBreak:
+                                                                "break-word",
+                                                        }}
+                                                    >
+                                                        {
+                                                            p.address
+                                                        }
+                                                    </div>
 
-                                            <div
-                                                style={{
-                                                    fontSize: 14,
-                                                    fontWeight: 600,
-                                                    marginTop: 4,
-                                                }}
-                                            >
-                                                Blood Group: {p.bloodGroup}
+                                                    <div
+                                                        style={{
+                                                            fontSize: 14,
+                                                            fontWeight: 600,
+                                                            marginTop: 4,
+                                                            wordBreak:
+                                                                "break-word",
+                                                        }}
+                                                    >
+                                                        Blood
+                                                        Group:{" "}
+                                                        {
+                                                            p.bloodGroup
+                                                        }
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                ))
+                                        )
+                                    )
                             )}
                         </div>
 
                         {/* DOCTORS */}
                         <div
                             style={{
-                                background: "#efedf7",
+                                background:
+                                    "#efedf7",
                                 borderRadius: 20,
                                 padding: 16,
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                                boxShadow:
+                                    "0 2px 8px rgba(0,0,0,0.06)",
                                 maxHeight: 360,
-                                overflowY: "auto",
+                                overflowY:
+                                    "auto",
+                                overflowX:
+                                    "hidden",
                             }}
                         >
                             <h3
@@ -1189,63 +1338,111 @@ const AdminDashboard = () => {
                                     <Skeleton />
                                 </>
                             ) : (
-                                doctors.slice(0, 8).map((d, i) => (
-                                    <div
-                                        key={i}
-                                        style={{
-                                            background: "#f5f3ff",
-                                            border: "2px solid #8b5cf6",
-                                            borderRadius: 16,
-                                            padding: "14px 16px",
-                                            marginBottom: 12,
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            alignItems: "center",
-                                        }}
-                                    >
-                                        <div>
+                                doctors
+                                    .slice(
+                                        0,
+                                        8
+                                    )
+                                    .map(
+                                        (
+                                            d,
+                                            i
+                                        ) => (
                                             <div
+                                                key={
+                                                    i
+                                                }
                                                 style={{
-                                                    fontWeight: 800,
-                                                    fontSize: 16,
-                                                    marginBottom: 4,
+                                                    background:
+                                                        "#f5f3ff",
+                                                    border:
+                                                        "2px solid #8b5cf6",
+                                                    borderRadius: 16,
+                                                    padding:
+                                                        "14px 16px",
+                                                    marginBottom: 12,
+                                                    display:
+                                                        "flex",
+                                                    justifyContent:
+                                                        "space-between",
+                                                    alignItems:
+                                                        "flex-start",
+                                                    flexWrap:
+                                                        "wrap",
+                                                    gap: 12,
                                                 }}
                                             >
-                                                {d.fullName}
-                                            </div>
+                                                <div
+                                                    style={{
+                                                        flex: 1,
+                                                        minWidth: 0,
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            fontWeight: 800,
+                                                            fontSize: 16,
+                                                            marginBottom: 4,
+                                                            wordBreak:
+                                                                "break-word",
+                                                        }}
+                                                    >
+                                                        {
+                                                            d.fullName
+                                                        }
+                                                    </div>
 
-                                            <div
-                                                style={{
-                                                    fontSize: 14,
-                                                    color: "#6b7280",
-                                                }}
-                                            >
-                                                {d.email}
-                                            </div>
-                                        </div>
+                                                    <div
+                                                        style={{
+                                                            fontSize: 14,
+                                                            color: "#6b7280",
+                                                            wordBreak:
+                                                                "break-word",
+                                                        }}
+                                                    >
+                                                        {
+                                                            d.email
+                                                        }
+                                                    </div>
+                                                </div>
 
-                                        <div style={{ textAlign: "right" }}>
-                                            <div
-                                                style={{
-                                                    fontSize: 14,
-                                                    color: "#6b7280",
-                                                }}
-                                            >
-                                                {d.address}
-                                            </div>
+                                                <div
+                                                    style={{
+                                                        textAlign:
+                                                            "right",
+                                                        minWidth: 120,
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            fontSize: 14,
+                                                            color: "#6b7280",
+                                                            wordBreak:
+                                                                "break-word",
+                                                        }}
+                                                    >
+                                                        {
+                                                            d.address
+                                                        }
+                                                    </div>
 
-                                            <div
-                                                style={{
-                                                    fontSize: 14,
-                                                    fontWeight: 600,
-                                                    marginTop: 4,
-                                                }}
-                                            >
-                                                {d.specialization}
+                                                    <div
+                                                        style={{
+                                                            fontSize: 14,
+                                                            fontWeight: 600,
+                                                            marginTop: 4,
+                                                            wordBreak:
+                                                                "break-word",
+                                                        }}
+                                                    >
+                                                        {
+                                                            d.specialization
+                                                        }
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                ))
+                                        )
+                                    )
                             )}
                         </div>
                     </div>

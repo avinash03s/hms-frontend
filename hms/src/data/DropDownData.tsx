@@ -95,5 +95,29 @@ const dosageFrequencies = [
 const doctorSpecializations = ["Cardiology", "Neurology", "Orthopedics", "Pediatrics", "Dermatology", "General Surgery", "Psychiatry", "Radiology", "Gynecology", "Ophthalmology"];
 const doctorDepartments = ["Cardiology", "Neurology", "Orthopedics", "Pediatrics", "Dermatology", "Surgery", "Psychiatry", "Radiology", "Gynecology", "Ophthalmology", "ENT", "Anesthesiology", "Pathology", "Emergency Medicine"];
 
+const medicineCategories = [
+    { label: "Antibiotic", value: "ANTIBIOTIC" },
+    { label: "Analgesic", value: "ANALGESIC" },
+    { label: "Antihistamine", value: "ANTIHISTAMINE" },
+    { label: "Antiseptic", value: "ANTISEPTIC" },
+    { label: "Vitamin", value: "VITAMIN" },
+    { label: "Mineral", value: "MINERAL" },
+    { label: "Herbal", value: "HERBAL" },
+    { label: "Homeopathic", value: "HOMEOPATHIC" },
+    { label: "Other", value: "OTHER" },
+];
 
-export {bloodGroups , doctorSpecializations,doctorDepartments,bloodGroup,appointmentReasons,symptoms,tests,dosageFrequencies}
+const medicineTypes = [
+    { label: "Syrup", value: "SYRUP" },
+    { label: "Tablet", value: "TABLET" },
+    { label: "Capsule", value: "CAPSULE" },
+    { label: "Injection", value: "INJECTION" },
+    { label: "Ointment", value: "OINTMENT" },
+    { label: "Liquid", value: "LIQUID" },
+    { label: "Powder", value: "POWDER" },
+    { label: "Cream", value: "CREAM" },
+    { label: "Spray", value: "SPRAY" },
+    { label: "Drops", value: "DROPS" },
+];
+
+export {bloodGroups , doctorSpecializations,doctorDepartments,bloodGroup,appointmentReasons,symptoms,tests,dosageFrequencies,medicineCategories,medicineTypes}

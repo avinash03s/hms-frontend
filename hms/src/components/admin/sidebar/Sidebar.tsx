@@ -1,4 +1,4 @@
-import { IconHeartbeat, IconLayoutGrid, IconCalendarCheck,  IconUser, IconMoodHeart, IconDeviceAnalytics } from "@tabler/icons-react";
+import { IconHeartbeat, IconLayoutGrid, IconCalendarCheck,  IconUser, IconMoodHeart, IconPackage, IconMedicineSyrup } from "@tabler/icons-react";
 import { Avatar } from "@mantine/core";
 import { Text } from '@mantine/core';
 import { NavLink } from "react-router-dom";
@@ -20,9 +20,18 @@ const links = [
     {
         name: "Appointments", url: "/admin/appointments", icons: <IconCalendarCheck stroke={1.5} />
     },
-    {
-        name: "Analytics", url: "/admin/analytics", icons: <IconDeviceAnalytics stroke={1.5} />
+    // {
+    //     name: "Analytics", url: "/admin/analytics", icons: <IconDeviceAnalytics stroke={1.5} />
+    // },
+     {
+        name: "Medicine", url: "/admin/medicine", icons: <IconMedicineSyrup stroke={1.5} />
     },
+     {
+        name: "Inventory", url: "/admin/inventory", icons: <IconPackage stroke={1.5} />
+    },
+    //  {
+    //     name: "Sales", url: "/admin/sales", icons: <IconReceiptRupee stroke={1.5} />
+    // },
 ]
 
 const Sidebar = () => {

@@ -45,7 +45,7 @@ interface Customer {
 
 const Appointments = () => {
 
-    const navigate= useNavigate();
+    const navigate = useNavigate();
 
     const [opened, { open, close }] = useDisclosure(false);
     const [loading, setLoading] = useState<boolean>(false);
@@ -192,7 +192,7 @@ const Appointments = () => {
 
     const actionBodyTemplate = (rowData: any) => {
         return <div className="flex gap-2">
-            <ActionIcon onClick={()=>navigate(""+rowData.id)}>
+            <ActionIcon onClick={() => navigate("" + rowData.id)}>
                 <IconEye size={20} stroke={1.5} />
             </ActionIcon>
             <ActionIcon color="red" onClick={() => handleDelete(rowData)}>
@@ -268,49 +268,217 @@ const Appointments = () => {
 
     return (
         <div className="card w-full overflow-hidden">
-            <Toolbar className="mb-4" start={centerToolbarTemplate} end={rightToolbarTemplate}></Toolbar>
-            <DataTable value={filteredAppointments} size="small" paginator rows={10}
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                rowsPerPageOptions={[10, 25, 50]} dataKey="id"
-                filters={filters} filterDisplay="menu" globalFilterFields={['patientName', 'reason', 'notes', 'status']}
-                emptyMessage="No appointment found." currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries">
+            {/* Toolbar */}
+            <div className="mb-4 flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
 
-                <Column field="patientName" header="Patient" sortable filter
-                    filterPlaceholder="Search by name" style={{ minWidth: '14rem' }} />
+                <div className="w-full lg:w-auto flex justify-center lg:justify-start">
+                    <SegmentedControl
+                        value={tab}
+                        variant="filled"
+                        color="primary"
+                        onChange={setTab}
+                        fullWidth={window.innerWidth < 640}
+                        data={["Today", "Upcoming", "Past"]}
+                    />
+                </div>
 
-                <Column field="patientPhone" header="Phone" style={{ minWidth: '14rem' }} />
+                <div className="w-full sm:w-[320px]">
+                    <TextInput
+                        leftSection={<IconSearch size={18} />}
+                        fw={500}
+                        value={globalFilterValue}
+                        onChange={onGlobalFilterChange}
+                        placeholder="Keyword Search"
+                    />
+                </div>
+            </div>
 
-                <Column field="appointmentTime" header="Appointment Time"
-                    sortable style={{ minWidth: '14rem' }} body={timeTemplate} />
+            {/* Desktop Table */}
+            <div className="hidden lg:block overflow-x-auto">
+                <DataTable
+                    value={filteredAppointments}
+                    size="small"
+                    paginator
+                    rows={10}
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    rowsPerPageOptions={[10, 25, 50]}
+                    dataKey="id"
+                    filters={filters}
+                    filterDisplay="menu"
+                    globalFilterFields={['patientName', 'reason', 'notes', 'status']}
+                    emptyMessage="No appointment found."
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    responsiveLayout="scroll"
+                >
 
-                <Column field="reason" header="Reason" sortable filter
-                    filterPlaceholder="Search by name" style={{ minWidth: '14rem' }} />
+                    <Column
+                        field="patientName"
+                        header="Patient"
+                        sortable
+                        filter
+                        filterPlaceholder="Search by name"
+                        style={{ minWidth: '14rem' }}
+                    />
 
-                <Column field="status" header="Status" sortable
-                    filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '12rem' }}
-                    body={statusBodyTemplate} filter />
+                    <Column
+                        field="patientPhone"
+                        header="Phone"
+                        style={{ minWidth: '12rem' }}
+                    />
 
-                <Column headerStyle={{ width: '5rem', textAlign: 'center' }} bodyStyle={{ textAlign: 'center', overflow: 'visible' }} body={actionBodyTemplate} />
-            </DataTable>
+                    <Column
+                        field="appointmentTime"
+                        header="Appointment Time"
+                        sortable
+                        style={{ minWidth: '14rem' }}
+                        body={timeTemplate}
+                    />
 
+                    <Column
+                        field="reason"
+                        header="Reason"
+                        sortable
+                        filter
+                        filterPlaceholder="Search by reason"
+                        style={{ minWidth: '14rem' }}
+                    />
+
+                    <Column
+                        field="status"
+                        header="Status"
+                        sortable
+                        filterMenuStyle={{ width: '14rem' }}
+                        style={{ minWidth: '12rem' }}
+                        body={statusBodyTemplate}
+                        filter
+                    />
+
+                    <Column
+                        headerStyle={{
+                            width: '6rem',
+                            textAlign: 'center'
+                        }}
+                        bodyStyle={{
+                            textAlign: 'center',
+                            overflow: 'visible'
+                        }}
+                        body={actionBodyTemplate}
+                    />
+                </DataTable>
+            </div>
+
+            {/* Mobile + Tablet Cards */}
+            <div className="flex flex-col gap-4 lg:hidden">
+                {filteredAppointments.length === 0 && (
+                    <div className="text-center text-gray-400 py-10">
+                        No appointment found.
+                    </div>
+                )}
+
+                {filteredAppointments.map((appointment: any) => (
+                    <div
+                        key={appointment.id}
+                        className="border border-gray-200 rounded-2xl p-4 bg-white shadow-sm"
+                    >
+                        {/* Top */}
+                        <div className="flex items-start justify-between gap-3">
+
+                            <div className="min-w-0 flex-1">
+                                <h3 className="text-sm sm:text-base font-semibold text-gray-900 break-words">
+                                    {appointment.patientName}
+                                </h3>
+
+                                <p className="text-xs text-gray-500 mt-1 break-words">
+                                    {appointment.patientPhone}
+                                </p>
+                            </div>
+
+                            <Tag
+                                value={appointment.status}
+                                severity={getSeverity(appointment.status)}
+                            />
+                        </div>
+
+                        {/* Details */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+
+                            <div>
+                                <p className="text-[11px] text-gray-500 mb-1 uppercase">
+                                    Appointment Time
+                                </p>
+
+                                <p className="text-sm text-gray-800 break-words">
+                                    {formatDateWithTime(appointment.appointmentTime)}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p className="text-[11px] text-gray-500 mb-1 uppercase">
+                                    Reason
+                                </p>
+
+                                <p className="text-sm text-gray-800 break-words">
+                                    {appointment.reason}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center justify-end gap-2 mt-4">
+
+                            <ActionIcon
+                                variant="light"
+                                onClick={() => navigate("" + appointment.id)}
+                            >
+                                <IconEye size={18} stroke={1.7} />
+                            </ActionIcon>
+
+                            <ActionIcon
+                                color="red"
+                                variant="light"
+                                onClick={() => handleDelete(appointment)}
+                            >
+                                <IconTrash size={18} stroke={1.7} />
+                            </ActionIcon>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Modal */}
             <Modal
                 opened={opened}
-                size='lg'
+                size={window.innerWidth < 640 ? "100%" : "lg"}
                 onClose={close}
-                title={<div className='text-xl font-semibold text-primary-400'>Schedule Appointment</div>}
-                centered>
-                <LoadingOverlay visible={loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
-                <form onSubmit={form.onSubmit(handleSubmit)} className="grid grid-cols-1 gap-5">
+                title={
+                    <div className='text-lg sm:text-xl font-semibold text-primary-400'>
+                        Schedule Appointment
+                    </div>
+                }
+                centered
+            >
+                <LoadingOverlay
+                    visible={loading}
+                    zIndex={1000}
+                    overlayProps={{ radius: "sm", blur: 2 }}
+                />
+
+                <form
+                    onSubmit={form.onSubmit(handleSubmit)}
+                    className="grid grid-cols-1 gap-5"
+                >
+
                     <Select
                         {...form.getInputProps("doctorId")}
                         withAsterisk
                         data={doctors}
                         label="Doctor"
                         placeholder="Select Doctor"
+                        searchable
                     />
 
                     <DateTimePicker
-                        minDate={new Date}
+                        minDate={new Date()}
                         {...form.getInputProps("appointmentTime")}
                         withAsterisk
                         label="Appointment Time"
@@ -323,16 +491,26 @@ const Appointments = () => {
                         withAsterisk
                         label="Reason for Appointment"
                         placeholder="Enter reason for appointment"
+                        searchable
                     />
 
                     <Textarea
                         {...form.getInputProps("notes")}
                         label="Additional Notes"
                         placeholder="Enter any additional notes"
+                        autosize
+                        minRows={3}
                     />
-                    <Button type="submit" variant="filled" fullWidth>Submit</Button>
+
+                    <Button
+                        type="submit"
+                        variant="filled"
+                        fullWidth
+                        loading={loading}
+                    >
+                        Submit
+                    </Button>
                 </form>
-                {/* Modal content */}
             </Modal>
         </div>
     );
