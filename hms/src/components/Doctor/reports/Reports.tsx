@@ -179,46 +179,52 @@ const PrescriptionModal = ({
 }) => (
   <div
     onClick={onClose}
-    style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "1rem" }}
+    className="fixed inset-0 z-[1000] bg-black/55 flex items-center justify-center p-3 sm:p-4"
   >
     <div
       onClick={(e) => e.stopPropagation()}
-      style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 660, maxHeight: "88vh", overflowY: "auto", boxShadow: "0 24px 48px rgba(0,0,0,0.18)" }}
+      className="bg-white rounded-2xl w-full max-w-[660px] max-h-[88vh] overflow-y-auto shadow-2xl"
     >
       {/* Header */}
-      <div style={{ padding: "18px 22px 14px", borderBottom: "1px solid #f0f0f0", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, background: "#fff", zIndex: 1, borderRadius: "16px 16px 0 0" }}>
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-100 rounded-t-2xl px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+
         <div>
-          <span style={{ background: "#E1F5EE", color: "#0F6E56", fontSize: 13, fontWeight: 600, padding: "3px 10px", borderRadius: 6 }}>
+          <span className="bg-[#E1F5EE] text-[#0F6E56] text-xs sm:text-sm font-semibold px-3 py-1 rounded-md inline-block">
             ℞ Prescription #{p.id}
           </span>
-          <p style={{ fontSize: 12, color: "#9ca3af", marginTop: 4 }}>
+
+          <p className="text-[11px] sm:text-xs text-gray-400 mt-1 break-words">
             {formatDate(p.prescriptionDate)} · Appointment #{p.appointmentId}
           </p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={() => downloadPDF(p, doctorName)}
-            style={{ background: "#1D9E75", color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 500, cursor: "pointer" }}
+            className="flex-1 sm:flex-none bg-[#1D9E75] text-white border-none rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium cursor-pointer"
           >
             ⬇ Download PDF
           </button>
+
           <button
             onClick={onClose}
-            style={{ background: "#f5f5f5", border: "none", borderRadius: 8, padding: "8px 12px", fontSize: 13, cursor: "pointer", color: "#374151" }}
+            className="bg-gray-100 border-none rounded-lg px-3 py-2 text-xs sm:text-sm cursor-pointer text-gray-700"
           >
             ✕
           </button>
         </div>
       </div>
 
-      <div style={{ padding: "18px 22px" }}>
+      <div className="px-4 sm:px-6 py-5">
 
         {/* Patient Info */}
-        <div style={{ background: "#f0fdf7", border: "1px solid #bbf7d0", borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
-          <p style={{ fontSize: 11, color: "#0F6E56", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>
+        <div className="bg-[#f0fdf7] border border-[#bbf7d0] rounded-xl p-4 mb-4">
+
+          <p className="text-[11px] text-[#0F6E56] font-semibold uppercase tracking-wider mb-3">
             Patient Information
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {[
               ["Name", p.patientName ?? `#${p.patientId}`],
               ["Email", p.patientEmail ?? "—"],
@@ -228,59 +234,163 @@ const PrescriptionModal = ({
               ["Appointment", `#${p.appointmentId}`],
             ].map(([label, value]) => (
               <div key={label}>
-                <p style={{ fontSize: 11, color: "#6b7280", marginBottom: 2 }}>{label}</p>
-                <p style={{ fontSize: 13, fontWeight: 500, color: "#111827" }}>{value}</p>
+                <p className="text-[11px] text-gray-500 mb-1">
+                  {label}
+                </p>
+
+                <p className="text-sm font-medium text-gray-900 break-words">
+                  {value}
+                </p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Doctor info */}
-        <div style={{ background: "#f8faff", border: "1px solid #dbeafe", borderRadius: 10, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ width: 34, height: 34, borderRadius: "50%", background: "#dbeafe", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#1e40af", flexShrink: 0 }}>
+        <div className="bg-[#f8faff] border border-[#dbeafe] rounded-xl p-4 mb-4 flex items-center gap-3">
+
+          <span className="w-9 h-9 rounded-full bg-[#dbeafe] flex items-center justify-center text-sm font-bold text-[#1e40af] shrink-0">
             {doctorName?.charAt(0).toUpperCase()}
           </span>
-          <div>
-            <p style={{ fontSize: 11, color: "#6b7280", margin: 0 }}>Prescribed by</p>
-            <p style={{ fontSize: 14, fontWeight: 600, color: "#111827", margin: 0 }}>Dr. {doctorName}</p>
+
+          <div className="min-w-0">
+            <p className="text-[11px] text-gray-500">
+              Prescribed by
+            </p>
+
+            <p className="text-sm sm:text-base font-semibold text-gray-900 break-words">
+              Dr. {doctorName}
+            </p>
           </div>
         </div>
 
         {/* Notes */}
         {p.prescriptionNotes && (
-          <div style={{ background: "#fffbeb", borderLeft: "3px solid #f59e0b", borderRadius: "0 8px 8px 0", padding: "12px 14px", marginBottom: 16 }}>
-            <p style={{ fontSize: 11, color: "#92400e", marginBottom: 4, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+          <div className="bg-[#fffbeb] border-l-[3px] border-[#f59e0b] rounded-r-lg p-3 sm:p-4 mb-4">
+
+            <p className="text-[11px] text-[#92400e] mb-1 font-semibold uppercase tracking-wide">
               Doctor's Notes
             </p>
-            <p style={{ fontSize: 14, color: "#1a1a1a", lineHeight: 1.6 }}>{p.prescriptionNotes}</p>
+
+            <p className="text-sm text-[#1a1a1a] leading-6 break-words">
+              {p.prescriptionNotes}
+            </p>
           </div>
         )}
 
-        {/* Medicines Table */}
-        <p style={{ fontSize: 11, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600, marginBottom: 8 }}>
+        {/* Medicines Heading */}
+        <p className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold mb-2">
           Medicines ({p.medicines?.length ?? 0})
         </p>
-        <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #e5e7eb" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 0.8fr 1.3fr 0.7fr", padding: "8px 12px", background: "#1D9E75", fontSize: 11, color: "#fff", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", gap: 8 }}>
-            <span>Medicine</span><span>Dosage</span><span>Frequency</span><span>Days</span>
+
+        {/* Desktop Table */}
+        <div className="hidden md:block border border-gray-200 rounded-lg overflow-hidden">
+
+          <div className="grid grid-cols-[2fr_0.8fr_1.3fr_0.7fr] gap-2 bg-[#1D9E75] text-white text-[11px] uppercase tracking-wide font-semibold px-3 py-2">
+            <span>Medicine</span>
+            <span>Dosage</span>
+            <span>Frequency</span>
+            <span>Days</span>
           </div>
+
           {p.medicines?.map((m, i) => (
-            <div key={m.id ?? i} style={{ display: "grid", gridTemplateColumns: "2fr 0.8fr 1.3fr 0.7fr", padding: "10px 12px", background: i % 2 === 0 ? "#f9fafb" : "#fff", borderTop: "1px solid #f0f0f0", fontSize: 13, gap: 8, alignItems: "start" }}>
+            <div
+              key={m.id ?? i}
+              className={`grid grid-cols-[2fr_0.8fr_1.3fr_0.7fr] gap-2 px-3 py-3 text-sm border-t border-gray-100 ${i % 2 === 0 ? "bg-gray-50" : "bg-white"
+                }`}
+            >
               <div>
-                <p style={{ fontWeight: 500, color: "#111827", marginBottom: 2 }}>{m.medicineName}</p>
-                <span style={{ fontSize: 11, color: "#6b7280", background: "#e5e7eb", padding: "1px 7px", borderRadius: 99 }}>{m.type} · {m.routes}</span>
-                {m.instructions && <p style={{ fontSize: 11, color: "#f59e0b", marginTop: 2 }}>⚠ {m.instructions}</p>}
+                <p className="font-medium text-gray-900 mb-1 break-words">
+                  {m.medicineName}
+                </p>
+
+                <span className="text-[11px] text-gray-500 bg-gray-200 px-2 py-[2px] rounded-full inline-block">
+                  {m.type} · {m.routes}
+                </span>
+
+                {m.instructions && (
+                  <p className="text-[11px] text-amber-500 mt-1 break-words">
+                    ⚠ {m.instructions}
+                  </p>
+                )}
               </div>
-              <span style={{ color: "#374151", paddingTop: 2 }}>{m.dosage}</span>
-              <span style={{ color: "#374151", paddingTop: 2 }}>{formatFrequency(m.frequency)}</span>
-              <span style={{ color: "#374151", paddingTop: 2 }}>{m.duration}d</span>
+
+              <span className="text-gray-700">
+                {m.dosage}
+              </span>
+
+              <span className="text-gray-700 break-words">
+                {formatFrequency(m.frequency)}
+              </span>
+
+              <span className="text-gray-700">
+                {m.duration}d
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Mobile Cards */}
+        <div className="flex flex-col gap-3 md:hidden">
+          {p.medicines?.map((m, i) => (
+            <div
+              key={m.id ?? i}
+              className="border border-gray-200 rounded-xl p-4 bg-white"
+            >
+              <div className="flex items-start justify-between gap-3 mb-2">
+
+                <div className="min-w-0">
+                  <p className="font-semibold text-gray-900 break-words">
+                    {m.medicineName}
+                  </p>
+
+                  <span className="text-[11px] text-gray-500 bg-gray-100 px-2 py-1 rounded-full inline-block mt-1">
+                    {m.type} · {m.routes}
+                  </span>
+                </div>
+
+                <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                  {m.duration}d
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 mt-3">
+
+                <div>
+                  <p className="text-[11px] text-gray-500 mb-1">
+                    Dosage
+                  </p>
+
+                  <p className="text-sm text-gray-800">
+                    {m.dosage}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-[11px] text-gray-500 mb-1">
+                    Frequency
+                  </p>
+
+                  <p className="text-sm text-gray-800 break-words">
+                    {formatFrequency(m.frequency)}
+                  </p>
+                </div>
+              </div>
+
+              {m.instructions && (
+                <div className="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-2">
+                  <p className="text-[11px] text-amber-700 break-words">
+                    ⚠ {m.instructions}
+                  </p>
+                </div>
+              )}
             </div>
           ))}
         </div>
 
         <button
           onClick={() => downloadPDF(p, doctorName)}
-          style={{ marginTop: 18, width: "100%", background: "#1D9E75", color: "#fff", border: "none", borderRadius: 10, padding: "12px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}
+          className="mt-5 w-full bg-[#1D9E75] text-white border-none rounded-xl py-3 text-sm font-medium cursor-pointer"
         >
           ⬇ Download PDF
         </button>
@@ -356,27 +466,103 @@ const Reports = () => {
   }).length;
 
   return (
-    <div style={{ padding: 24, fontFamily: "'Segoe UI', sans-serif" }}>
-
+    <div
+      style={{
+        padding: window.innerWidth < 640 ? 14 : 24,
+        fontFamily: "'Segoe UI', sans-serif",
+        width: "100%",
+        boxSizing: "border-box",
+      }}
+    >
       {/* Header */}
-      <div style={{ marginBottom: 22 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 600, color: "#111827", margin: 0, display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ width: 36, height: 36, background: "#E1F5EE", borderRadius: 8, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>📋</span>
-          Prescription Reports
+      <div
+        style={{
+          marginBottom: 22,
+        }}
+      >
+        <h2
+          style={{
+            fontSize: window.innerWidth < 640 ? 18 : 22,
+            fontWeight: 600,
+            color: "#111827",
+            margin: 0,
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexWrap: "wrap",
+          }}
+        >
+          <span
+            style={{
+              width: 36,
+              height: 36,
+              background: "#E1F5EE",
+              borderRadius: 8,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 18,
+              flexShrink: 0,
+            }}
+          >
+            📋
+          </span>
+
+          <span>Prescription Reports</span>
         </h2>
       </div>
 
       {/* Stats */}
       {!loading && !error && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: 18 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              window.innerWidth < 640
+                ? "1fr"
+                : window.innerWidth < 900
+                  ? "repeat(2,1fr)"
+                  : "repeat(3,1fr)",
+            gap: 12,
+            marginBottom: 18,
+          }}
+        >
           {[
             ["Total Prescriptions", reports.length],
             ["This Month", thisMonth],
             ["Unique Patients", new Set(reports.map((r) => r.patientId)).size],
           ].map(([label, value]) => (
-            <div key={String(label)} style={{ background: "#f9fafb", borderRadius: 10, padding: "14px 16px", border: "1px solid #f0f0f0" }}>
-              <p style={{ fontSize: 12, color: "#9ca3af", marginBottom: 6 }}>{label}</p>
-              <p style={{ fontSize: 26, fontWeight: 600, color: "#111827", margin: 0 }}>{value}</p>
+            <div
+              key={String(label)}
+              style={{
+                background: "#f9fafb",
+                borderRadius: 10,
+                padding: window.innerWidth < 640 ? "12px 14px" : "14px 16px",
+                border: "1px solid #f0f0f0",
+                minWidth: 0,
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 12,
+                  color: "#9ca3af",
+                  marginBottom: 6,
+                }}
+              >
+                {label}
+              </p>
+
+              <p
+                style={{
+                  fontSize: window.innerWidth < 640 ? 22 : 26,
+                  fontWeight: 600,
+                  color: "#111827",
+                  margin: 0,
+                  wordBreak: "break-word",
+                }}
+              >
+                {value}
+              </p>
             </div>
           ))}
         </div>
@@ -386,72 +572,245 @@ const Reports = () => {
       {!loading && !error && reports.length > 0 && (
         <input
           type="text"
-          placeholder="🔍  Patient name, medicine, or notes..."
+          placeholder="🔍 Patient name, medicine, or notes..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ width: "100%", padding: "10px 14px", borderRadius: 9, border: "1px solid #e5e7eb", fontSize: 14, marginBottom: 14, outline: "none", color: "#111827", background: "#fff", boxSizing: "border-box" }}
+          style={{
+            width: "100%",
+            padding: window.innerWidth < 640 ? "11px 12px" : "10px 14px",
+            borderRadius: 9,
+            border: "1px solid #e5e7eb",
+            fontSize: 14,
+            marginBottom: 14,
+            outline: "none",
+            color: "#111827",
+            background: "#fff",
+            boxSizing: "border-box",
+          }}
         />
       )}
 
       {/* Loading */}
       {loading && (
-        <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#6b7280", fontSize: 14 }}>
-          <span style={{ width: 18, height: 18, border: "2px solid #1D9E75", borderTopColor: "transparent", borderRadius: "50%", display: "inline-block", animation: "spin 0.7s linear infinite" }} />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            color: "#6b7280",
+            fontSize: 14,
+            flexWrap: "wrap",
+          }}
+        >
+          <span
+            style={{
+              width: 18,
+              height: 18,
+              border: "2px solid #1D9E75",
+              borderTopColor: "transparent",
+              borderRadius: "50%",
+              display: "inline-block",
+              animation: "spin 0.7s linear infinite",
+            }}
+          />
+
           Loading prescriptions...
-          <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+
+          <style>
+            {`
+            @keyframes spin{
+              to{
+                transform:rotate(360deg)
+              }
+            }
+          `}
+          </style>
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "12px 16px", color: "#dc2626", fontSize: 14 }}>
+        <div
+          style={{
+            background: "#fef2f2",
+            border: "1px solid #fecaca",
+            borderRadius: 8,
+            padding: "12px 16px",
+            color: "#dc2626",
+            fontSize: 14,
+            wordBreak: "break-word",
+          }}
+        >
           ⚠ {error}
         </div>
       )}
 
       {/* Empty */}
       {!loading && !error && filtered.length === 0 && (
-        <div style={{ textAlign: "center", padding: "48px 16px", color: "#9ca3af", fontSize: 14 }}>
-          {search ? "No prescription find for this search." : "No any prescription."}
+        <div
+          style={{
+            textAlign: "center",
+            padding: "48px 16px",
+            color: "#9ca3af",
+            fontSize: 14,
+          }}
+        >
+          {search
+            ? "No prescription find for this search."
+            : "No any prescription."}
         </div>
       )}
 
       {/* Cards */}
       {!loading && !error && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+          }}
+        >
           {filtered.map((r) => (
             <div
               key={r.id}
               onClick={() => setSelected(r)}
-              style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: "14px 18px", cursor: "pointer", transition: "border-color 0.15s, box-shadow 0.15s" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "#1D9E75"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(29,158,117,0.1)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "#e5e7eb"; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}
+              style={{
+                background: "#fff",
+                border: "1px solid #e5e7eb",
+                borderRadius: 12,
+                padding: window.innerWidth < 640 ? "14px" : "14px 18px",
+                cursor: "pointer",
+                transition: "border-color 0.15s, box-shadow 0.15s",
+                width: "100%",
+                boxSizing: "border-box",
+                overflow: "hidden",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor =
+                  "#1D9E75";
+                (e.currentTarget as HTMLDivElement).style.boxShadow =
+                  "0 2px 12px rgba(29,158,117,0.1)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor =
+                  "#e5e7eb";
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+              }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                    <span style={{ width: 36, height: 36, borderRadius: "50%", background: "#E1F5EE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 600, color: "#0F6E56", flexShrink: 0 }}>
-                      {r.patientName ? r.patientName.charAt(0).toUpperCase() : "P"}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection:
+                    window.innerWidth < 768 ? "column" : "row",
+                  justifyContent: "space-between",
+                  alignItems:
+                    window.innerWidth < 768 ? "stretch" : "flex-start",
+                  gap: 14,
+                }}
+              >
+                {/* Left */}
+                <div
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 10,
+                      marginBottom: 8,
+                      minWidth: 0,
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: "50%",
+                        background: "#E1F5EE",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: "#0F6E56",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {r.patientName
+                        ? r.patientName.charAt(0).toUpperCase()
+                        : "P"}
                     </span>
-                    <div>
-                      <p style={{ fontSize: 14, fontWeight: 600, color: "#111827", margin: 0 }}>
+
+                    <div
+                      style={{
+                        minWidth: 0,
+                        width: "100%",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 600,
+                          color: "#111827",
+                          margin: 0,
+                          wordBreak: "break-word",
+                        }}
+                      >
                         {r.patientName ?? `Patient #${r.patientId}`}
                       </p>
-                      <p style={{ fontSize: 12, color: "#9ca3af", margin: 0 }}>
-                        {r.patientEmail ?? ""} · Appointment #{r.appointmentId}
+
+                      <p
+                        style={{
+                          fontSize: 12,
+                          color: "#9ca3af",
+                          margin: 0,
+                          wordBreak: "break-word",
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        {r.patientEmail ?? ""} · Appointment #
+                        {r.appointmentId}
                       </p>
                     </div>
                   </div>
 
                   {r.medicines?.length > 0 && (
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 5,
+                      }}
+                    >
                       {r.medicines.slice(0, 4).map((m, i) => (
-                        <span key={i} style={{ fontSize: 11, background: "#f3f4f6", color: "#4b5563", padding: "2px 9px", borderRadius: 99, border: "1px solid #e5e7eb" }}>
+                        <span
+                          key={i}
+                          style={{
+                            fontSize: 11,
+                            background: "#f3f4f6",
+                            color: "#4b5563",
+                            padding: "4px 9px",
+                            borderRadius: 99,
+                            border: "1px solid #e5e7eb",
+                            maxWidth: "100%",
+                            wordBreak: "break-word",
+                          }}
+                        >
                           {m.medicineName}
                         </span>
                       ))}
+
                       {r.medicines.length > 4 && (
-                        <span style={{ fontSize: 11, color: "#9ca3af", padding: "2px 4px" }}>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: "#9ca3af",
+                            padding: "4px",
+                          }}
+                        >
                           +{r.medicines.length - 4} more
                         </span>
                       )}
@@ -459,23 +818,96 @@ const Reports = () => {
                   )}
 
                   {r.prescriptionNotes && (
-                    <p style={{ fontSize: 12, color: "#6b7280", marginTop: 8, paddingTop: 8, borderTop: "1px solid #f0f0f0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 480 }}>
+                    <p
+                      style={{
+                        fontSize: 12,
+                        color: "#6b7280",
+                        marginTop: 8,
+                        paddingTop: 8,
+                        borderTop: "1px solid #f0f0f0",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "-webkit-box",
+                        WebkitLineClamp:
+                          window.innerWidth < 640 ? 3 : 1,
+                        WebkitBoxOrient: "vertical",
+                        lineHeight: 1.5,
+                        wordBreak: "break-word",
+                      }}
+                    >
                       📝 {r.prescriptionNotes}
                     </p>
                   )}
                 </div>
 
-                <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 14 }}>
-                  <span style={{ background: "#E1F5EE", color: "#0F6E56", fontSize: 12, padding: "3px 10px", borderRadius: 6, fontWeight: 500, display: "block", marginBottom: 4 }}>
-                    {formatDate(r.prescriptionDate)}
-                  </span>
-                  <span style={{ fontSize: 12, color: "#9ca3af" }}>
-                    {r.medicines?.length ?? 0} medicines
-                  </span>
-                  <br />
+                {/* Right */}
+                <div
+                  style={{
+                    textAlign:
+                      window.innerWidth < 768 ? "left" : "right",
+                    flexShrink: 0,
+                    minWidth:
+                      window.innerWidth < 768 ? "100%" : 130,
+                    display: "flex",
+                    flexDirection:
+                      window.innerWidth < 768 ? "row" : "column",
+                    justifyContent:
+                      window.innerWidth < 768
+                        ? "space-between"
+                        : "flex-start",
+                    alignItems:
+                      window.innerWidth < 768
+                        ? "center"
+                        : "flex-end",
+                    gap: window.innerWidth < 768 ? 10 : 0,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <div>
+                    <span
+                      style={{
+                        background: "#E1F5EE",
+                        color: "#0F6E56",
+                        fontSize: 12,
+                        padding: "4px 10px",
+                        borderRadius: 6,
+                        fontWeight: 500,
+                        display: "inline-block",
+                        marginBottom: 4,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {formatDate(r.prescriptionDate)}
+                    </span>
+
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "#9ca3af",
+                      }}
+                    >
+                      {r.medicines?.length ?? 0} medicines
+                    </div>
+                  </div>
+
                   <button
-                    onClick={(e) => { e.stopPropagation(); downloadPDF(r, doctorName); }}
-                    style={{ marginTop: 6, background: "transparent", border: "1px solid #1D9E75", color: "#1D9E75", borderRadius: 6, padding: "4px 10px", fontSize: 11, cursor: "pointer", fontWeight: 500 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      downloadPDF(r, doctorName);
+                    }}
+                    style={{
+                      marginTop:
+                        window.innerWidth < 768 ? 0 : 6,
+                      background: "transparent",
+                      border: "1px solid #1D9E75",
+                      color: "#1D9E75",
+                      borderRadius: 6,
+                      padding: "7px 12px",
+                      fontSize: 11,
+                      cursor: "pointer",
+                      fontWeight: 500,
+                      whiteSpace: "nowrap",
+                    }}
                   >
                     ⬇ PDF
                   </button>

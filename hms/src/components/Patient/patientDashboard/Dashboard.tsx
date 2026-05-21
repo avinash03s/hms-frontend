@@ -63,9 +63,9 @@ const BLOOD_COLORS: Record<string, string> = {
 
 const STATUS_STYLE: Record<string, { bg: string; color: string; dot: string }> = {
   SCHEDULED: { bg: "#F5F3FF", color: "#6D28D9", dot: "#7C3AED" },
-  COMPLETED:  { bg: "#ECFDF5", color: "#065F46", dot: "#10B981" },
-  CANCELLED:  { bg: "#FEF2F2", color: "#991B1B", dot: "#EF4444" },
-  PENDING:    { bg: "#FFFBEB", color: "#92400E", dot: "#F59E0B" },
+  COMPLETED: { bg: "#ECFDF5", color: "#065F46", dot: "#10B981" },
+  CANCELLED: { bg: "#FEF2F2", color: "#991B1B", dot: "#EF4444" },
+  PENDING: { bg: "#FFFBEB", color: "#92400E", dot: "#F59E0B" },
 };
 
 const calcAge = (dob: string) =>
@@ -88,154 +88,77 @@ const parseListField = (val: string | string[] | null | undefined): string[] => 
   if (!val) return [];
   if (Array.isArray(val)) return val.filter(Boolean);
   const trimmed = val.trim();
+
   if (trimmed.startsWith("[")) {
     try {
       const parsed = JSON.parse(trimmed);
       if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean);
-    } catch { /* fall through */ }
+    } catch { }
   }
+
   return trimmed ? [trimmed] : [];
 };
 
 const getInitials = (name: string) =>
   name?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() ?? "PT";
 
-
-const S = {
-  // layout
-  page: {
-    padding: "24px",
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "18px",
-    minHeight: "100vh",
-    background: "#F0F4F8",
-    fontFamily: "'DM Sans', 'Inter', system-ui, sans-serif",
-  } as React.CSSProperties,
-
-  // hero
-  hero: {
-    background: "linear-gradient(135deg,#0F766E 0%,#0EA5A0 45%,#3B82F6 100%)",
-    borderRadius: "22px",
-    padding: "28px",
-    position: "relative" as const,
-    overflow: "hidden",
-  } as React.CSSProperties,
-  heroInner: {
-    position: "relative" as const,
-    zIndex: 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexWrap: "wrap" as const,
-    gap: "20px",
-  } as React.CSSProperties,
-  heroLeft: { display: "flex", alignItems: "center", gap: "18px" } as React.CSSProperties,
-  heroStats: { display: "flex", gap: "10px", flexWrap: "wrap" as const } as React.CSSProperties,
-  hstat: {
-    minWidth: "88px",
-    padding: "14px 20px",
-    background: "rgba(255,255,255,0.13)",
-    border: "1px solid rgba(255,255,255,0.2)",
-    borderRadius: "16px",
-    textAlign: "center" as const,
-  } as React.CSSProperties,
-  hstatVal: { fontSize: "26px", fontWeight: 700, color: "#fff", lineHeight: 1 } as React.CSSProperties,
-  hstatLbl: { fontSize: "10px", color: "rgba(255,255,255,0.6)", fontWeight: 600, marginTop: "3px", textTransform: "uppercase" as const, letterSpacing: "0.07em" } as React.CSSProperties,
-
-  // stat grid — guaranteed 4-column
-  statGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-    gap: "14px",
-  } as React.CSSProperties,
-
-  // 2-column grid
-  grid2: {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: "16px",
-  } as React.CSSProperties,
-
-  // stat card
-  scard: {
-    background: "#fff",
-    borderRadius: "14px",
-    padding: "18px",
-    border: "1px solid #F1F5F9",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.03)",
-    display: "flex",
-    alignItems: "center",
-    gap: "14px",
-    transition: "transform 0.2s, box-shadow 0.2s",
-    cursor: "default",
-  } as React.CSSProperties,
-
-  // panel
-  panel: {
-    background: "#fff",
-    borderRadius: "14px",
-    border: "1px solid #F1F5F9",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.03)",
-    padding: "22px",
-  } as React.CSSProperties,
-  panelTitle: {
-    fontSize: "11px",
-    fontWeight: 600,
-    color: "#94A3B8",
-    textTransform: "uppercase" as const,
-    letterSpacing: "0.08em",
-  } as React.CSSProperties,
-  panelHead: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: "18px",
-  } as React.CSSProperties,
-};
-
 const StatCard = ({
-  label, value, iconClass, iconBg, valueColor,
+  label,
+  value,
+  iconClass,
+  iconBg,
+  valueColor,
 }: {
-  label: string; value: number | string;
-  iconClass: string; iconBg: string; valueColor: string;
+  label: string;
+  value: number | string;
+  iconClass: string;
+  iconBg: string;
+  valueColor: string;
 }) => (
-  <div style={S.scard}
-    onMouseEnter={e => {
-      (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
-      (e.currentTarget as HTMLDivElement).style.boxShadow = "0 6px 20px rgba(0,0,0,0.08)";
-    }}
-    onMouseLeave={e => {
-      (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
-      (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 3px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.03)";
-    }}
+  <div
+    className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm flex items-center gap-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
   >
-    <div style={{
-      width: 46, height: 46, borderRadius: 12,
-      background: iconBg,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      fontSize: 20, flexShrink: 0,
-    }}>
+    <div
+      className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0"
+      style={{ background: iconBg }}
+    >
       <i className={`ti ${iconClass}`} aria-hidden="true" />
     </div>
+
     <div>
-      <div style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: 28, fontWeight: 700, color: valueColor, lineHeight: 1 }}>{value}</div>
+      <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+        {label}
+      </div>
+
+      <div
+        className="text-2xl sm:text-3xl font-bold leading-none"
+        style={{ color: valueColor }}
+      >
+        {value}
+      </div>
     </div>
   </div>
 );
 
 const StatusBadge = ({ status }: { status: string }) => {
-  const cfg = STATUS_STYLE[status] ?? { bg: "#F1F5F9", color: "#475569", dot: "#94A3B8" };
+  const cfg = STATUS_STYLE[status] ?? {
+    bg: "#F1F5F9",
+    color: "#475569",
+    dot: "#94A3B8",
+  };
+
   return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 5,
-      fontSize: 11, fontWeight: 600,
-      padding: "4px 8px", borderRadius: 6,
-      background: cfg.bg, color: cfg.color,
-      whiteSpace: "nowrap", flexShrink: 0,
-    }}>
-      <span style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.dot, display: "inline-block" }} />
+    <div
+      className="flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-md whitespace-nowrap shrink-0"
+      style={{
+        background: cfg.bg,
+        color: cfg.color,
+      }}
+    >
+      <span
+        className="w-1.5 h-1.5 rounded-full inline-block"
+        style={{ background: cfg.dot }}
+      />
       {status}
     </div>
   );
@@ -248,43 +171,33 @@ const AppointmentCard = ({ appt }: { appt: AppointmentDTO }) => {
   const day = d.getDate();
 
   return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 10,
-      padding: "10px 12px", borderRadius: 10,
-      border: "1px solid #F1F5F9", background: "#F8FAFC",
-      transition: "background 0.18s, border-color 0.18s", cursor: "default",
-    }}
-      onMouseEnter={e => {
-        (e.currentTarget as HTMLDivElement).style.background = "#E0F7F6";
-        (e.currentTarget as HTMLDivElement).style.borderColor = "#B2E8E6";
-      }}
-      onMouseLeave={e => {
-        (e.currentTarget as HTMLDivElement).style.background = "#F8FAFC";
-        (e.currentTarget as HTMLDivElement).style.borderColor = "#F1F5F9";
-      }}
+    <div
+      className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-teal-50 hover:border-teal-200 transition-all"
     >
-      {/* Time box */}
-      <div style={{
-        display: "flex", flexDirection: "column", alignItems: "center",
-        minWidth: 50, background: "#fff",
-        border: "1px solid #F1F5F9", borderRadius: 9,
-        padding: "6px 8px", flexShrink: 0,
-        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-      }}>
-        <span style={{ fontSize: 10, fontWeight: 600, color: "#94A3B8", textTransform: "uppercase" }}>{mon}</span>
-        <span style={{ fontSize: 14, fontWeight: 700, color: "#0D9488", lineHeight: 1.2 }}>{day}</span>
-        <span style={{ fontSize: 10, color: "#94A3B8" }}>{hr} {ampm}</span>
+      <div className="flex flex-col items-center min-w-[52px] bg-white border border-slate-100 rounded-xl px-2 py-2 shrink-0 shadow-sm">
+        <span className="text-[10px] font-semibold text-slate-400 uppercase">
+          {mon}
+        </span>
+
+        <span className="text-sm font-bold text-teal-600 leading-tight">
+          {day}
+        </span>
+
+        <span className="text-[10px] text-slate-400">
+          {hr} {ampm}
+        </span>
       </div>
 
-      {/* Info */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-semibold text-slate-700 truncate">
           Dr. {appt.doctorName}
         </div>
-        <div style={{ fontSize: 11, color: "#94A3B8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+
+        <div className="text-[11px] text-slate-400 truncate">
           {appt.doctorSpecialization}
         </div>
-        <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+
+        <div className="text-[11px] text-slate-400 mt-1 truncate">
           {appt.reason}
         </div>
       </div>
@@ -295,14 +208,15 @@ const AppointmentCard = ({ appt }: { appt: AppointmentDTO }) => {
 };
 
 const EmptyState = ({ icon, text }: { icon: string; text: string }) => (
-  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 0", gap: 6, color: "#94A3B8" }}>
-    <span style={{ fontSize: 28 }}>{icon}</span>
-    <span style={{ fontSize: 13 }}>{text}</span>
+  <div className="flex flex-col items-center justify-center py-8 gap-2 text-slate-400">
+    <span className="text-3xl">{icon}</span>
+    <span className="text-sm">{text}</span>
   </div>
 );
 
 const Dashboard = () => {
   const user: any = useSelector((state: any) => state.user);
+
   const profileId = user?.profileId;
   const userId = user?.id;
 
@@ -312,35 +226,58 @@ const Dashboard = () => {
   const [error, setError] = useState<string | null>(null);
 
   const visitsRef = useRef<HTMLCanvasElement>(null);
-  const donutRef  = useRef<HTMLCanvasElement>(null);
+  const donutRef = useRef<HTMLCanvasElement>(null);
+
   const visitsChartRef = useRef<Chart | null>(null);
-  const donutChartRef  = useRef<Chart | null>(null);
+  const donutChartRef = useRef<Chart | null>(null);
 
   useEffect(() => {
     if (!profileId || !userId) return;
+
     const fetchAll = async () => {
       try {
         setLoading(true);
         setError(null);
+
         const patRes: PatientDTO = await getPatient(profileId);
         setPatient(patRes);
 
         let apptRes: AppointmentDTO[] = [];
-        try { apptRes = await getAppointmentsByPatient(userId); } catch { apptRes = []; }
+
+        try {
+          apptRes = await getAppointmentsByPatient(userId);
+        } catch {
+          apptRes = [];
+        }
+
         if (apptRes.length === 0 && profileId !== userId) {
-          try { apptRes = await getAppointmentsByPatient(profileId); } catch { apptRes = []; }
+          try {
+            apptRes = await getAppointmentsByPatient(profileId);
+          } catch {
+            apptRes = [];
+          }
         }
 
         const enriched: AppointmentDTO[] = await Promise.all(
           apptRes.map(async (appt) => {
             try {
               const doc: DoctorDTO = await getDoctor(appt.doctorId);
-              return { ...appt, doctorName: doc.name, doctorSpecialization: doc.specialization };
+
+              return {
+                ...appt,
+                doctorName: doc.name,
+                doctorSpecialization: doc.specialization,
+              };
             } catch {
-              return { ...appt, doctorName: "Unknown Doctor", doctorSpecialization: "" };
+              return {
+                ...appt,
+                doctorName: "Unknown Doctor",
+                doctorSpecialization: "",
+              };
             }
           })
         );
+
         setAppointments(enriched);
       } catch (err: any) {
         setError("Failed to load dashboard data.");
@@ -349,55 +286,87 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
+
     fetchAll();
   }, [profileId, userId]);
 
-  const today       = new Date().toISOString().split("T")[0];
-  const todayAppts  = appointments.filter((a) => getDatePart(a.appointmentTime) === today && a.status !== "CANCELLED");
-  const upcoming    = appointments.filter((a) => new Date(a.appointmentTime) > new Date() && a.status !== "CANCELLED");
-  const completed   = appointments.filter((a) => a.status === "COMPLETED").length;
-  const cancelled   = appointments.filter((a) => a.status === "CANCELLED").length;
+  const today = new Date().toISOString().split("T")[0];
+
+  const todayAppts = appointments.filter(
+    (a) =>
+      getDatePart(a.appointmentTime) === today &&
+      a.status !== "CANCELLED"
+  );
+
+  const upcoming = appointments.filter(
+    (a) =>
+      new Date(a.appointmentTime) > new Date() &&
+      a.status !== "CANCELLED"
+  );
+
+  const completed = appointments.filter(
+    (a) => a.status === "COMPLETED"
+  ).length;
+
+  const cancelled = appointments.filter(
+    (a) => a.status === "CANCELLED"
+  ).length;
 
   const visitsByMonth = Array(12).fill(0);
+
   appointments.forEach((a) => {
     if (!a.appointmentTime) return;
     visitsByMonth[new Date(a.appointmentTime).getMonth()]++;
   });
 
   const reasonMap: Record<string, number> = {};
+
   appointments.forEach((a) => {
     const r = a.reason || "General";
     reasonMap[r] = (reasonMap[r] || 0) + 1;
   });
+
   const reasonLabels = Object.keys(reasonMap);
-  const reasonData   = Object.values(reasonMap);
+  const reasonData = Object.values(reasonMap);
+
   const totalReasons = reasonData.reduce((a, b) => a + b, 0);
-  const reasonColors = reasonLabels.map((_, i) => REASON_COLORS[i % REASON_COLORS.length]);
+
+  const reasonColors = reasonLabels.map(
+    (_, i) => REASON_COLORS[i % REASON_COLORS.length]
+  );
 
   const upcomingSorted = [...upcoming]
-    .sort((a, b) => new Date(a.appointmentTime).getTime() - new Date(b.appointmentTime).getTime())
+    .sort(
+      (a, b) =>
+        new Date(a.appointmentTime).getTime() -
+        new Date(b.appointmentTime).getTime()
+    )
     .slice(0, 6);
 
   useEffect(() => {
     if (loading || !visitsRef.current) return;
+
     visitsChartRef.current?.destroy();
+
     visitsChartRef.current = new Chart(visitsRef.current, {
       type: "line",
       data: {
         labels: MONTHS,
-        datasets: [{
-          data: visitsByMonth,
-          borderColor: "#0D9488",
-          backgroundColor: "rgba(13,148,136,0.07)",
-          borderWidth: 2.5,
-          fill: true,
-          tension: 0.45,
-          pointRadius: 0,
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: "#0D9488",
-          pointHoverBorderColor: "#fff",
-          pointHoverBorderWidth: 2,
-        }],
+        datasets: [
+          {
+            data: visitsByMonth,
+            borderColor: "#0D9488",
+            backgroundColor: "rgba(13,148,136,0.07)",
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.45,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "#0D9488",
+            pointHoverBorderColor: "#fff",
+            pointHoverBorderWidth: 2,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -407,8 +376,27 @@ const Dashboard = () => {
           tooltip: { mode: "index", intersect: false },
         },
         scales: {
-          x: { grid: { display: false }, ticks: { font: { size: 10 }, color: "#94A3B8" }, border: { display: false } },
-          y: { beginAtZero: true, grid: { color: "rgba(148,163,184,0.1)", drawTicks: false }, ticks: { font: { size: 10 }, color: "#94A3B8", padding: 8 }, border: { display: false } },
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 10 },
+              color: "#94A3B8",
+            },
+            border: { display: false },
+          },
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: "rgba(148,163,184,0.1)",
+              drawTicks: false,
+            },
+            ticks: {
+              font: { size: 10 },
+              color: "#94A3B8",
+              padding: 8,
+            },
+            border: { display: false },
+          },
         },
       },
     });
@@ -416,18 +404,22 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (loading || !donutRef.current || reasonLabels.length === 0) return;
+
     donutChartRef.current?.destroy();
+
     donutChartRef.current = new Chart(donutRef.current, {
       type: "doughnut",
       data: {
         labels: reasonLabels,
-        datasets: [{
-          data: reasonData,
-          backgroundColor: reasonColors,
-          borderWidth: 4,
-          borderColor: "#ffffff",
-          hoverOffset: 6,
-        }],
+        datasets: [
+          {
+            data: reasonData,
+            backgroundColor: reasonColors,
+            borderWidth: 4,
+            borderColor: "#ffffff",
+            hoverOffset: 6,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -435,27 +427,38 @@ const Dashboard = () => {
         cutout: "74%",
         plugins: {
           legend: { display: false },
-          tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.parsed}` } },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${ctx.label}: ${ctx.parsed}`,
+            },
+          },
         },
       },
     });
   }, [loading, appointments]);
 
-  useEffect(() => () => {
-    visitsChartRef.current?.destroy();
-    donutChartRef.current?.destroy();
+  useEffect(() => {
+    return () => {
+      visitsChartRef.current?.destroy();
+      donutChartRef.current?.destroy();
+    };
   }, []);
 
   if (loading) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "80vh" }}>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ position: "relative", width: 52, height: 52, margin: "0 auto 12px" }}>
-            <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "4px solid #CCFBF1" }} />
-            <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "4px solid #0D9488", borderTopColor: "transparent", animation: "spin 0.8s linear infinite" }} />
+      <div className="flex items-center justify-center min-h-[80vh]">
+        <div className="text-center">
+          <div className="relative w-14 h-14 mx-auto mb-4">
+            <div className="absolute inset-0 rounded-full border-4 border-teal-100" />
+
+            <div
+              className="absolute inset-0 rounded-full border-4 border-teal-600 border-t-transparent animate-spin"
+            />
           </div>
-          <p style={{ fontSize: 13, color: "#94A3B8", fontWeight: 500 }}>Loading your dashboard…</p>
-          <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+
+          <p className="text-sm text-slate-400 font-medium">
+            Loading your dashboard…
+          </p>
         </div>
       </div>
     );
@@ -463,13 +466,19 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "80vh" }}>
-        <div style={{ textAlign: "center", maxWidth: 320 }}>
-          <div style={{ width: 56, height: 56, margin: "0 auto 12px", background: "#FEF2F2", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>⚠️</div>
-          <p style={{ color: "#475569", fontWeight: 500, marginBottom: 16 }}>{error}</p>
+      <div className="flex items-center justify-center min-h-[80vh] px-4">
+        <div className="text-center max-w-sm">
+          <div className="w-14 h-14 mx-auto mb-4 bg-red-50 rounded-2xl flex items-center justify-center text-2xl">
+            ⚠️
+          </div>
+
+          <p className="text-slate-600 font-medium mb-4">
+            {error}
+          </p>
+
           <button
             onClick={() => window.location.reload()}
-            style={{ padding: "10px 24px", background: "#0D9488", color: "#fff", fontSize: 13, fontWeight: 600, borderRadius: 10, border: "none", cursor: "pointer" }}
+            className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-xl transition-all"
           >
             Retry
           </button>
@@ -478,64 +487,82 @@ const Dashboard = () => {
     );
   }
 
-  const bloodColor = BLOOD_COLORS[patient?.bloodGroup ?? ""] ?? "#94A3B8";
+  const bloodColor =
+    BLOOD_COLORS[patient?.bloodGroup ?? ""] ?? "#94A3B8";
 
   return (
-    <div style={S.page}>
+    <div className="min-h-screen bg-slate-100 p-3 sm:p-4 lg:p-6 flex flex-col gap-5 font-sans">
 
-      <div style={S.hero}>
-        {/* Decorative blobs */}
-        <div style={{ position: "absolute", top: -60, right: -60, width: 240, height: 240, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: -80, left: "38%", width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+      {/* HERO */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-700 via-teal-500 to-blue-500 p-4 sm:p-6 lg:p-7">
 
-        <div style={S.heroInner}>
-          {/* Left: avatar + info */}
-          <div style={S.heroLeft}>
-            {/* Avatar */}
-            <div style={{ position: "relative", flexShrink: 0 }}>
-              <div style={{ width: 72, height: 72, borderRadius: 18, overflow: "hidden", border: "3px solid rgba(255,255,255,0.3)", boxShadow: "0 4px 16px rgba(0,0,0,0.15)", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="absolute -top-16 -right-16 w-60 h-60 rounded-full bg-white/10" />
+        <div className="absolute -bottom-20 left-1/3 w-52 h-52 rounded-full bg-white/5" />
+
+        <div className="relative z-10 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
+
+          {/* LEFT */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+
+            <div className="relative shrink-0">
+              <div className="w-[72px] h-[72px] rounded-2xl overflow-hidden border-[3px] border-white/30 shadow-lg bg-white/20 flex items-center justify-center">
+
                 {patient?.profilePictureId ? (
                   <img
                     src={`http://localhost:9000/profile/files/${patient.profilePictureId}`}
                     alt="profile"
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span style={{ fontSize: 22, fontWeight: 700, color: "#fff" }}>{getInitials(patient?.name ?? "")}</span>
+                  <span className="text-2xl font-bold text-white">
+                    {getInitials(patient?.name ?? "")}
+                  </span>
                 )}
               </div>
-              {/* Blood group badge */}
-              <div style={{
-                position: "absolute", bottom: -8, right: -8,
-                width: 28, height: 28, borderRadius: 8,
-                background: bloodColor, border: "2.5px solid rgba(15,118,110,0.8)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 9, fontWeight: 700, color: "#fff",
-              }}>
+
+              <div
+                className="absolute -bottom-2 -right-2 w-7 h-7 rounded-lg border-2 flex items-center justify-center text-[9px] font-bold text-white"
+                style={{
+                  background: bloodColor,
+                  borderColor: "rgba(15,118,110,0.8)",
+                }}
+              >
                 {formatBloodGroup(patient?.bloodGroup ?? "")}
               </div>
             </div>
 
-            {/* Name / details */}
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>Welcome Back</div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: "#fff", marginBottom: 3 }}>{patient?.name}</div>
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", marginBottom: 10 }}>
+            <div className="min-w-0">
+              <div className="text-[11px] font-semibold text-white/60 uppercase tracking-wider mb-1">
+                Welcome Back
+              </div>
+
+              <div className="text-2xl font-bold text-white mb-1 break-words">
+                {patient?.name}
+              </div>
+
+              <div className="text-sm text-white/80 mb-3 break-words leading-relaxed">
                 {calcAge(patient?.dob ?? "")} years old
-                <span style={{ margin: "0 8px", color: "rgba(255,255,255,0.4)" }}>·</span>
+                <span className="mx-2 text-white/40">·</span>
                 {patient?.phoneNo}
-                <span style={{ margin: "0 8px", color: "rgba(255,255,255,0.4)" }}>·</span>
+                <span className="mx-2 text-white/40">·</span>
                 {patient?.address}
               </div>
-              {/* Health tags */}
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+
+              <div className="flex flex-wrap gap-2">
                 {parseListField(patient?.chronicDisease).map((item) => (
-                  <span key={item} style={{ fontSize: 11, fontWeight: 500, padding: "4px 10px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.9)" }}>
+                  <span
+                    key={item}
+                    className="text-[11px] font-medium px-3 py-1 rounded-md border border-white/20 bg-white/10 text-white"
+                  >
                     🫀 {item}
                   </span>
                 ))}
+
                 {parseListField(patient?.allergies).map((item) => (
-                  <span key={item} style={{ fontSize: 11, fontWeight: 500, padding: "4px 10px", borderRadius: 6, border: "1px solid rgba(251,191,36,0.35)", background: "rgba(251,191,36,0.18)", color: "rgba(255,255,255,0.9)" }}>
+                  <span
+                    key={item}
+                    className="text-[11px] font-medium px-3 py-1 rounded-md border border-yellow-300/30 bg-yellow-300/20 text-white"
+                  >
                     ⚠️ {item}
                   </span>
                 ))}
@@ -543,80 +570,163 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Right: summary stat boxes */}
-          <div style={S.heroStats}>
+          {/* RIGHT STATS */}
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-3 w-full xl:w-auto">
             {[
               { val: appointments.length, lbl: "Total Visits" },
-              { val: upcoming.length,     lbl: "Upcoming" },
-              { val: completed,           lbl: "Completed" },
+              { val: upcoming.length, lbl: "Upcoming" },
+              { val: completed, lbl: "Completed" },
             ].map(({ val, lbl }) => (
-              <div key={lbl} style={S.hstat}>
-                <div style={S.hstatVal}>{val}</div>
-                <div style={S.hstatLbl}>{lbl}</div>
+              <div
+                key={lbl}
+                className="min-w-[90px] px-5 py-4 bg-white/10 border border-white/20 rounded-2xl text-center"
+              >
+                <div className="text-3xl font-bold text-white leading-none">
+                  {val}
+                </div>
+
+                <div className="text-[10px] mt-1 text-white/60 font-semibold uppercase tracking-wider">
+                  {lbl}
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div style={S.statGrid}>
-        <StatCard label="Total Visits" value={appointments.length} iconClass="ti-building-hospital" iconBg="#E0F7F6" valueColor="#0D9488" />
-        <StatCard label="Upcoming"     value={upcoming.length}     iconClass="ti-calendar-event"   iconBg="#EFF6FF" valueColor="#2563EB" />
-        <StatCard label="Completed"    value={completed}            iconClass="ti-circle-check"     iconBg="#ECFDF5" valueColor="#10B981" />
-        <StatCard label="Cancelled"    value={cancelled}            iconClass="ti-circle-x"         iconBg="#FEF2F2" valueColor="#EF4444" />
+      {/* STAT GRID */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <StatCard
+          label="Total Visits"
+          value={appointments.length}
+          iconClass="ti-building-hospital"
+          iconBg="#E0F7F6"
+          valueColor="#0D9488"
+        />
+
+        <StatCard
+          label="Upcoming"
+          value={upcoming.length}
+          iconClass="ti-calendar-event"
+          iconBg="#EFF6FF"
+          valueColor="#2563EB"
+        />
+
+        <StatCard
+          label="Completed"
+          value={completed}
+          iconClass="ti-circle-check"
+          iconBg="#ECFDF5"
+          valueColor="#10B981"
+        />
+
+        <StatCard
+          label="Cancelled"
+          value={cancelled}
+          iconClass="ti-circle-x"
+          iconBg="#FEF2F2"
+          valueColor="#EF4444"
+        />
       </div>
 
-      <div style={S.grid2}>
+      {/* CHART GRID */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
 
-        {/* Visits line chart */}
-        <div style={S.panel}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
+        {/* LINE CHART */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+          <div className="flex items-start justify-between mb-5 gap-4">
             <div>
-              <div style={S.panelTitle}>Monthly Visits</div>
-              <div style={{ fontSize: 13, color: "#64748B", marginTop: 2 }}>{new Date().getFullYear()} Overview</div>
+              <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                Monthly Visits
+              </div>
+
+              <div className="text-sm text-slate-500 mt-1">
+                {new Date().getFullYear()} Overview
+              </div>
             </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: "#0D9488", lineHeight: 1 }}>{appointments.length}</div>
-              <div style={{ fontSize: 11, color: "#94A3B8" }}>total</div>
+
+            <div className="text-right shrink-0">
+              <div className="text-3xl font-bold text-teal-600 leading-none">
+                {appointments.length}
+              </div>
+
+              <div className="text-[11px] text-slate-400">
+                total
+              </div>
             </div>
           </div>
-          <div style={{ position: "relative", height: 140 }}>
-            <canvas ref={visitsRef} aria-label="Monthly visits chart" />
+
+          <div className="relative h-[220px] sm:h-[260px]">
+            <canvas ref={visitsRef} />
           </div>
         </div>
 
-        {/* Reason donut */}
-        <div style={S.panel}>
-          <div style={S.panelHead}>
-            <div style={S.panelTitle}>Visit Reason Distribution</div>
+        {/* DONUT */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+
+          <div className="flex items-center justify-between mb-5">
+            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+              Visit Reason Distribution
+            </div>
           </div>
+
           {reasonLabels.length === 0 ? (
             <EmptyState icon="📊" text="No visit data yet" />
           ) : (
-            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-              {/* Donut */}
-              <div style={{ position: "relative", width: 140, height: 140, flexShrink: 0 }}>
-                <canvas ref={donutRef} aria-label="Reason distribution chart" />
-                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                  <span style={{ fontSize: 22, fontWeight: 700, color: "#334155", lineHeight: 1 }}>{totalReasons}</span>
-                  <span style={{ fontSize: 11, color: "#94A3B8" }}>visits</span>
+            <div className="flex flex-col lg:flex-row items-center gap-6">
+
+              <div className="relative w-[180px] h-[180px] shrink-0">
+                <canvas ref={donutRef} />
+
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="text-3xl font-bold text-slate-700 leading-none">
+                    {totalReasons}
+                  </span>
+
+                  <span className="text-xs text-slate-400">
+                    visits
+                  </span>
                 </div>
               </div>
-              {/* Legend */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
+
+              <div className="flex flex-col gap-3 w-full">
                 {reasonLabels.map((label, i) => {
-                  const pct = Math.round((reasonData[i] / totalReasons) * 100);
+                  const pct = Math.round(
+                    (reasonData[i] / totalReasons) * 100
+                  );
+
                   return (
-                    <div key={label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-                        <span style={{ width: 10, height: 10, borderRadius: "50%", background: reasonColors[i], flexShrink: 0 }} />
-                        <span style={{ fontSize: 13, color: "#475569", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
+                    <div
+                      key={label}
+                      className="flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{
+                            background: reasonColors[i],
+                          }}
+                        />
+
+                        <span className="text-sm text-slate-600 truncate">
+                          {label}
+                        </span>
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-                        <div style={{ width: 56, height: 5, borderRadius: 3, background: "#F1F5F9", overflow: "hidden" }}>
-                          <div style={{ height: "100%", borderRadius: 3, width: `${pct}%`, background: reasonColors[i] }} />
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="w-14 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${pct}%`,
+                              background: reasonColors[i],
+                            }}
+                          />
                         </div>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: "#64748B", width: 28, textAlign: "right" }}>{pct}%</span>
+
+                        <span className="text-[11px] font-semibold text-slate-500 w-7 text-right">
+                          {pct}%
+                        </span>
                       </div>
                     </div>
                   );
@@ -627,56 +737,82 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div style={S.grid2}>
+      {/* APPOINTMENTS */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
 
-        {/* Upcoming appointments */}
-        <div style={S.panel}>
-          <div style={S.panelHead}>
-            <div style={S.panelTitle}>Appointments</div>
-            <div style={{ fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6, background: "#E0F7F6", color: "#0c7a76" }}>
+        {/* UPCOMING */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+
+          <div className="flex items-center justify-between mb-5 gap-4">
+            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+              Appointments
+            </div>
+
+            <div className="text-[11px] font-semibold px-3 py-1 rounded-md bg-teal-100 text-teal-700">
               {upcoming.length} upcoming
             </div>
           </div>
+
           {appointments.length === 0 ? (
             <EmptyState icon="🗓️" text="No appointments found" />
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 260, overflowY: "auto", paddingRight: 2 }}>
-              {(upcomingSorted.length > 0 ? upcomingSorted : appointments.slice(0, 6)).map((a) => (
+            <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto pr-1">
+              {(upcomingSorted.length > 0
+                ? upcomingSorted
+                : appointments.slice(0, 6)
+              ).map((a) => (
                 <AppointmentCard key={a.id} appt={a} />
               ))}
             </div>
           )}
         </div>
 
-        {/* Today's visits */}
-        <div style={S.panel}>
-          <div style={S.panelHead}>
-            <div style={S.panelTitle}>Today's Visits</div>
-            <div style={{ fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 6, background: "#EFF6FF", color: "#1D4ED8" }}>
+        {/* TODAY */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+
+          <div className="flex items-center justify-between mb-5 gap-4">
+            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+              Today's Visits
+            </div>
+
+            <div className="text-[11px] font-semibold px-3 py-1 rounded-md bg-blue-100 text-blue-700">
               {todayAppts.length} scheduled
             </div>
           </div>
+
           {todayAppts.length === 0 ? (
             <EmptyState icon="🗓️" text="No visits scheduled today" />
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 260, overflowY: "auto", paddingRight: 2 }}>
+            <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto pr-1">
+
               {todayAppts.map((a) => {
                 const { hr, ampm } = formatTime(a.appointmentTime);
+
                 return (
                   <div
                     key={a.id}
-                    style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, border: "1px solid #F1F5F9", background: "#F8FAFC", transition: "background 0.18s, border-color 0.18s", cursor: "default" }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "#E0F7F6"; (e.currentTarget as HTMLDivElement).style.borderColor = "#B2E8E6"; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "#F8FAFC"; (e.currentTarget as HTMLDivElement).style.borderColor = "#F1F5F9"; }}
+                    className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50 hover:bg-teal-50 hover:border-teal-200 transition-all"
                   >
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 50, background: "#fff", border: "1px solid #F1F5F9", borderRadius: 9, padding: "6px 8px", flexShrink: 0, boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: "#0D9488", lineHeight: 1.2 }}>{hr}</span>
-                      <span style={{ fontSize: 10, color: "#94A3B8" }}>{ampm}</span>
+                    <div className="flex flex-col items-center min-w-[52px] bg-white border border-slate-100 rounded-xl px-2 py-2 shrink-0 shadow-sm">
+                      <span className="text-sm font-bold text-teal-600 leading-tight">
+                        {hr}
+                      </span>
+
+                      <span className="text-[10px] text-slate-400">
+                        {ampm}
+                      </span>
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Dr. {a.doctorName}</div>
-                      <div style={{ fontSize: 11, color: "#94A3B8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.reason}</div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-slate-700 truncate">
+                        Dr. {a.doctorName}
+                      </div>
+
+                      <div className="text-[11px] text-slate-400 truncate">
+                        {a.reason}
+                      </div>
                     </div>
+
                     <StatusBadge status={a.status} />
                   </div>
                 );
@@ -685,7 +821,8 @@ const Dashboard = () => {
           )}
         </div>
       </div>
-          <AIChatBot/>
+
+      <AIChatBot />
     </div>
   );
 };

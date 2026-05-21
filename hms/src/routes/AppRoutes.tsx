@@ -24,6 +24,10 @@ import DashboardPage from "../pages/admin/DashboardPage";
 import DoctorDashboard from "../layouts/DoctorDashboard";
 import AnalyticsPage from "../pages/admin/AnalyticsPage";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage";
+import PharmacyPage from "../pages/doctor/PharmacyPage";
+import AdminMedicinePage from "../pages/admin/AdminMedicinePage";
+import InventoryPage from "../pages/admin/InventoryPage";
+import AdminSalesPage from "../pages/admin/AdminSalesPage";
 // import DoctorReportsPage from "../pages/doctor/DoctorReportsPage";
 // import HomePage from "../pages/PublicPage";
 
@@ -43,6 +47,9 @@ const AppRoutes = () => {
           <Route path="patients" element={<PatientsPage />} />
           <Route path="appointments" element={<AppointmentsPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
+          <Route path="medicine" element={<AdminMedicinePage />} />
+          <Route path="inventory" element={<InventoryPage />} />
+          <Route path="sales" element={<AdminSalesPage />} />
         </Route>
 
         <Route path="/doctor" element={<ProtectedRoute><DoctorDashboard /></ProtectedRoute>}>
@@ -51,6 +58,7 @@ const AppRoutes = () => {
           <Route path="appointments" element={<DoctorAppointmentPage />} />
           <Route path="appointments/:id" element={<DoctorAppointmentDetailsPage />} />
           <Route path="reports" element={<DoctorReportsPage />} />
+          <Route path="pharmacy" element={<PharmacyPage />} />
         </Route>
 
         <Route path="/patient" element={<ProtectedRoute><PatientDashboard /></ProtectedRoute>}>

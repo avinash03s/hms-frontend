@@ -2,21 +2,37 @@ import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import {
     Chart,
-    LineController, LineElement, PointElement,
-    LinearScale, CategoryScale, Filler,
-    DoughnutController, ArcElement, Tooltip,
+    LineController,
+    LineElement,
+    PointElement,
+    LinearScale,
+    CategoryScale,
+    Filler,
+    DoughnutController,
+    ArcElement,
+    Tooltip,
+    Legend,
 } from "chart.js";
+
 import { getAppointmentsByDoctor } from "../../../service/AppointmentService";
 import { getDoctor } from "../../../service/DoctorProfileService";
 import { getPatient } from "../../../service/PatientProfileService";
 
 Chart.register(
-    LineController, LineElement, PointElement,
-    LinearScale, CategoryScale, Filler,
-    DoughnutController, ArcElement, Tooltip
+    LineController,
+    LineElement,
+    PointElement,
+    LinearScale,
+    CategoryScale,
+    Filler,
+    DoughnutController,
+    ArcElement,
+    Tooltip,
+    Legend
 );
 
-//Types
+// ================= TYPES =================
+
 interface DoctorDTO {
     id: number;
     name: string;
@@ -58,580 +74,1064 @@ interface AppointmentDTO {
     address?: string;
 }
 
-// Constants
-const REASON_COLORS = ["#2563EB", "#0D9488", "#D97706", "#DC2626", "#7C3AED", "#EC4899"];
+// ================= CONSTANTS =================
 
-const STATUS_CONFIG: Record<string, { bg: string; color: string; border: string; dot: string }> = {
-    SCHEDULED: { bg: "#EEF2FF", color: "#4338CA", border: "#C7D2FE", dot: "#6366F1" },
-    COMPLETED: { bg: "#F0FDF9", color: "#0F6E56", border: "#99F6E4", dot: "#0D9488" },
-    CANCELLED: { bg: "#FEF2F2", color: "#B91C1C", border: "#FECACA", dot: "#EF4444" },
-    PENDING: { bg: "#FFFBEB", color: "#92400E", border: "#FDE68A", dot: "#F59E0B" },
+const MONTHS = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+];
+
+const REASON_COLORS = [
+    "#2563EB",
+    "#0D9488",
+    "#D97706",
+    "#DC2626",
+    "#7C3AED",
+    "#EC4899",
+];
+
+const STATUS_CONFIG: Record<
+    string,
+    { bg: string; color: string; border: string; dot: string }
+> = {
+    SCHEDULED: {
+        bg: "#EEF2FF",
+        color: "#4338CA",
+        border: "#C7D2FE",
+        dot: "#6366F1",
+    },
+    COMPLETED: {
+        bg: "#F0FDF9",
+        color: "#0F6E56",
+        border: "#99F6E4",
+        dot: "#0D9488",
+    },
+    CANCELLED: {
+        bg: "#FEF2F2",
+        color: "#B91C1C",
+        border: "#FECACA",
+        dot: "#EF4444",
+    },
+    PENDING: {
+        bg: "#FFFBEB",
+        color: "#92400E",
+        border: "#FDE68A",
+        dot: "#F59E0B",
+    },
 };
-
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const BLOOD_COLORS: Record<string, string> = {
-    "A_POSITIVE": "#DC2626", "A_NEGATIVE": "#F87171", "B_POSITIVE": "#2563EB", "B_NEGATIVE": "#818CF8",
-    "O_POSITIVE": "#0D9488", "O_NEGATIVE": "#34D399", "AB_POSITIVE": "#D97706", "AB_NEGATIVE": "#FCD34D",
+    A_POSITIVE: "#DC2626",
+    A_NEGATIVE: "#F87171",
+    B_POSITIVE: "#2563EB",
+    B_NEGATIVE: "#818CF8",
+    O_POSITIVE: "#0D9488",
+    O_NEGATIVE: "#34D399",
+    AB_POSITIVE: "#D97706",
+    AB_NEGATIVE: "#FCD34D",
 };
 
-//Helpers
-const formatTime = (t: string) => {
-    if (!t) return { hr: "—", ampm: "" };
-    const d = new Date(t);
-    const h = d.getHours(), m = d.getMinutes().toString().padStart(2, "0");
-    return { hr: `${h % 12 || 12}:${m}`, ampm: h >= 12 ? "PM" : "AM" };
-};
-
-const getDatePart = (t: string) => t ? new Date(t).toISOString().split("T")[0] : "";
-
-const formatBloodGroup = (bg: string) =>
-    bg ? bg.replace("_POSITIVE", "+").replace("_NEGATIVE", "−") : "—";
+// ================= HELPERS =================
 
 const getInitials = (name: string) =>
-    name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() ?? "DR";
+    name
+        ?.split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase() ?? "DR";
 
-//Inline style helpers
-const card: React.CSSProperties = {
-    background: "#fff",
-    borderRadius: 16,
-    border: "0.5px solid #E8EDF2",
-    boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-    padding: "20px 22px",
+const formatBloodGroup = (bg: string) =>
+    bg ? bg.replace("_POSITIVE", "+").replace("_NEGATIVE", "-") : "--";
+
+const getDatePart = (t: string) =>
+    t ? new Date(t).toISOString().split("T")[0] : "";
+
+const formatTime = (t: string) => {
+    if (!t) return { hr: "--", ampm: "" };
+
+    const d = new Date(t);
+
+    const h = d.getHours();
+    const m = d.getMinutes().toString().padStart(2, "0");
+
+    return {
+        hr: `${h % 12 || 12}:${m}`,
+        ampm: h >= 12 ? "PM" : "AM",
+    };
 };
 
-//Stat Card 
+const card: React.CSSProperties = {
+    background: "#fff",
+    borderRadius: 18,
+    border: "1px solid #E2E8F0",
+    padding: 20,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
+    overflow: "hidden",
+};
+
+// ================= STAT CARD =================
+
 const StatCard = ({
-    label, value, icon, accent, bg,
+    label,
+    value,
+    icon,
+    accent,
+    bg,
 }: {
-    label: string; value: number;
-    icon: string; accent: string; bg: string;
+    label: string;
+    value: number;
+    icon: string;
+    accent: string;
+    bg: string;
 }) => {
-    const [hov, setHov] = useState(false);
     return (
         <div
-            onMouseEnter={() => setHov(true)}
-            onMouseLeave={() => setHov(false)}
             style={{
                 ...card,
-                display: "flex", alignItems: "center", gap: 14,
-                transition: "box-shadow .18s, transform .18s",
-                boxShadow: hov ? "0 6px 20px rgba(0,0,0,0.08)" : card.boxShadow as string,
-                transform: hov ? "translateY(-2px)" : "none",
-                cursor: "default",
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                minWidth: 0,
             }}
         >
-            <div style={{
-                width: 46, height: 46, borderRadius: 12,
-                background: bg, display: "flex", alignItems: "center",
-                justifyContent: "center", flexShrink: 0,
-            }}>
-                <i className={`ti ${icon}`} aria-hidden="true" style={{ fontSize: 20, color: accent }} />
+            <div
+                style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 14,
+                    background: bg,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                }}
+            >
+                <i
+                    className={`ti ${icon}`}
+                    style={{
+                        color: accent,
+                        fontSize: 20,
+                    }}
+                />
             </div>
-            <div>
-                <p style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 3 }}>
+
+            <div style={{ minWidth: 0 }}>
+                <div
+                    style={{
+                        fontSize: 11,
+                        color: "#94A3B8",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                    }}
+                >
                     {label}
-                </p>
-                <p style={{ fontSize: 28, fontWeight: 700, color: accent, lineHeight: 1 }}>{value}</p>
+                </div>
+
+                <div
+                    style={{
+                        fontSize: 28,
+                        fontWeight: 800,
+                        color: accent,
+                        marginTop: 4,
+                        wordBreak: "break-word",
+                    }}
+                >
+                    {value}
+                </div>
             </div>
         </div>
     );
 };
 
-//Today Appointment Row
+// ================= APPOINTMENT ROW =================
+
 const ApptRow = ({ a }: { a: AppointmentDTO }) => {
-    const [hov, setHov] = useState(false);
-    const cfg = STATUS_CONFIG[a.status] ?? { bg: "#F8FAFC", color: "#475569", border: "#E2E8F0", dot: "#94A3B8" };
+    const cfg =
+        STATUS_CONFIG[a.status] ??
+        STATUS_CONFIG.PENDING;
+
     const { hr, ampm } = formatTime(a.appointmentTime);
+
     return (
         <div
-            onMouseEnter={() => setHov(true)}
-            onMouseLeave={() => setHov(false)}
             style={{
-                display: "flex", alignItems: "center", gap: 12,
-                padding: "10px 12px", borderRadius: 12,
-                background: hov ? "#F8FAFC" : "transparent",
-                border: `0.5px solid ${hov ? "#E2E8F0" : "transparent"}`,
-                transition: "background .15s, border .15s",
-                cursor: "default",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: 12,
+                borderRadius: 14,
+                border: "1px solid #E2E8F0",
+                flexWrap: "wrap",
             }}
         >
-            {/* Time */}
-            <div style={{
-                minWidth: 52, background: "#F8FAFC", border: "0.5px solid #E8EDF2",
-                borderRadius: 10, padding: "6px 8px", textAlign: "center", flexShrink: 0,
-            }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#2563EB", lineHeight: 1.2 }}>{hr}</div>
-                <div style={{ fontSize: 10, color: "#94A3B8" }}>{ampm}</div>
+            <div
+                style={{
+                    minWidth: 65,
+                    textAlign: "center",
+                    background: "#F8FAFC",
+                    borderRadius: 10,
+                    padding: "8px 10px",
+                    flexShrink: 0,
+                }}
+            >
+                <div
+                    style={{
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color: "#2563EB",
+                    }}
+                >
+                    {hr}
+                </div>
+
+                <div
+                    style={{
+                        fontSize: 10,
+                        color: "#94A3B8",
+                    }}
+                >
+                    {ampm}
+                </div>
             </div>
 
-            {/* Avatar + name */}
-            <div style={{
-                width: 32, height: 32, borderRadius: 8,
-                background: "#EFF6FF", color: "#2563EB",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 11, fontWeight: 700, flexShrink: 0,
-            }}>
+            <div
+                style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 12,
+                    background: "#EFF6FF",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#2563EB",
+                    fontWeight: 700,
+                    flexShrink: 0,
+                }}
+            >
                 {getInitials(a.patientName ?? "")}
             </div>
 
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "#1E293B", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <div
+                style={{
+                    flex: 1,
+                    minWidth: 140,
+                }}
+            >
+                <div
+                    style={{
+                        fontWeight: 700,
+                        color: "#1E293B",
+                        fontSize: 14,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                    }}
+                >
                     {a.patientName}
                 </div>
-                <div style={{ fontSize: 11, color: "#94A3B8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+
+                <div
+                    style={{
+                        color: "#94A3B8",
+                        fontSize: 12,
+                        marginTop: 2,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                    }}
+                >
                     {a.reason}
                 </div>
             </div>
 
-            {/* Status badge */}
-            <div style={{
-                display: "flex", alignItems: "center", gap: 5,
-                background: cfg.bg, border: `0.5px solid ${cfg.border}`,
-                borderRadius: 8, padding: "4px 10px", flexShrink: 0,
-            }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.dot, flexShrink: 0 }} />
-                <span style={{ fontSize: 11, fontWeight: 600, color: cfg.color }}>{a.status}</span>
+            <div
+                style={{
+                    padding: "6px 12px",
+                    borderRadius: 10,
+                    background: cfg.bg,
+                    border: `1px solid ${cfg.border}`,
+                    color: cfg.color,
+                    fontWeight: 700,
+                    fontSize: 11,
+                    whiteSpace: "nowrap",
+                }}
+            >
+                {a.status}
             </div>
         </div>
     );
 };
 
-//Patient Card 
+// ================= PATIENT CARD =================
+
 const PatientCard = ({ p }: { p: AppointmentDTO }) => {
-    const [hov, setHov] = useState(false);
-    const bgColor = BLOOD_COLORS[p.bloodGroup ?? ""] ?? "#94A3B8";
+    const bloodColor =
+        BLOOD_COLORS[p.bloodGroup ?? ""] ?? "#94A3B8";
+
     return (
         <div
-            onMouseEnter={() => setHov(true)}
-            onMouseLeave={() => setHov(false)}
             style={{
-                display: "flex", alignItems: "center", gap: 12,
-                padding: "12px 14px", borderRadius: 12,
-                border: `0.5px solid ${hov ? "#BFDBFE" : "#E8EDF2"}`,
-                background: hov ? "#EFF6FF" : "#fff",
-                transition: "background .15s, border .15s",
-                cursor: "default",
+                border: "1px solid #E2E8F0",
+                borderRadius: 14,
+                padding: 14,
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                minWidth: 0,
+                flexWrap: "wrap",
             }}
         >
-            <div style={{
-                width: 38, height: 38, borderRadius: 10,
-                background: hov ? "#DBEAFE" : "#F1F5F9",
-                color: hov ? "#2563EB" : "#475569",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 12, fontWeight: 700, flexShrink: 0,
-                transition: "background .15s, color .15s",
-            }}>
+            <div
+                style={{
+                    width: 42,
+                    height: 42,
+                    borderRadius: 12,
+                    background: "#F1F5F9",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 700,
+                    color: "#334155",
+                    flexShrink: 0,
+                }}
+            >
                 {getInitials(p.patientName ?? "")}
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: hov ? "#1D4ED8" : "#1E293B", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", transition: "color .15s" }}>
+
+            <div
+                style={{
+                    flex: 1,
+                    minWidth: 140,
+                }}
+            >
+                <div
+                    style={{
+                        fontWeight: 700,
+                        fontSize: 14,
+                        color: "#1E293B",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                    }}
+                >
                     {p.patientName}
                 </div>
-                <div style={{ fontSize: 11, color: "#94A3B8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+
+                <div
+                    style={{
+                        fontSize: 12,
+                        color: "#94A3B8",
+                        marginTop: 2,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                    }}
+                >
                     {p.patientEmail}
                 </div>
-                {p.address && (
-                    <div style={{ fontSize: 10, color: "#CBD5E1", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {p.address}
-                    </div>
-                )}
             </div>
-            <div style={{
-                width: 36, height: 36, borderRadius: 9,
-                background: bgColor, color: "#fff",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 11, fontWeight: 700, flexShrink: 0,
-                boxShadow: `0 2px 8px ${bgColor}55`,
-            }}>
+
+            <div
+                style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 12,
+                    background: bloodColor,
+                    color: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    flexShrink: 0,
+                }}
+            >
                 {formatBloodGroup(p.bloodGroup ?? "")}
             </div>
         </div>
     );
 };
 
-//Main Dashboard
+// ================= MAIN =================
+
 const Dashboard = () => {
     const user: any = useSelector((state: any) => state.user);
+
     const profileId = user?.profileId;
     const userId = user?.id;
 
     const [doctor, setDoctor] = useState<DoctorDTO | null>(null);
     const [appointments, setAppointments] = useState<AppointmentDTO[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState("");
 
     const apptRef = useRef<HTMLCanvasElement>(null);
-    const patRef = useRef<HTMLCanvasElement>(null);
     const donutRef = useRef<HTMLCanvasElement>(null);
 
     const apptChartRef = useRef<Chart | null>(null);
-    const patChartRef = useRef<Chart | null>(null);
     const donutChartRef = useRef<Chart | null>(null);
 
-    //Fetch 
+    // ================= RESPONSIVE CSS =================
+
     useEffect(() => {
-        if (!profileId || !userId) return;
-        const fetchAll = async () => {
-            try {
-                setLoading(true); setError(null);
-                const docRes: DoctorDTO = await getDoctor(profileId);
-                setDoctor(docRes);
-                const apptRes: AppointmentDTO[] = await getAppointmentsByDoctor(profileId);
-                const enriched = await Promise.all(apptRes.map(async (appt) => {
-                    try {
-                        const patient: PatientDTO = await getPatient(appt.patientId);
-                        return { ...appt, patientName: patient.name, patientEmail: patient.email, bloodGroup: patient.bloodGroup, address: patient.address };
-                    } catch { return { ...appt, patientName: "Unknown", patientEmail: "" }; }
-                }));
-                setAppointments(enriched);
-            } catch (err: any) {
-                setError("Failed to load dashboard data.");
-                console.error(err);
-            } finally { setLoading(false); }
+        const style = document.createElement("style");
+
+        style.innerHTML = `
+            *{
+                box-sizing:border-box;
+            }
+
+            .dashboard-container{
+                width:100%;
+                min-height:100vh;
+                background:#F1F5F9;
+                padding:20px;
+                display:flex;
+                flex-direction:column;
+                gap:18px;
+                overflow-x:hidden;
+            }
+
+            .hero{
+                width:100%;
+                border-radius:22px;
+                padding:24px;
+                background:linear-gradient(135deg,#0F6E56 0%,#1D9E75 45%,#2563EB 100%);
+                overflow:hidden;
+            }
+
+            .hero-inner{
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:20px;
+                flex-wrap:wrap;
+            }
+
+            .hero-left{
+                display:flex;
+                align-items:center;
+                gap:16px;
+                flex-wrap:wrap;
+                min-width:0;
+            }
+
+            .hero-stats{
+                display:flex;
+                gap:12px;
+                flex-wrap:wrap;
+                width:100%;
+                max-width:420px;
+                justify-content:flex-end;
+            }
+
+            .hero-stat-box{
+                flex:1 1 110px;
+                min-width:100px;
+            }
+
+            .stats-grid{
+                display:grid;
+                grid-template-columns:repeat(5,minmax(0,1fr));
+                gap:16px;
+            }
+
+            .chart-grid{
+                display:grid;
+                grid-template-columns:repeat(2,minmax(0,1fr));
+                gap:16px;
+            }
+
+            .bottom-grid{
+                display:grid;
+                grid-template-columns:repeat(2,minmax(0,1fr));
+                gap:16px;
+            }
+
+            .patient-grid{
+                display:grid;
+                grid-template-columns:repeat(2,minmax(0,1fr));
+                gap:14px;
+            }
+
+            .chart-box{
+                width:100%;
+                height:300px;
+                position:relative;
+            }
+
+            @media(max-width:1200px){
+                .stats-grid{
+                    grid-template-columns:repeat(3,minmax(0,1fr));
+                }
+            }
+
+            @media(max-width:900px){
+
+                .dashboard-container{
+                    padding:16px;
+                }
+
+                .stats-grid{
+                    grid-template-columns:repeat(2,minmax(0,1fr));
+                }
+
+                .chart-grid{
+                    grid-template-columns:1fr;
+                }
+
+                .bottom-grid{
+                    grid-template-columns:1fr;
+                }
+
+                .patient-grid{
+                    grid-template-columns:1fr;
+                }
+
+                .hero-inner{
+                    flex-direction:column;
+                    align-items:flex-start;
+                }
+
+                .hero-stats{
+                    width:100%;
+                    max-width:100%;
+                    justify-content:flex-start;
+                }
+            }
+
+            @media(max-width:600px){
+
+                .dashboard-container{
+                    padding:12px;
+                }
+
+                .hero{
+                    padding:18px;
+                }
+
+                .stats-grid{
+                    grid-template-columns:1fr;
+                }
+
+                .hero-left{
+                    flex-direction:column;
+                    align-items:flex-start;
+                }
+
+                .hero-stats{
+                    flex-direction:column;
+                }
+
+                .hero-stat-box{
+                    width:100%;
+                }
+
+                .chart-box{
+                    height:240px;
+                }
+            }
+        `;
+
+        document.head.appendChild(style);
+
+        return () => {
+            document.head.removeChild(style);
         };
-        fetchAll();
-    }, [profileId, userId]);
-
-    //Derived 
-    const today = new Date().toISOString().split("T")[0];
-    const todayAppts = appointments.filter(a => getDatePart(a.appointmentTime) === today && a.status !== "CANCELLED");
-    const totalPatients = new Set(appointments.map(a => a.patientId)).size;
-    const pending = appointments.filter(a => a.status === "PENDING").length;
-    const critical = appointments.filter(a => a.reason?.toLowerCase().includes("emergency")).length;
-
-    const apptByMonth = Array(12).fill(0);
-    const patByMonth: Record<number, Set<any>> = {};
-    MONTHS.forEach((_, i) => (patByMonth[i] = new Set()));
-    appointments.forEach(a => {
-        if (!a.appointmentTime) return;
-        const m = new Date(a.appointmentTime).getMonth();
-        apptByMonth[m]++;
-        patByMonth[m].add(a.patientId);
-    });
-    const patCountByMonth = Object.values(patByMonth).map(s => s.size);
-
-    const reasonMap: Record<string, number> = {};
-    appointments.forEach(a => { const r = a.reason || "Consult"; reasonMap[r] = (reasonMap[r] || 0) + 1; });
-    const reasonLabels = Object.keys(reasonMap);
-    const reasonData = Object.values(reasonMap);
-    const totalReasons = reasonData.reduce((a, b) => a + b, 0);
-    const reasonColors = reasonLabels.map((_, i) => REASON_COLORS[i % REASON_COLORS.length]);
-
-    const patientMap = new Map<any, AppointmentDTO>();
-    appointments.forEach(a => { if (!patientMap.has(a.patientId)) patientMap.set(a.patientId, a); });
-    const patientList = Array.from(patientMap.values()).slice(0, 6);
-
-    // Chart line options
-    const lineOptions = {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { mode: "index" as const, intersect: false } },
-        scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 10 }, color: "#94A3B8" }, border: { display: false } },
-            y: { beginAtZero: true, grid: { color: "rgba(148,163,184,0.1)", drawTicks: false }, ticks: { font: { size: 10 }, color: "#94A3B8", padding: 8 }, border: { display: false } },
-        },
-    };
-
-    useEffect(() => {
-        if (loading || !apptRef.current) return;
-        apptChartRef.current?.destroy();
-        apptChartRef.current = new Chart(apptRef.current, {
-            type: "line",
-            data: { labels: MONTHS, datasets: [{ data: apptByMonth, borderColor: "#2563EB", backgroundColor: "rgba(37,99,235,0.06)", borderWidth: 2.5, fill: true, tension: 0.45, pointRadius: 0, pointHoverRadius: 5, pointHoverBackgroundColor: "#2563EB", pointHoverBorderColor: "#fff", pointHoverBorderWidth: 2 }] },
-            options: lineOptions,
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [loading, appointments]);
-
-    useEffect(() => {
-        if (loading || !patRef.current) return;
-        patChartRef.current?.destroy();
-        patChartRef.current = new Chart(patRef.current, {
-            type: "line",
-            data: { labels: MONTHS, datasets: [{ data: patCountByMonth, borderColor: "#0D9488", backgroundColor: "rgba(13,148,136,0.06)", borderWidth: 2.5, fill: true, tension: 0.45, pointRadius: 0, pointHoverRadius: 5, pointHoverBackgroundColor: "#0D9488", pointHoverBorderColor: "#fff", pointHoverBorderWidth: 2 }] },
-            options: lineOptions,
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [loading, appointments]);
-
-    useEffect(() => {
-        if (loading || !donutRef.current || reasonLabels.length === 0) return;
-        donutChartRef.current?.destroy();
-        donutChartRef.current = new Chart(donutRef.current, {
-            type: "doughnut",
-            data: { labels: reasonLabels, datasets: [{ data: reasonData, backgroundColor: reasonColors, borderWidth: 4, borderColor: "#ffffff", hoverOffset: 6 }] },
-            options: { responsive: true, maintainAspectRatio: false, cutout: "74%", plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } } } },
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [loading, appointments]);
-
-    useEffect(() => () => {
-        apptChartRef.current?.destroy();
-        patChartRef.current?.destroy();
-        donutChartRef.current?.destroy();
     }, []);
 
-    //Loading 
-    if (loading) return (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "80vh" }}>
-            <div style={{ textAlign: "center" }}>
-                <div style={{ position: "relative", width: 48, height: 48, margin: "0 auto 16px" }}>
-                    <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "3px solid #E0F2FE" }} />
-                    <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "3px solid #2563EB", borderTopColor: "transparent", animation: "spin .7s linear infinite" }} />
-                </div>
-                <p style={{ fontSize: 13, color: "#94A3B8", fontWeight: 500 }}>Loading dashboard…</p>
-                <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-            </div>
-        </div>
+    // ================= FETCH =================
+
+    useEffect(() => {
+        if (!profileId || !userId) return;
+
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+
+                const doctorRes: DoctorDTO =
+                    await getDoctor(profileId);
+
+                setDoctor(doctorRes);
+
+                const apptRes: AppointmentDTO[] =
+                    await getAppointmentsByDoctor(profileId);
+
+                const enriched = await Promise.all(
+                    apptRes.map(async (appt) => {
+                        try {
+                            const patient: PatientDTO =
+                                await getPatient(appt.patientId);
+
+                            return {
+                                ...appt,
+                                patientName: patient.name,
+                                patientEmail: patient.email,
+                                bloodGroup: patient.bloodGroup,
+                                address: patient.address,
+                            };
+                        } catch {
+                            return {
+                                ...appt,
+                                patientName: "Unknown",
+                                patientEmail: "",
+                            };
+                        }
+                    })
+                );
+
+                setAppointments(enriched);
+            } catch (err) {
+                console.error(err);
+                setError("Failed to load dashboard");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [profileId, userId]);
+
+    // ================= DERIVED =================
+
+    const today = new Date().toISOString().split("T")[0];
+
+    const todayAppts = appointments.filter(
+        (a) =>
+            getDatePart(a.appointmentTime) === today &&
+            a.status !== "CANCELLED"
     );
 
-    // Error
-    if (error) return (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "80vh" }}>
-            <div style={{ textAlign: "center", maxWidth: 320 }}>
-                <div style={{ width: 56, height: 56, background: "#FEF2F2", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, margin: "0 auto 12px" }}>⚠️</div>
-                <p style={{ color: "#475569", fontWeight: 500, marginBottom: 16 }}>{error}</p>
-                <button onClick={() => window.location.reload()} style={{ padding: "10px 24px", background: "#2563EB", color: "#fff", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                    Retry
-                </button>
-            </div>
-        </div>
-    );
+    const totalPatients = new Set(
+        appointments.map((a) => a.patientId)
+    ).size;
 
-    //Render
+    const completed = appointments.filter(
+        (a) => a.status === "COMPLETED"
+    ).length;
+
+    const pending = appointments.filter(
+        (a) => a.status === "PENDING"
+    ).length;
+
+    const critical = appointments.filter((a) =>
+        a.reason?.toLowerCase().includes("emergency")
+    ).length;
+
+    const apptByMonth = Array(12).fill(0);
+
+    appointments.forEach((a) => {
+        if (!a.appointmentTime) return;
+
+        const m = new Date(a.appointmentTime).getMonth();
+
+        apptByMonth[m]++;
+    });
+
+    const reasonMap: Record<string, number> = {};
+
+    appointments.forEach((a) => {
+        const r = a.reason || "Consult";
+        reasonMap[r] = (reasonMap[r] || 0) + 1;
+    });
+
+    const reasonLabels = Object.keys(reasonMap);
+    const reasonData = Object.values(reasonMap);
+
+    // ================= CHARTS =================
+
+    useEffect(() => {
+        if (!apptRef.current) return;
+
+        apptChartRef.current?.destroy();
+
+        apptChartRef.current = new Chart(apptRef.current, {
+            type: "line",
+            data: {
+                labels: MONTHS,
+                datasets: [
+                    {
+                        data: apptByMonth,
+                        borderColor: "#2563EB",
+                        backgroundColor: "rgba(37,99,235,0.08)",
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 0,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                },
+            },
+        });
+
+        return () => {
+            apptChartRef.current?.destroy();
+        };
+    }, [appointments]);
+
+    useEffect(() => {
+        if (!donutRef.current || reasonLabels.length === 0) return;
+
+        donutChartRef.current?.destroy();
+
+        donutChartRef.current = new Chart(donutRef.current, {
+            type: "doughnut",
+            data: {
+                labels: reasonLabels,
+                datasets: [
+                    {
+                        data: reasonData,
+                        backgroundColor: REASON_COLORS,
+                        borderWidth: 2,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+            },
+        });
+
+        return () => {
+            donutChartRef.current?.destroy();
+        };
+    }, [appointments]);
+
+    // ================= LOADING =================
+
+    if (loading) {
+        return (
+            <div
+                style={{
+                    minHeight: "100vh",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}
+            >
+                Loading...
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div
+                style={{
+                    minHeight: "100vh",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}
+            >
+                {error}
+            </div>
+        );
+    }
+
+    // ================= UI =================
+
     return (
-        <div style={{ padding: "20px 24px", fontFamily: "'DM Sans','Inter',system-ui,sans-serif", background: "#F0F4F8", minHeight: "100vh", display: "flex", flexDirection: "column", gap: 18 }}>
+        <div className="dashboard-container">
 
-            {/* Hero Card */}
-            <div style={{
-                borderRadius: 20, overflow: "hidden", position: "relative",
-                background: "linear-gradient(135deg, #0F6E56 0%, #1D9E75 45%, #2563EB 100%)",
-                boxShadow: "0 8px 32px rgba(15,110,86,0.18)",
-            }}>
-                {/* Decorative circles */}
-                <div style={{ position: "absolute", top: -40, right: -40, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
-                <div style={{ position: "absolute", bottom: -50, left: "35%", width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+            {/* HERO */}
 
-                <div style={{ position: "relative", padding: "22px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20, flexWrap: "wrap" }}>
-                    {/* Doctor info */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-                        {/* Avatar */}
-                        <div style={{ position: "relative", flexShrink: 0 }}>
-                            
-                            <div style={{ width: 64, height: 64, borderRadius: 16, overflow: "hidden", border: "1.5px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                {doctor?.profilePictureId ? (
-                                    <img
-                                        src={`http://localhost:9000/profile/files/${doctor.profilePictureId}`}
-                                        alt="profile"
-                                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                    />
-                                ) : (
-                                    <span style={{ fontSize: 22, fontWeight: 700, color: "#fff" }}>
-                                        {getInitials(doctor?.name ?? "")}
-                                    </span>
-                                )}
-                            </div>
-                            <div style={{
-                                position: "absolute", bottom: -2, right: -2,
-                                width: 14, height: 14, borderRadius: "50%",
-                                background: "#4ADE80", border: "2px solid #0F6E56",
-                            }} title="Online" />
+            <div className="hero">
+                <div className="hero-inner">
+
+                    <div className="hero-left">
+
+                        <div
+                            style={{
+                                width: 78,
+                                height: 78,
+                                borderRadius: 20,
+                                overflow: "hidden",
+                                background: "rgba(255,255,255,0.2)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: "#fff",
+                                fontWeight: 700,
+                                fontSize: 24,
+                                flexShrink: 0,
+                            }}
+                        >
+                            {doctor?.profilePictureId ? (
+                                <img
+                                    src={`http://localhost:9000/profile/files/${doctor.profilePictureId}`}
+                                    alt="doctor"
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                    }}
+                                />
+                            ) : (
+                                getInitials(doctor?.name ?? "")
+                            )}
                         </div>
 
-                        <div>
-                            <p style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 4px" }}>
+                        <div
+                            style={{
+                                minWidth: 0,
+                            }}
+                        >
+                            <div
+                                style={{
+                                    color: "rgba(255,255,255,0.7)",
+                                    fontSize: 12,
+                                    marginBottom: 6,
+                                }}
+                            >
                                 Welcome back
-                            </p>
-                            <h1 style={{ fontSize: 20, fontWeight: 700, color: "#fff", margin: "0 0 4px", lineHeight: 1.2 }}>
+                            </div>
+
+                            <div
+                                style={{
+                                    color: "#fff",
+                                    fontWeight: 800,
+                                    fontSize: 28,
+                                    lineHeight: 1.2,
+                                    wordBreak: "break-word",
+                                }}
+                            >
                                 Dr. {doctor?.name}
-                            </h1>
-                            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", margin: "0 0 8px" }}>
-                                {doctor?.specialization}
-                                <span style={{ margin: "0 8px", opacity: 0.4 }}>·</span>
+                            </div>
+
+                            <div
+                                style={{
+                                    marginTop: 6,
+                                    color: "rgba(255,255,255,0.8)",
+                                    fontSize: 14,
+                                    wordBreak: "break-word",
+                                }}
+                            >
+                                {doctor?.specialization} •{" "}
                                 {doctor?.department}
-                            </p>
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", display: "flex", alignItems: "center", gap: 5 }}>
-                                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "rgba(255,255,255,0.45)", display: "inline-block" }} />
-                                    {doctor?.totalExperience} yrs experience
-                                </span>
-                                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", display: "flex", alignItems: "center", gap: 5 }}>
-                                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ADE80", display: "inline-block" }} />
-                                    {doctor?.phoneNo}
-                                </span>
-                                <span style={{
-                                    fontSize: 11, fontWeight: 600, color: "#fff",
-                                    background: "rgba(255,255,255,0.15)", border: "0.5px solid rgba(255,255,255,0.25)",
-                                    borderRadius: 7, padding: "3px 10px",
-                                }}>
-                                    {doctor?.licenseNumber}
-                                </span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Summary badges */}
-                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    <div className="hero-stats">
+
                         {[
-                            { val: appointments.length, lbl: "Total appts" },
-                            { val: totalPatients, lbl: "Patients" },
-                            { val: todayAppts.length, lbl: "Today" },
-                        ].map(({ val, lbl }) => (
-                            <div key={lbl} style={{
-                                display: "flex", flexDirection: "column", alignItems: "center",
-                                background: "rgba(255,255,255,0.12)", border: "0.5px solid rgba(255,255,255,0.2)",
-                                borderRadius: 14, padding: "14px 22px", minWidth: 80,
-                            }}>
-                                <span style={{ fontSize: 24, fontWeight: 700, color: "#fff", lineHeight: 1 }}>{val}</span>
-                                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", fontWeight: 600, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>{lbl}</span>
+                            {
+                                val: appointments.length,
+                                lbl: "Appointments",
+                            },
+                            {
+                                val: totalPatients,
+                                lbl: "Patients",
+                            },
+                            {
+                                val: todayAppts.length,
+                                lbl: "Today",
+                            },
+                        ].map((item) => (
+                            <div
+                                key={item.lbl}
+                                className="hero-stat-box"
+                                style={{
+                                    background:
+                                        "rgba(255,255,255,0.12)",
+                                    border:
+                                        "1px solid rgba(255,255,255,0.15)",
+                                    borderRadius: 16,
+                                    padding: "14px 18px",
+                                    textAlign: "center",
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        color: "#fff",
+                                        fontWeight: 800,
+                                        fontSize: 26,
+                                    }}
+                                >
+                                    {item.val}
+                                </div>
+
+                                <div
+                                    style={{
+                                        color: "rgba(255,255,255,0.75)",
+                                        fontSize: 11,
+                                        marginTop: 4,
+                                    }}
+                                >
+                                    {item.lbl}
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
             </div>
 
-            {/* ── Stat Cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 14 }}>
-                <StatCard label="Today's Appointments" value={todayAppts.length} icon="ti-calendar-event" accent="#2563EB" bg="#EFF6FF" />
-                <StatCard label="Pending" value={pending} icon="ti-clock-pause" accent="#D97706" bg="#FFFBEB" />
-                <StatCard label="Total Patients" value={totalPatients} icon="ti-users" accent="#0D9488" bg="#F0FDF9" />
-                <StatCard label="Critical Cases" value={critical} icon="ti-urgent" accent="#DC2626" bg="#FEF2F2" />
+            {/* STATS */}
+
+            <div className="stats-grid">
+                <StatCard
+                    label="Today's Appointments"
+                    value={todayAppts.length}
+                    icon="ti-calendar-event"
+                    accent="#2563EB"
+                    bg="#EFF6FF"
+                />
+
+                <StatCard
+                    label="Completed"
+                    value={completed}
+                    icon="ti-check"
+                    accent="#16A34A"
+                    bg="#F0FDF4"
+                />
+
+                <StatCard
+                    label="Pending"
+                    value={pending}
+                    icon="ti-clock"
+                    accent="#D97706"
+                    bg="#FFFBEB"
+                />
+
+                <StatCard
+                    label="Total Patients"
+                    value={totalPatients}
+                    icon="ti-users"
+                    accent="#0D9488"
+                    bg="#F0FDF9"
+                />
+
+                <StatCard
+                    label="Critical Cases"
+                    value={critical}
+                    icon="ti-alert-circle"
+                    accent="#DC2626"
+                    bg="#FEF2F2"
+                />
             </div>
 
-            {/* ── Charts Row  */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            {/* CHARTS */}
 
-                {/* Appointments chart */}
+            <div className="chart-grid">
+
                 <div style={card}>
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 18 }}>
-                        <div>
-                            <p style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 3px" }}>Appointments</p>
-                            <p style={{ fontSize: 13, color: "#64748B", margin: 0 }}>{new Date().getFullYear()} overview</p>
-                        </div>
-                        <div style={{ textAlign: "right" }}>
-                            <span style={{ fontSize: 26, fontWeight: 700, color: "#2563EB", lineHeight: 1 }}>{appointments.length}</span>
-                            <p style={{ fontSize: 11, color: "#94A3B8", margin: "2px 0 0" }}>total</p>
-                        </div>
+                    <div
+                        style={{
+                            fontWeight: 700,
+                            fontSize: 18,
+                            marginBottom: 18,
+                        }}
+                    >
+                        Monthly Appointments
                     </div>
-                    <div style={{ position: "relative", height: 140 }}>
-                        <canvas ref={apptRef} aria-label="Monthly appointments chart" />
+
+                    <div className="chart-box">
+                        <canvas ref={apptRef} />
                     </div>
                 </div>
 
-                {/* Patients chart */}
                 <div style={card}>
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 18 }}>
-                        <div>
-                            <p style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 3px" }}>Unique Patients</p>
-                            <p style={{ fontSize: 13, color: "#64748B", margin: 0 }}>{new Date().getFullYear()} overview</p>
-                        </div>
-                        <div style={{ textAlign: "right" }}>
-                            <span style={{ fontSize: 26, fontWeight: 700, color: "#0D9488", lineHeight: 1 }}>{totalPatients}</span>
-                            <p style={{ fontSize: 11, color: "#94A3B8", margin: "2px 0 0" }}>unique</p>
-                        </div>
-                    </div>
-                    <div style={{ position: "relative", height: 140 }}>
-                        <canvas ref={patRef} aria-label="Monthly patients chart" />
-                    </div>
-                </div>
-            </div>
-
-            {/* Donut + Today Schedule  */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-
-                {/* Reason distribution */}
-                <div style={card}>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 18 }}>
-                        Visit Reason Distribution
-                    </p>
-
-                    {reasonLabels.length === 0 ? (
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 0", gap: 8, color: "#94A3B8" }}>
-                            <span style={{ fontSize: 28 }}>📊</span>
-                            <p style={{ fontSize: 13, margin: 0 }}>No appointment data yet</p>
-                        </div>
-                    ) : (
-                        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-                            {/* Donut */}
-                            <div style={{ position: "relative", width: 140, height: 140, flexShrink: 0 }}>
-                                <canvas ref={donutRef} aria-label="Reason distribution chart" />
-                                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                                    <span style={{ fontSize: 20, fontWeight: 700, color: "#1E293B", lineHeight: 1 }}>{totalReasons}</span>
-                                    <span style={{ fontSize: 11, color: "#94A3B8" }}>visits</span>
-                                </div>
-                            </div>
-
-                            {/* Legend */}
-                            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
-                                {reasonLabels.map((label, i) => {
-                                    const pct = Math.round((reasonData[i] / totalReasons) * 100);
-                                    return (
-                                        <div key={label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                                            <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
-                                                <span style={{ width: 8, height: 8, borderRadius: "50%", background: reasonColors[i], flexShrink: 0 }} />
-                                                <span style={{ fontSize: 12, color: "#475569", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
-                                            </div>
-                                            <div style={{ display: "flex", alignItems: "center", gap: 7, flexShrink: 0 }}>
-                                                <div style={{ width: 52, height: 4, borderRadius: 99, background: "#F1F5F9", overflow: "hidden" }}>
-                                                    <div style={{ width: `${pct}%`, height: "100%", borderRadius: 99, background: reasonColors[i] }} />
-                                                </div>
-                                                <span style={{ fontSize: 11, fontWeight: 600, color: "#64748B", width: 28, textAlign: "right" }}>{pct}%</span>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Today's schedule */}
-                <div style={card}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                        <p style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.07em", margin: 0 }}>
-                            Today's Schedule
-                        </p>
-                        <span style={{ fontSize: 11, fontWeight: 600, background: "#EFF6FF", color: "#2563EB", borderRadius: 7, padding: "3px 10px", border: "0.5px solid #BFDBFE" }}>
-                            {todayAppts.length} appts
-                        </span>
+                    <div
+                        style={{
+                            fontWeight: 700,
+                            fontSize: 18,
+                            marginBottom: 18,
+                        }}
+                    >
+                        Visit Distribution
                     </div>
 
-                    {todayAppts.length === 0 ? (
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 0", gap: 8, color: "#94A3B8" }}>
-                            <span style={{ fontSize: 28 }}>🗓️</span>
-                            <p style={{ fontSize: 13, margin: 0 }}>No appointments today</p>
-                        </div>
-                    ) : (
-                        <div style={{ display: "flex", flexDirection: "column", gap: 2, maxHeight: 240, overflowY: "auto", marginRight: -4, paddingRight: 4 }}>
-                            {todayAppts.map(a => <ApptRow key={a.id} a={a} />)}
-                        </div>
-                    )}
+                    <div className="chart-box">
+                        <canvas ref={donutRef} />
+                    </div>
                 </div>
             </div>
 
-            {/* Recent Patients */}
-            <div style={card}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.07em", margin: 0 }}>
+            {/* BOTTOM */}
+
+            <div className="bottom-grid">
+
+                {/* SCHEDULE */}
+
+                <div style={card}>
+                    <div
+                        style={{
+                            fontWeight: 700,
+                            fontSize: 18,
+                            marginBottom: 16,
+                        }}
+                    >
+                        Today's Schedule
+                    </div>
+
+                    <div
+                        style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 12,
+                            maxHeight: 420,
+                            overflowY: "auto",
+                        }}
+                    >
+                        {todayAppts.length === 0 ? (
+                            <div>No appointments today</div>
+                        ) : (
+                            todayAppts.map((a) => (
+                                <ApptRow
+                                    key={a.id}
+                                    a={a}
+                                />
+                            ))
+                        )}
+                    </div>
+                </div>
+
+                {/* PATIENTS */}
+
+                <div style={card}>
+                    <div
+                        style={{
+                            fontWeight: 700,
+                            fontSize: 18,
+                            marginBottom: 16,
+                        }}
+                    >
                         Recent Patients
-                    </p>
-                    <span style={{ fontSize: 11, fontWeight: 600, background: "#F0FDF9", color: "#0F6E56", borderRadius: 7, padding: "3px 10px", border: "0.5px solid #99F6E4" }}>
-                        {totalPatients} total
-                    </span>
+                    </div>
+
+                    <div className="patient-grid">
+                        {appointments.length === 0 ? (
+                            <div>No patients found</div>
+                        ) : (
+                            appointments
+                                .slice(0, 6)
+                                .map((p) => (
+                                    <PatientCard
+                                        key={p.id}
+                                        p={p}
+                                    />
+                                ))
+                        )}
+                    </div>
                 </div>
-
-                {patientList.length === 0 ? (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 0", gap: 8, color: "#94A3B8" }}>
-                        <span style={{ fontSize: 28 }}>👥</span>
-                        <p style={{ fontSize: 13, margin: 0 }}>No patients found</p>
-                    </div>
-                ) : (
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                        {patientList.map(p => <PatientCard key={p.patientId} p={p} />)}
-                    </div>
-                )}
             </div>
-
         </div>
     );
 };
