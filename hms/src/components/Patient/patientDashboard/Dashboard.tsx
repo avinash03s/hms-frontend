@@ -492,8 +492,6 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-slate-100 p-3 sm:p-4 lg:p-6 flex flex-col gap-5 font-sans">
-
-      {/* HERO */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-700 via-teal-500 to-blue-500 p-4 sm:p-6 lg:p-7">
 
         <div className="absolute -top-16 -right-16 w-60 h-60 rounded-full bg-white/10" />
@@ -501,7 +499,6 @@ const Dashboard = () => {
 
         <div className="relative z-10 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
 
-          {/* LEFT */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-5">
 
             <div className="relative shrink-0">
@@ -570,7 +567,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* RIGHT STATS */}
           <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-3 w-full xl:w-auto">
             {[
               { val: appointments.length, lbl: "Total Visits" },
@@ -594,7 +590,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* STAT GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard
           label="Total Visits"
@@ -629,10 +624,8 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* CHART GRID */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
 
-        {/* LINE CHART */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
           <div className="flex items-start justify-between mb-5 gap-4">
             <div>
@@ -661,7 +654,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* DONUT */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
 
           <div className="flex items-center justify-between mb-5">
@@ -737,10 +729,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* APPOINTMENTS */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
 
-        {/* UPCOMING */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
 
           <div className="flex items-center justify-between mb-5 gap-4">

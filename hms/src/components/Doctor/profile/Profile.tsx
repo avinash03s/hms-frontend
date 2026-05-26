@@ -206,15 +206,9 @@ const Profile = () => {
 
         <div className="p-4 sm:p-6 lg:p-10">
 
-            {/* HEADER */}
-
             <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6">
 
-                {/* LEFT */}
-
                 <div className="flex flex-col sm:flex-row gap-5 sm:items-center">
-
-                    {/* AVATAR */}
 
                     <div className="flex flex-col items-center gap-3 shrink-0">
 
@@ -244,8 +238,6 @@ const Profile = () => {
                         }
                     </div>
 
-                    {/* USER INFO */}
-
                     <div className="flex flex-col gap-2 break-all">
 
                         <div className="text-2xl sm:text-3xl font-semibold text-neutral-900">
@@ -257,8 +249,6 @@ const Profile = () => {
                         </div>
                     </div>
                 </div>
-
-                {/* BUTTON */}
 
                 <div className="w-full sm:w-auto">
 
@@ -293,15 +283,11 @@ const Profile = () => {
 
             <Divider my="xl" />
 
-            {/* PERSONAL INFO */}
-
             <div>
 
                 <div className="text-xl sm:text-2xl font-semibold mb-5 text-neutral-900">
                     Personal Information
                 </div>
-
-                {/* DESKTOP TABLE */}
 
                 <div className="hidden md:block overflow-x-auto">
 
@@ -535,8 +521,6 @@ const Profile = () => {
                     </Table>
                 </div>
 
-                {/* MOBILE CARD VIEW */}
-
                 <div className="flex flex-col gap-4 md:hidden">
 
                     {/* DOB */}
@@ -564,7 +548,6 @@ const Profile = () => {
                         }
                     </div>
 
-                    {/* PHONE */}
 
                     <div className="bg-white rounded-xl border p-4 shadow-sm">
 
@@ -591,7 +574,7 @@ const Profile = () => {
                         }
                     </div>
 
-                    {/* ADDRESS */}
+
 
                     <div className="bg-white rounded-xl border p-4 shadow-sm">
 
@@ -616,7 +599,6 @@ const Profile = () => {
                         }
                     </div>
 
-                    {/* LICENSE */}
 
                     <div className="bg-white rounded-xl border p-4 shadow-sm">
 
@@ -643,7 +625,6 @@ const Profile = () => {
                         }
                     </div>
 
-                    {/* SPECIALIZATION */}
 
                     <div className="bg-white rounded-xl border p-4 shadow-sm">
 
@@ -669,7 +650,6 @@ const Profile = () => {
                         }
                     </div>
 
-                    {/* DEPARTMENT */}
 
                     <div className="bg-white rounded-xl border p-4 shadow-sm">
 
@@ -694,8 +674,6 @@ const Profile = () => {
                             )
                         }
                     </div>
-
-                    {/* EXPERIENCE */}
 
                     <div className="bg-white rounded-xl border p-4 shadow-sm">
 
@@ -729,8 +707,6 @@ const Profile = () => {
                     </div>
                 </div>
             </div>
-
-            {/* MODAL */}
 
             <Modal
                 centered

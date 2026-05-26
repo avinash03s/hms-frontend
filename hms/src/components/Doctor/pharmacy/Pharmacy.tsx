@@ -185,8 +185,6 @@ const Pharmacy = () => {
                 />
             </div>
 
-            {/* DESKTOP TABLE */}
-
             <div className="hidden lg:block w-full overflow-hidden">
 
                 <Fieldset
@@ -607,8 +605,6 @@ const Pharmacy = () => {
                         ))
                     )
                 }
-
-                {/* MOBILE PAGINATION */}
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-2 w-full overflow-hidden">
 

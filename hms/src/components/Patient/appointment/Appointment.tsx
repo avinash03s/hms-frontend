@@ -96,7 +96,7 @@ const Appointment = () => {
             console.error("Error Fetching Doctors:", errors)
         }
         );
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []);
 
     const fetchData = () => {
         getAppointmentsByPatient(user.profileId).then((data) => {
@@ -258,7 +258,7 @@ const Appointment = () => {
         } else if (tab === "Past") {
             return appointmentDay.getTime() < today.getTime();
         }
-        return true; // Default case, show all appointments
+        return true;
     });
 
     return (
@@ -335,7 +335,6 @@ const Appointment = () => {
                     />
                     <Button type="submit" variant="filled" fullWidth>Submit</Button>
                 </form>
-                {/* Modal content */}
             </Modal>
         </div>
     );
