@@ -14,7 +14,7 @@ const RegisterPage = () => {
   const form = useForm({
     initialValues: {
       name: '',
-      role: "PATIENT",
+      // role: "PATIENT",
       email: '',
       password: '',
       confirmPassword: ""
@@ -47,8 +47,6 @@ const RegisterPage = () => {
 
   return (
     <div className="h-screen w-screen flex flex-col items-center justify-center relative overflow-hidden">
-
-      {/* ✅ Background Image — login page jaisa */}
       <img
         src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&q=90"
         alt="bg"
@@ -56,12 +54,10 @@ const RegisterPage = () => {
         style={{ filter: 'brightness(0.55)' }}
       />
 
-      {/* ✅ Dark gradient overlay */}
       <div className="absolute inset-0"
         style={{ background: 'linear-gradient(135deg, rgba(10,15,30,0.85) 0%, rgba(190,24,93,0.15) 100%)' }}
       />
 
-      {/* ✅ Back Button — top-left */}
       <button
         onClick={() => navigate("/")}
         className="absolute top-5 left-5 z-10 flex items-center gap-1.5 text-white/70 hover:text-white transition-colors duration-200 group"
@@ -70,7 +66,6 @@ const RegisterPage = () => {
         <span className="text-sm font-medium">Back</span>
       </button>
 
-      {/* ✅ Content */}
       <div className="relative z-10 flex flex-col items-center">
         <div className="py-3 text-primary-500 flex gap-1 items-center">
           <IconHeartbeat size={45} stroke={3} />
@@ -80,7 +75,7 @@ const RegisterPage = () => {
         <div className="w-[450px] backdrop-blur-md p-10 py-8 rounded-lg">
           <form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col gap-5 [&_input]:placeholder-neutral-100 [&_.mantine-Input-input]:!border-white focus-within:[&_.mantine-Input-input]:!border-primary-500 [&_.mantine-Input-input]:!border [&_input]:!pl-2 [&_svg]:text-white [&_input]:text-white'>
             <div className='self-center font-medium font-heading text-white text-xl'>Register</div>
-            <SegmentedControl {...form.getInputProps("role")} fullWidth size="md" color='#24AE9E' bg="none" className='[&_*]:!text-white border border-white' data={[{ label: 'Patient', value: "PATIENT" }, { label: 'Doctor', value: "DOCTOR" },{ label: 'Admin', value: "ADMIN" },]} />
+            {/* <SegmentedControl {...form.getInputProps("role")} fullWidth size="md" color='#24AE9E' bg="none" className='[&_*]:!text-white border border-white' data={[{ label: 'Patient', value: "PATIENT" }, { label: 'Doctor', value: "DOCTOR" },{ label: 'Admin', value: "ADMIN" },]} /> */}
             {/*  { label: 'Admin', value: "ADMIN" }, */}
             <TextInput {...form.getInputProps('name')} className='transition duration-300' variant="unstyled" size="md" placeholder="Name" />
             <TextInput {...form.getInputProps('email')} className='transition duration-300' variant="unstyled" size="md" placeholder="Email" />

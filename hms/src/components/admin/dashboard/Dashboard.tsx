@@ -1158,7 +1158,6 @@ const AdminDashboard = () => {
                         </SectionCard>
                     </div>
 
-                    {/* PATIENTS + DOCTORS */}
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
                         {/* PATIENTS */}
                         <div

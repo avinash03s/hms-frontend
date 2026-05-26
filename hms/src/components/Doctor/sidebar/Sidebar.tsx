@@ -39,14 +39,12 @@ const Sidebar = () => {
         }
     }, [user]);
 
-    // Close sidebar when route changes on mobile
     const handleNavClick = () => {
         setMobileOpen(false);
     };
 
     return (
         <>
-            {/* ── Inline responsive styles ── */}
             <style>{`
                 .sidebar-spacer {
                     width: 256px;
@@ -138,7 +136,6 @@ const Sidebar = () => {
                 }
             `}</style>
 
-            {/* Hamburger button — only visible on mobile */}
             <button
                 className="hamburger-btn"
                 onClick={() => setMobileOpen(true)}
@@ -147,24 +144,16 @@ const Sidebar = () => {
                 <IconMenu2 size={22} stroke={1.8} />
             </button>
 
-            {/* Dark overlay — clicking closes sidebar on mobile */}
             <div
                 className={`sidebar-overlay ${mobileOpen ? "mobile-open" : ""}`}
                 onClick={() => setMobileOpen(false)}
             />
 
-            {/* Main flex wrapper — spacer + fixed sidebar */}
             <div className="flex">
 
-                {/* Spacer so main content doesn't go under sidebar */}
                 <div className="sidebar-spacer" />
-
-                {/* Fixed sidebar panel */}
                 <div className={`sidebar-panel bg-dark hide-scrollbar ${mobileOpen ? "mobile-open" : ""}`}>
-
-                    {/* Logo — sticky at top */}
                     <div className="sidebar-logo bg-dark text-primary-400 flex gap-1 items-center">
-                        {/* Close button inside sidebar on mobile */}
                         <button
                             onClick={() => setMobileOpen(false)}
                             aria-label="Close sidebar"
@@ -186,11 +175,7 @@ const Sidebar = () => {
                         <IconHeartbeat size={40} stroke={3} />
                         <span className="font-heading font-semibold text-3xl">PulseCare</span>
                     </div>
-
-                    {/* Avatar + nav links */}
                     <div className="flex flex-col mt-4 gap-5 w-full">
-
-                        {/* Doctor avatar */}
                         <div className="flex flex-col gap-1 items-center">
                             <div className="p-1 bg-white rounded-full shadow-lg">
                                 <Avatar
@@ -232,8 +217,6 @@ const Sidebar = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Extra style for mobile close button inside sidebar */}
             <style>{`
                 @media (max-width: 768px) {
                     .sidebar-close-btn {

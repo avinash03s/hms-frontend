@@ -32,7 +32,6 @@ type SellFormValues = {
     items: SaleMedicineItem[];
 };
 
-// Medicines available in inventory (would come from API in real app)
 const AVAILABLE_MEDICINES = [
     { value: "1", label: "Metoprolol",  stock: 120, price: 22  },
     { value: "2", label: "Amlodipine",  stock: 80,  price: 18  },
@@ -105,8 +104,6 @@ const SellFormFields = ({ form }: SellFormProps) => {
 
     return (
         <div className="flex flex-col gap-5">
-
-            {/* Buyer Information */}
             <Fieldset
                 legend={
                     <span className="text-base font-medium text-teal-600">
@@ -128,8 +125,6 @@ const SellFormFields = ({ form }: SellFormProps) => {
                     />
                 </div>
             </Fieldset>
-
-            {/* Medicine Information */}
             <Fieldset
                 legend={
                     <span className="text-base font-medium text-teal-600">
@@ -362,7 +357,6 @@ const Sales = () => {
     return (
         <div className="p-6 flex flex-col gap-5">
 
-            {/* ── Toolbar ── */}
             <div className="flex items-center gap-3">
 
                 <Button
@@ -406,7 +400,6 @@ const Sales = () => {
 
             </div>
 
-            {/* ── Table ── */}
             <Fieldset p={0} style={{ overflow: "hidden" }}>
 
                 <table
@@ -483,8 +476,6 @@ const Sales = () => {
                         )}
                     </tbody>
                 </table>
-
-                {/* ── Pagination ── */}
                 <div className="flex items-center justify-between px-4 py-3 border-t">
                     <Text size="sm" c="dimmed">
                         Showing {filtered.length === 0 ? 0 : (page - 1) * perPage + 1} to{" "}

@@ -3,7 +3,7 @@ import {
     NumberInput, Pagination, Select, Table, Text, TextInput, Title,
 } from "@mantine/core";
 import {
-    IconEdit, IconLayoutGrid, IconLayoutList,
+    IconEdit,
     IconPlus, IconSearch,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
@@ -13,28 +13,24 @@ import { useState, useEffect } from "react";
 import { errorNotification, successNotification } from "../../../utility/Notification";
 import { addStock, getAllStock, updateStock } from "../../../service/InventoryService";
 import { getAllMedicines } from "../../../service/MedicineService";
-import { DateInput } from "@mantine/dates";   // ✅ DatePicker → DateInput (popover style)
+import { DateInput } from "@mantine/dates";
 
-// ── Types ──────────────────────────────────────────────────────────────────
 
 type StockStatus = "ACTIVE" | "EXPIRED" | "LOW";
 
-// Medicine dropdown option
 type MedicineOption = {
-    value:        string;   // id as string (Select needs string)
-    label:        string;   // "Aspirin (75mg)"
+    value:        string;
+    label:        string;
     manufacturer: string;
 };
 
-// Form — sirf jo backend ko bhejte hain
 type StockFormValues = {
     medicineId: string | null;
     batchNo:    string;
     quantity:   number;
-    expireDate: Date | null;   // ✅ DateInput uses Date object, not string
+    expireDate: Date | null;
 };
 
-// Backend DTO response
 type Stock = {
     id:              number;
     medicineId:      number;
@@ -46,8 +42,6 @@ type Stock = {
     stockStatus:     StockStatus;
 };
 
-// ── Constants ──────────────────────────────────────────────────────────────
-
 const STATUS_COLORS: Record<StockStatus, string> = {
     ACTIVE:  "teal",
     EXPIRED: "red",
@@ -58,7 +52,7 @@ const FORM_INITIAL_VALUES: StockFormValues = {
     medicineId: null,
     batchNo:    "",
     quantity:   0,
-    expireDate: null,   // ✅ null for DateInput
+    expireDate: null,
 };
 
 const FORM_VALIDATE = {
@@ -68,24 +62,20 @@ const FORM_VALIDATE = {
     expireDate: (v: Date | null)   => (v        ? null : "Expiry date is required"),
 };
 
-// ── Helper: Date → "YYYY-MM-DD" string for backend ──
-const toDateString = (date: Date | null): string => {
+const toDateString = (date: Date | string | null): string => {
     if (!date) return "";
-    // Asia/Kolkata timezone safe conversion
+    if (typeof date === "string") return date;
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, "0");
     const d = String(date.getDate()).padStart(2, "0");
     return `${y}-${m}-${d}`;
 };
 
-// ── Helper: "YYYY-MM-DD" string → Date object (for edit pre-fill) ──
 const toDateObject = (str: string): Date | null => {
     if (!str) return null;
     const [y, m, d] = str.split("-").map(Number);
-    return new Date(y, m - 1, d);   // local date, no timezone shift
+    return new Date(y, m - 1, d);
 };
-
-// ── Form Fields ────────────────────────────────────────────────────────────
 
 type StockFormFieldsProps = {
     form:            UseFormReturnType<StockFormValues>;
@@ -94,8 +84,6 @@ type StockFormFieldsProps = {
 
 const StockFormFields = ({ form, medicineOptions }: StockFormFieldsProps) => (
     <div className="grid grid-cols-2 gap-4">
-
-        {/* Medicine dropdown */}
         <Select
             {...form.getInputProps("medicineId")}
             label="Medicine"
@@ -106,15 +94,12 @@ const StockFormFields = ({ form, medicineOptions }: StockFormFieldsProps) => (
             withAsterisk
             className="col-span-2"
         />
-
         <TextInput
             {...form.getInputProps("batchNo")}
             label="Batch No."
             placeholder="e.g. BATCH-001"
             withAsterisk
         />
-
-        {/* ✅ DateInput — calendar popover mein khulta hai, inline nahi */}
         <DateInput
             {...form.getInputProps("expireDate")}
             label="Expiry Date"
@@ -122,9 +107,8 @@ const StockFormFields = ({ form, medicineOptions }: StockFormFieldsProps) => (
             valueFormat="DD MMM YYYY"
             withAsterisk
             clearable
-            popoverProps={{ withinPortal: true }}   // ✅ body mein render, layout safe
+            popoverProps={{ withinPortal: true }}
         />
-
         <NumberInput
             {...form.getInputProps("quantity")}
             label="Quantity"
@@ -133,11 +117,9 @@ const StockFormFields = ({ form, medicineOptions }: StockFormFieldsProps) => (
             withAsterisk
             className="col-span-2"
         />
-
     </div>
 );
 
-// ── Main Component ─────────────────────────────────────────────────────────
 
 const Inventory = () => {
 
@@ -166,7 +148,6 @@ const Inventory = () => {
         validate:      FORM_VALIDATE,
     });
 
-    // ── Fetch inventory from backend ──
     const fetchStocks = () => {
         setFetching(true);
         getAllStock()
@@ -175,7 +156,6 @@ const Inventory = () => {
             .finally(() => setFetching(false));
     };
 
-    // ── Fetch medicines for dropdown ──
     const fetchMedicineOptions = () => {
         getAllMedicines()
             .then((res) => {
@@ -194,14 +174,12 @@ const Inventory = () => {
         fetchMedicineOptions();
     }, []);
 
-    // ── Helpers — medicineId se naam/manufacturer lookup ──
     const getMedicineName = (id: number) =>
         medicineOptions.find((m) => m.value === String(id))?.label ?? `ID: ${id}`;
 
     const getManufacturer = (id: number) =>
         medicineOptions.find((m) => m.value === String(id))?.manufacturer ?? "—";
 
-    // ── Sort ──
     const handleSort = (field: keyof Stock) => {
         if (sortField === field) {
             setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -211,14 +189,13 @@ const Inventory = () => {
         }
     };
 
-    // ── Add submit ──
     const handleAddSubmit = (values: StockFormValues) => {
         setLoading(true);
         const payload = {
             medicineId: Number(values.medicineId),
             batchNo:    values.batchNo,
             quantity:   values.quantity,
-            expireDate: toDateString(values.expireDate),   // ✅ Date → "YYYY-MM-DD"
+            expireDate: toDateString(values.expireDate),
         };
         addStock(payload)
             .then(() => {
@@ -232,19 +209,17 @@ const Inventory = () => {
             .finally(() => setLoading(false));
     };
 
-    // ── Edit open ──
     const handleEditOpen = (stock: Stock) => {
         setEditTarget(stock);
         editForm.setValues({
             medicineId: String(stock.medicineId),
             batchNo:    stock.batchNo,
             quantity:   stock.quantity,
-            expireDate: toDateObject(stock.expireDate),   // ✅ "YYYY-MM-DD" → Date
+            expireDate: toDateObject(stock.expireDate),
         });
         openEdit();
     };
 
-    // ── Edit submit ──
     const handleEditSubmit = (values: StockFormValues) => {
         if (!editTarget) return;
         setLoading(true);
@@ -253,7 +228,7 @@ const Inventory = () => {
             medicineId: Number(values.medicineId),
             batchNo:    values.batchNo,
             quantity:   values.quantity,
-            expireDate: toDateString(values.expireDate),   // ✅ Date → "YYYY-MM-DD"
+            expireDate: toDateString(values.expireDate),
         };
         updateStock(payload)
             .then(() => {
@@ -266,7 +241,6 @@ const Inventory = () => {
             .finally(() => setLoading(false));
     };
 
-    // ── Filter ──
     const filtered = stocks.filter((s) => {
         const q    = search.toLowerCase();
         const name = getMedicineName(s.medicineId).toLowerCase();
@@ -279,7 +253,6 @@ const Inventory = () => {
         );
     });
 
-    // ── Sort ──
     const sorted = [...filtered].sort((a, b) => {
         if (!sortField) return 0;
         const av = a[sortField];
@@ -294,14 +267,11 @@ const Inventory = () => {
     const totalPages = Math.max(1, Math.ceil(sorted.length / perPage));
     const paginated  = sorted.slice((page - 1) * perPage, page * perPage);
 
-    // ── Render ────────────────────────────────────────────────────────────
-
     return (
         <div className="p-6 flex flex-col gap-5">
 
             {/* ── Toolbar ── */}
             <div className="flex items-center gap-3">
-
                 <Button
                     leftSection={<IconPlus size={16} />}
                     color="teal"
@@ -312,25 +282,6 @@ const Inventory = () => {
 
                 <div className="flex-1" />
 
-                <ActionIcon.Group>
-                    <ActionIcon
-                        variant={viewMode === "grid" ? "filled" : "default"}
-                        color="teal" size="lg"
-                        onClick={() => setViewMode("grid")}
-                        aria-label="Grid view"
-                    >
-                        <IconLayoutGrid size={18} />
-                    </ActionIcon>
-                    <ActionIcon
-                        variant={viewMode === "list" ? "filled" : "default"}
-                        color="teal" size="lg"
-                        onClick={() => setViewMode("list")}
-                        aria-label="List view"
-                    >
-                        <IconLayoutList size={18} />
-                    </ActionIcon>
-                </ActionIcon.Group>
-
                 <TextInput
                     leftSection={<IconSearch size={16} />}
                     placeholder="Search medicine / batch"
@@ -338,7 +289,6 @@ const Inventory = () => {
                     onChange={(e) => { setSearch(e.currentTarget.value); setPage(1); }}
                     w={240}
                 />
-
             </div>
 
             {/* ── Table ── */}
@@ -392,7 +342,6 @@ const Inventory = () => {
                         ) : (
                             paginated.map((stock) => (
                                 <Table.Tr key={stock.id}>
-
                                     <Table.Td>
                                         <span style={{ fontWeight: 500 }}>
                                             {getMedicineName(stock.medicineId)}
@@ -401,7 +350,6 @@ const Inventory = () => {
                                             {getManufacturer(stock.medicineId)}
                                         </Text>
                                     </Table.Td>
-
                                     <Table.Td>{stock.batchNo}</Table.Td>
                                     <Table.Td>{stock.quantity}</Table.Td>
                                     <Table.Td>{stock.initialQuantity}</Table.Td>
@@ -430,7 +378,6 @@ const Inventory = () => {
                                             </ActionIcon>
                                         </Group>
                                     </Table.Td>
-
                                 </Table.Tr>
                             ))
                         )}
@@ -452,11 +399,10 @@ const Inventory = () => {
                 </div>
             </Fieldset>
 
-            {/* ── Add Stock Modal ── */}
             <Modal
                 opened={addOpened}
                 onClose={closeAdd}
-                title={<Title order={4}>Add New Stock</Title>}
+                title={<Title order={5} component="p">Add New Stock</Title>}
                 size="lg"
                 centered
             >
@@ -469,11 +415,10 @@ const Inventory = () => {
                 </form>
             </Modal>
 
-            {/* ── Edit Stock Modal ── */}
             <Modal
                 opened={editOpened}
                 onClose={closeEdit}
-                title={<Title order={4}>Edit Stock</Title>}
+                title={<Title order={5} component="p">Edit Stock</Title>}
                 size="lg"
                 centered
             >

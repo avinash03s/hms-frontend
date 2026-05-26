@@ -25,7 +25,6 @@ import { errorNotification, successNotification } from "../../../utility/Notific
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 
-// ── Types ──────────────────────────────────────────────────────────────────
 
 type Medicine = {
     medicineName:   string;
@@ -39,44 +38,38 @@ type Medicine = {
     prescriptionId?: number;
 };
 
-// Pharmacy medicine option for dropdown
 type PharmacyOption = {
-    value:        string;   // "123"  → medicineId as string  |  "OTHER" special
-    label:        string;   // "Metoprolol – CardioLife Pharma (50mg)"
+    value:        string;   
+    label:        string;  
     medicineId:   number | null;
     medicineName: string;
-    dosage:       string;   // ✅ auto-fill
-    type:         string;   // ✅ auto-fill
+    dosage:       string;   
+    type:         string;   
 };
-
-// ── Component ─────────────────────────────────────────────────────────────
 
 const AppointmentReport = ({ appointment, onClose }: any) => {
 
     const [loading,          setLoading]          = useState(false);
     const [pharmacyOptions,  setPharmacyOptions]  = useState<PharmacyOption[]>([]);
 
-    // Per-row state: track whether "Other" is selected for each medicine row
     const [isOther, setIsOther] = useState<boolean[]>([]);
 
     const user = useSelector((state: any) => state.user);
 
-    // ── Fetch pharmacy medicines ──
     useEffect(() => {
         getAllMedicines()
             .then((res) => {
                 const opts: PharmacyOption[] = res
-                    .filter((m: any) => m.stock > 0)   // sirf available
+                    .filter((m: any) => m.stock > 0)  
                     .map((m: any) => ({
                         value:        String(m.id),
                         label:        `${m.name} – ${m.manufacturer}`,
                         medicineId:   m.id,
                         medicineName: m.name,
-                        dosage:       m.dosage,   // ✅
-                        type:         m.type,     // ✅
+                        dosage:       m.dosage,   
+                        type:         m.type,     
                     }));
 
-                // "Other" option at the end
                 opts.push({
                     value:        "OTHER",
                     label:        "Other (type manually)",
@@ -90,8 +83,6 @@ const AppointmentReport = ({ appointment, onClose }: any) => {
             })
             .catch(() => errorNotification("Failed to load pharmacy medicines"));
     }, []);
-
-    // ── Form ──
     const form = useForm({
         initialValues: {
             symptoms: [],
@@ -122,7 +113,6 @@ const AppointmentReport = ({ appointment, onClose }: any) => {
         }
     });
 
-    // ── Insert / Remove medicine row ──
     const insertMedicine = () => {
         form.insertListItem("prescription.medicines", {
             medicineName:  "",
@@ -142,8 +132,6 @@ const AppointmentReport = ({ appointment, onClose }: any) => {
         setIsOther((prev) => prev.filter((_, i) => i !== index));
     };
 
-    // ── Medicine dropdown change handler ──
-    // value = "123" (pharmacy id)  OR  "OTHER"
     const handleMedicineSelect = (index: number, value: string | null) => {
         if (!value) {
             // cleared
@@ -165,7 +153,6 @@ const AppointmentReport = ({ appointment, onClose }: any) => {
             return;
         }
 
-        // Pharmacy medicine selected
         const opt = pharmacyOptions.find((o) => o.value === value);
         if (opt) {
             form.setFieldValue(`prescription.medicines.${index}.medicineName`, opt.medicineName);
@@ -176,7 +163,6 @@ const AppointmentReport = ({ appointment, onClose }: any) => {
         setIsOther((prev) => { const n = [...prev]; n[index] = false; return n; });
     };
 
-    // ── Submit ──
     const handleSubmit = (values: typeof form.values) => {
         const reportData = {
             ...values,
@@ -197,8 +183,6 @@ const AppointmentReport = ({ appointment, onClose }: any) => {
             .catch(() => errorNotification("Failed to create report"))
             .finally(() => setLoading(false));
     };
-
-    // ── Render ────────────────────────────────────────────────────────────
 
     return (
         <form onSubmit={form.onSubmit(handleSubmit)} className="grid gap-5 pb-24">
@@ -271,7 +255,7 @@ const AppointmentReport = ({ appointment, onClose }: any) => {
                             </ActionIcon>
                         </div>
 
-                        {/* ✅ Medicine dropdown — input mein sirf naam, dropdown mein company + dosage */}
+                        
                         <Select
                             label="Medicine"
                             placeholder="Select from pharmacy or choose Other"
@@ -309,7 +293,6 @@ const AppointmentReport = ({ appointment, onClose }: any) => {
                             }}
                         />
 
-                        {/* ✅ Manual name input — sirf "Other" select karne par dikhega */}
                         {isOther[index] && (
                             <TextInput
                                 {...form.getInputProps(`prescription.medicines.${index}.medicineName`)}

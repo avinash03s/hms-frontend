@@ -3,7 +3,7 @@ import {
     NumberInput, Pagination, Select, Table, Text, TextInput, Title,
 } from "@mantine/core";
 import {
-    IconEdit, IconLayoutGrid, IconLayoutList,
+    IconEdit,
     IconPlus, IconSearch, IconTrash,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
@@ -122,7 +122,7 @@ const Medicine = () => {
     const [perPage]                   = useState(10);
     const [sortField,  setSortField]  = useState<keyof Medicine | null>(null);
     const [sortDir,    setSortDir]    = useState<"asc" | "desc">("asc");
-    const [viewMode,   setViewMode]   = useState<"grid" | "list">("grid");
+    // const [viewMode,   setViewMode]   = useState<"grid" | "list">("grid");
     const [editTarget, setEditTarget] = useState<Medicine | null>(null);
     const [loading,    setLoading]    = useState(false);
     const [fetching,   setFetching]   = useState(true);
@@ -140,7 +140,6 @@ const Medicine = () => {
         validate: FORM_VALIDATE,
     });
 
-    // ── Fetch all medicines on mount ──
     const fetchMedicines = () => {
         setFetching(true);
         getAllMedicines()
@@ -153,7 +152,6 @@ const Medicine = () => {
         fetchMedicines();
     }, []);
 
-    // ── Sorting ──
     const handleSort = (field: keyof Medicine) => {
         if (sortField === field) {
             setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -163,7 +161,6 @@ const Medicine = () => {
         }
     };
 
-    // ── Add ──
     const handleAddSubmit = (values: MedicineFormValues) => {
         setLoading(true);
         addMedicine(values)
@@ -177,7 +174,6 @@ const Medicine = () => {
             .finally(() => setLoading(false));
     };
 
-    // ── Edit open ──
     const handleEditOpen = (medicine: Medicine) => {
         setEditTarget(medicine);
         const { id, ...values } = medicine;
@@ -185,7 +181,6 @@ const Medicine = () => {
         openEdit();
     };
 
-    // ── Edit submit ──
     const handleEditSubmit = (values: MedicineFormValues) => {
         if (!editTarget) return;
         setLoading(true);
@@ -199,7 +194,6 @@ const Medicine = () => {
             .finally(() => setLoading(false));
     };
 
-    // ── Delete ──
    const handleDelete = (id: number) => {
 
     deleteMedicine(id)
@@ -212,7 +206,6 @@ const Medicine = () => {
         });
 };
 
-    // ── Filter & Sort ──
     const filtered = medicines.filter((m) => {
         const q = search.toLowerCase();
         return (
@@ -239,7 +232,6 @@ const Medicine = () => {
     return (
         <div className="p-6 flex flex-col gap-5">
 
-            {/* ── Toolbar ── */}
             <div className="flex items-center gap-3">
                 <Button
                     leftSection={<IconPlus size={16} />}
@@ -251,27 +243,6 @@ const Medicine = () => {
 
                 <div className="flex-1" />
 
-                <ActionIcon.Group>
-                    <ActionIcon
-                        variant={viewMode === "grid" ? "filled" : "default"}
-                        color="teal"
-                        size="lg"
-                        onClick={() => setViewMode("grid")}
-                        aria-label="Grid view"
-                    >
-                        <IconLayoutGrid size={18} />
-                    </ActionIcon>
-                    <ActionIcon
-                        variant={viewMode === "list" ? "filled" : "default"}
-                        color="teal"
-                        size="lg"
-                        onClick={() => setViewMode("list")}
-                        aria-label="List view"
-                    >
-                        <IconLayoutList size={18} />
-                    </ActionIcon>
-                </ActionIcon.Group>
-
                 <TextInput
                     leftSection={<IconSearch size={16} />}
                     placeholder="Keyword Search"
@@ -281,7 +252,6 @@ const Medicine = () => {
                 />
             </div>
 
-            {/* ── Table ── */}
             <Fieldset p={0} style={{ overflow: "hidden" }}>
                 <Table
                     striped
@@ -380,7 +350,6 @@ const Medicine = () => {
                 </div>
             </Fieldset>
 
-            {/* ── Add Medicine Modal ── */}
             <Modal
                 opened={addOpened}
                 onClose={closeAdd}
@@ -397,7 +366,6 @@ const Medicine = () => {
                 </form>
             </Modal>
 
-            {/* ── Edit Medicine Modal ── */}
             <Modal
                 opened={editOpened}
                 onClose={closeEdit}

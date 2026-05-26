@@ -224,7 +224,6 @@ const AdminAnalytics = () => {
           ],
         });
 
-        // Using patient index as proxy since no createdAt — show specialization spread for doctors instead
         const specCount: Record<string, number> = {};
         doctors.forEach((d) => {
           const s = d.specialization || "General";

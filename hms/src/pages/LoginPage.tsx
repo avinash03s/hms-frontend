@@ -26,18 +26,42 @@ const LogiPage = () => {
     },
   });
 
+  // const handleSubmit = (values: typeof form.values) => {
+  //   setLoading(true);
+  //   loginUser(values).then((_data) => {
+  //     console.log(jwtDecode(_data))
+  //     successNotification("Login Successfully")
+  //     dispatch(setJwt(_data))
+  //     dispatch(setUser(jwtDecode(_data)))
+
+  //   }).catch((eroor) => {
+  //     errorNotification(eroor?.response?.data?.errorMessage);
+  //   }).finally(() => setLoading(false))
+  // };
+
   const handleSubmit = (values: typeof form.values) => {
     setLoading(true);
     loginUser(values).then((_data) => {
-      console.log(jwtDecode(_data))
-      successNotification("Login Successfully")
-      dispatch(setJwt(_data))
-      dispatch(setUser(jwtDecode(_data)))
+        const decoded: any = jwtDecode(_data);
+        console.log("Token payload:", decoded); // ✅ role check karo
 
-    }).catch((eroor) => {
-      errorNotification(eroor?.response?.data?.errorMessage);
-    }).finally(() => setLoading(false))
-  };
+        dispatch(setJwt(_data));
+        dispatch(setUser(decoded));
+        successNotification("Login Successfully");
+
+        // ✅ Role ke hisaab se redirect
+        if (decoded.role === 'ADMIN') {
+            navigate('/admin/dashboard');
+        } else if (decoded.role === 'DOCTOR') {
+            navigate('/doctor/dashboard');
+        } else if (decoded.role === 'PATIENT') {
+            navigate('/patient/dashboard');
+        }
+
+    }).catch((error) => {
+        errorNotification(error?.response?.data?.errorMessage);
+    }).finally(() => setLoading(false));
+};
 
   return (
     <div className="h-screen w-screen flex flex-col items-center justify-center relative overflow-hidden">

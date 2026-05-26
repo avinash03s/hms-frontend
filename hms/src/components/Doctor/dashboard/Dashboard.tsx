@@ -31,8 +31,6 @@ Chart.register(
     Legend
 );
 
-// ================= TYPES =================
-
 interface DoctorDTO {
     id: number;
     name: string;
@@ -73,8 +71,6 @@ interface AppointmentDTO {
     bloodGroup?: string;
     address?: string;
 }
-
-// ================= CONSTANTS =================
 
 const MONTHS = [
     "Jan",
@@ -141,8 +137,6 @@ const BLOOD_COLORS: Record<string, string> = {
     AB_NEGATIVE: "#FCD34D",
 };
 
-// ================= HELPERS =================
-
 const getInitials = (name: string) =>
     name
         ?.split(" ")
@@ -179,8 +173,6 @@ const card: React.CSSProperties = {
     boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
     overflow: "hidden",
 };
-
-// ================= STAT CARD =================
 
 const StatCard = ({
     label,
@@ -254,8 +246,6 @@ const StatCard = ({
         </div>
     );
 };
-
-// ================= APPOINTMENT ROW =================
 
 const ApptRow = ({ a }: { a: AppointmentDTO }) => {
     const cfg =
@@ -372,8 +362,6 @@ const ApptRow = ({ a }: { a: AppointmentDTO }) => {
     );
 };
 
-// ================= PATIENT CARD =================
-
 const PatientCard = ({ p }: { p: AppointmentDTO }) => {
     const bloodColor =
         BLOOD_COLORS[p.bloodGroup ?? ""] ?? "#94A3B8";
@@ -460,8 +448,6 @@ const PatientCard = ({ p }: { p: AppointmentDTO }) => {
     );
 };
 
-// ================= MAIN =================
-
 const Dashboard = () => {
     const user: any = useSelector((state: any) => state.user);
 
@@ -478,8 +464,6 @@ const Dashboard = () => {
 
     const apptChartRef = useRef<Chart | null>(null);
     const donutChartRef = useRef<Chart | null>(null);
-
-    // ================= RESPONSIVE CSS =================
 
     useEffect(() => {
         const style = document.createElement("style");
@@ -648,8 +632,6 @@ const Dashboard = () => {
         };
     }, []);
 
-    // ================= FETCH =================
-
     useEffect(() => {
         if (!profileId || !userId) return;
 
@@ -700,8 +682,6 @@ const Dashboard = () => {
         fetchData();
     }, [profileId, userId]);
 
-    // ================= DERIVED =================
-
     const today = new Date().toISOString().split("T")[0];
 
     const todayAppts = appointments.filter(
@@ -745,8 +725,6 @@ const Dashboard = () => {
 
     const reasonLabels = Object.keys(reasonMap);
     const reasonData = Object.values(reasonMap);
-
-    // ================= CHARTS =================
 
     useEffect(() => {
         if (!apptRef.current) return;
@@ -813,8 +791,6 @@ const Dashboard = () => {
         };
     }, [appointments]);
 
-    // ================= LOADING =================
-
     if (loading) {
         return (
             <div
@@ -844,8 +820,6 @@ const Dashboard = () => {
             </div>
         );
     }
-
-    // ================= UI =================
 
     return (
         <div className="dashboard-container">
@@ -1064,11 +1038,7 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            {/* BOTTOM */}
-
             <div className="bottom-grid">
-
-                {/* SCHEDULE */}
 
                 <div style={card}>
                     <div
@@ -1102,8 +1072,6 @@ const Dashboard = () => {
                         )}
                     </div>
                 </div>
-
-                {/* PATIENTS */}
 
                 <div style={card}>
                     <div

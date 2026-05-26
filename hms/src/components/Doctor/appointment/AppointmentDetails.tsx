@@ -58,8 +58,6 @@ const AppointmentDetails = () => {
 
         <div className="w-full px-3 sm:px-4 md:px-6 py-3">
 
-            {/* Breadcrumbs */}
-
             <div className="overflow-x-auto">
                 <Breadcrumbs my="md">
 
@@ -83,8 +81,6 @@ const AppointmentDetails = () => {
 
                 </Breadcrumbs>
             </div>
-
-            {/* Appointment Card */}
 
             <Card
                 shadow="sm"
@@ -122,8 +118,6 @@ const AppointmentDetails = () => {
                     </Badge>
 
                 </Group>
-
-                {/* Details Grid */}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 
@@ -179,16 +173,11 @@ const AppointmentDetails = () => {
 
             </Card>
 
-            {/* Tabs */}
-
             <Tabs
                 variant="pills"
                 my="md"
                 defaultValue="report"
             >
-
-                {/* Tabs List */}
-
                 <div className="overflow-x-auto">
 
                     <Tabs.List className="flex-nowrap min-w-max">
@@ -208,12 +197,7 @@ const AppointmentDetails = () => {
                 </div>
 
                 <Divider my="md" />
-
-                {/* Report Panel */}
-
                 <Tabs.Panel value="report">
-
-                    {/* Hide Add Report if Completed */}
 
                     {
                         appointment.status !== "COMPLETED" &&
@@ -238,8 +222,6 @@ const AppointmentDetails = () => {
                         )
                     }
 
-                    {/* Report Form */}
-
                     {
                         openReport && (
 
@@ -256,8 +238,6 @@ const AppointmentDetails = () => {
 
                         )
                     }
-
-                    {/* Completed Message */}
 
                     {
                         appointment.status === "COMPLETED" &&

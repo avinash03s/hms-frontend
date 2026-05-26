@@ -243,14 +243,8 @@ const Profile = () => {
     return (
 
         <div className="p-4 sm:p-6 lg:p-10">
-
-            {/* HEADER */}
             <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6">
-
-                {/* LEFT */}
                 <div className="flex flex-col sm:flex-row gap-5 sm:items-center">
-
-                    {/* AVATAR */}
                     <div className="flex flex-col items-center gap-3 shrink-0">
 
                         <Avatar
@@ -276,8 +270,6 @@ const Profile = () => {
                             </Button>
                         )}
                     </div>
-
-                    {/* USER INFO */}
                     <div className="flex flex-col gap-2 break-all">
 
                         <div className="text-2xl sm:text-3xl font-semibold text-neutral-900">
@@ -289,8 +281,6 @@ const Profile = () => {
                         </div>
                     </div>
                 </div>
-
-                {/* BUTTON */}
                 <div className="w-full sm:w-auto">
 
                     {!editMode ? (
@@ -321,15 +311,11 @@ const Profile = () => {
             </div>
 
             <Divider my="xl" />
-
-            {/* PERSONAL INFO */}
             <div>
 
                 <div className="text-xl sm:text-2xl font-semibold mb-5 text-neutral-900">
                     Personal Information
                 </div>
-
-                {/* DESKTOP TABLE */}
                 <div className="hidden md:block overflow-x-auto">
 
                     <Table
@@ -340,8 +326,6 @@ const Profile = () => {
                     >
 
                         <Table.Tbody>
-
-                            {/* DOB */}
                             <Table.Tr>
 
                                 <Table.Td className="font-semibold text-lg lg:text-xl w-[35%]">
@@ -531,8 +515,6 @@ const Profile = () => {
                         </Table.Tbody>
                     </Table>
                 </div>
-
-                {/* MOBILE CARD VIEW */}
                 <div className="flex flex-col gap-4 md:hidden">
 
                     {/* DOB */}
@@ -667,8 +649,6 @@ const Profile = () => {
                     </div>
                 </div>
             </div>
-
-            {/* MODAL */}
             <Modal
                 centered
                 opened={opened}

@@ -100,7 +100,7 @@ const Appointments = () => {
             console.error("Error Fetching Doctors:", errors)
         }
         );
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []); 
 
     const fetchData = () => {
         getAppointmentsByDoctor(user.profileId).then((data) => {
@@ -255,7 +255,7 @@ const Appointments = () => {
         // Remove time from today
         today.setHours(0, 0, 0, 0);
         const appointmentDay = new Date(appointmentDate);
-        appointmentDay.setHours(0, 0, 0, 0); // Strip time from appointment date
+        appointmentDay.setHours(0, 0, 0, 0); 
         if (tab === "Today") {
             return appointmentDay.getTime() === today.getTime();
         } else if (tab === "Upcoming") {
@@ -268,7 +268,6 @@ const Appointments = () => {
 
     return (
         <div className="card w-full overflow-hidden">
-            {/* Toolbar */}
             <div className="mb-4 flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
 
                 <div className="w-full lg:w-auto flex justify-center lg:justify-start">
@@ -293,7 +292,6 @@ const Appointments = () => {
                 </div>
             </div>
 
-            {/* Desktop Table */}
             <div className="hidden lg:block overflow-x-auto">
                 <DataTable
                     value={filteredAppointments}
@@ -367,7 +365,6 @@ const Appointments = () => {
                 </DataTable>
             </div>
 
-            {/* Mobile + Tablet Cards */}
             <div className="flex flex-col gap-4 lg:hidden">
                 {filteredAppointments.length === 0 && (
                     <div className="text-center text-gray-400 py-10">
@@ -399,7 +396,6 @@ const Appointments = () => {
                             />
                         </div>
 
-                        {/* Details */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
 
                             <div>
@@ -423,7 +419,6 @@ const Appointments = () => {
                             </div>
                         </div>
 
-                        {/* Actions */}
                         <div className="flex items-center justify-end gap-2 mt-4">
 
                             <ActionIcon
@@ -445,7 +440,6 @@ const Appointments = () => {
                 ))}
             </div>
 
-            {/* Modal */}
             <Modal
                 opened={opened}
                 size={window.innerWidth < 640 ? "100%" : "lg"}

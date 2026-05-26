@@ -16,7 +16,6 @@ import {
 import { useEffect, useState } from "react";
 import { deletePatient, getAllPatients } from "../../../service/AdminService";
 
-// Blood group badge color map
 const bloodGroupColor: Record<string, string> = {
   "A+": "red",
   "A-": "pink",
@@ -87,7 +86,6 @@ const AdminPatient = () => {
       .toUpperCase()
       .slice(0, 2) || "P";
 
-  // Avatar color based on name
   const avatarColors = [
     "teal", "blue", "violet", "grape", "pink", "red", "orange", "yellow",
   ];
@@ -352,7 +350,6 @@ const AdminPatient = () => {
         </SimpleGrid>
       )}
 
-      {/* Delete Confirmation Modal */}
       <Modal
         opened={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
