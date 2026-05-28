@@ -13,6 +13,7 @@ import {
   Text,
   TextInput,
   Title,
+  Divider,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import {
@@ -49,10 +50,16 @@ const AdminDoctor = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Profile modal
+  const [profileDoctor, setProfileDoctor] = useState<any | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  // Delete modal
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Add modal
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
   const [doctorForm, setDoctorForm] = useState(EMPTY_FORM);
@@ -85,7 +92,16 @@ const AdminDoctor = () => {
     );
   };
 
-  const confirmDelete = (id: number) => { setDeleteId(id); setDeleteModalOpen(true); };
+  // Open profile modal on card click
+  const openProfile = (doctor: any) => {
+    setProfileDoctor(doctor);
+    setProfileOpen(true);
+  };
+
+  const confirmDelete = (id: number) => {
+    setDeleteId(id);
+    setDeleteModalOpen(true);
+  };
 
   const handleDelete = async () => {
     if (deleteId === null) return;
@@ -95,6 +111,7 @@ const AdminDoctor = () => {
       successNotification("Doctor deleted successfully");
       setDeleteModalOpen(false);
       setDeleteId(null);
+      setProfileOpen(false);
       loadDoctors();
     } catch (error: any) {
       errorNotification(error?.response?.data?.errorMessage || "Failed to delete doctor");
@@ -197,7 +214,27 @@ const AdminDoctor = () => {
         <SimpleGrid cols={{ base: 1, sm: 2, lg: 3, xl: 4 }} spacing="lg">
           {filtered.map((doctor) => (
             <Box key={doctor.id} style={{ width: "100%", minWidth: 0 }}>
-              <Card shadow="sm" radius="xl" p={0} style={{ border: "1.5px solid #e8f5f0", overflow: "hidden", height: "100%" }}>
+              <Card
+                shadow="sm"
+                radius="xl"
+                p={0}
+                onClick={() => openProfile(doctor)}
+                style={{
+                  border: "1.5px solid #e8f5f0",
+                  overflow: "hidden",
+                  height: "100%",
+                  cursor: "pointer",
+                  transition: "box-shadow 0.2s, transform 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = "0 6px 24px rgba(32,201,151,0.15)";
+                  (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = "";
+                  (e.currentTarget as HTMLDivElement).style.transform = "";
+                }}
+              >
                 <Box style={{ height: 4, background: "linear-gradient(90deg, #20c997, #12b886)" }} />
                 <Box style={{ padding: "clamp(14px, 2vw, 22px)" }}>
                   <Group gap="md" mb="md" align="flex-start" wrap="nowrap">
@@ -222,8 +259,14 @@ const AdminDoctor = () => {
 
                   <Text size="xs" c="dimmed" lineClamp={1}>{doctor.email || "—"}</Text>
 
-                  <Button fullWidth mt="md" radius="xl" size="sm" color="red" variant="light"
-                    onClick={() => confirmDelete(doctor.id)} style={{ fontWeight: 600 }}>
+                  <Button
+                    fullWidth mt="md" radius="xl" size="sm" color="red" variant="light"
+                    onClick={(e) => {
+                      e.stopPropagation(); // card click trigger na ho
+                      confirmDelete(doctor.id);
+                    }}
+                    style={{ fontWeight: 600 }}
+                  >
                     Delete Doctor
                   </Button>
                 </Box>
@@ -239,9 +282,179 @@ const AdminDoctor = () => {
         </SimpleGrid>
       )}
 
+      {/* PROFILE MODAL */}
+      <Modal
+        opened={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        title={<Text fw={700} size="lg" c="teal">Doctor Profile</Text>}
+        centered
+        radius="xl"
+        size="md"
+      >
+        {profileDoctor && (
+          <Stack gap="lg">
+
+            {/* TOP PROFILE */}
+            <Group gap="md" align="center" wrap="nowrap">
+              <Avatar
+                size={90}
+                radius="xl"
+                color={getAvatarColor(profileDoctor.name || "")}
+                style={{
+                  border: "4px solid #e0f5ef",
+                  boxShadow: "0 4px 18px rgba(32,201,151,0.18)",
+                  fontWeight: 700,
+                  flexShrink: 0,
+                }}
+              >
+                {getInitials(profileDoctor.name || "D")}
+              </Avatar>
+
+              <Stack gap={4} style={{ flex: 1 }}>
+                <Text fw={800} size="xl">
+                  Dr. {profileDoctor.name}
+                </Text>
+
+                <Badge
+                  size="lg"
+                  radius="xl"
+                  color={getSpecColor(profileDoctor.specialization)}
+                  variant="light"
+                  style={{ width: "fit-content" }}
+                >
+                  {profileDoctor.specialization || "General"}
+                </Badge>
+
+                <Text size="sm" c="dimmed">
+                  {profileDoctor.email}
+                </Text>
+              </Stack>
+            </Group>
+
+            <Divider />
+
+            {/* PROFESSIONAL INFO */}
+            <Box>
+              <Text fw={700} mb="sm" c="teal">
+                Professional Information
+              </Text>
+
+              <SimpleGrid cols={2} spacing="md">
+                <Box>
+                  <Text size="xs" c="dimmed">Doctor ID</Text>
+                  <Text fw={600}>#{profileDoctor.id}</Text>
+                </Box>
+
+                <Box>
+                  <Text size="xs" c="dimmed">Experience</Text>
+                  <Text fw={600}>
+                    {profileDoctor.totalExperience || 0} Years
+                  </Text>
+                </Box>
+
+                <Box>
+                  <Text size="xs" c="dimmed">Department</Text>
+                  <Text fw={600}>
+                    {profileDoctor.department || "General"}
+                  </Text>
+                </Box>
+
+                <Box>
+                  <Text size="xs" c="dimmed">License No</Text>
+                  <Text fw={600}>
+                    {profileDoctor.licenseNumber || "Not Added"}
+                  </Text>
+                </Box>
+              </SimpleGrid>
+            </Box>
+
+            <Divider />
+
+            {/* CONTACT INFO */}
+            <Box>
+              <Text fw={700} mb="sm" c="teal">
+                Contact Information
+              </Text>
+
+              <SimpleGrid cols={2} spacing="md">
+                <Box>
+                  <Text size="xs" c="dimmed">Phone</Text>
+                  <Text fw={600}>
+                    {profileDoctor.phoneNo || "Not Available"}
+                  </Text>
+                </Box>
+
+                <Box>
+                  <Text size="xs" c="dimmed">Email</Text>
+                  <Text fw={600}>
+                    {profileDoctor.email || "—"}
+                  </Text>
+                </Box>
+
+                <Box style={{ gridColumn: "1 / -1" }}>
+                  <Text size="xs" c="dimmed">Address</Text>
+                  <Text fw={600}>
+                    {profileDoctor.address || "Address not added"}
+                  </Text>
+                </Box>
+              </SimpleGrid>
+            </Box>
+
+            <Divider />
+
+            {/* ACCOUNT INFO */}
+            <Box>
+              <Text fw={700} mb="sm" c="teal">
+                Account Information
+              </Text>
+
+              <SimpleGrid cols={2} spacing="md">
+                <Box>
+                  <Text size="xs" c="dimmed">Status</Text>
+                  <Badge color="teal" radius="xl" variant="light">
+                    Active
+                  </Badge>
+                </Box>
+              </SimpleGrid>
+            </Box>
+
+            <Divider />
+
+            {/* BUTTONS */}
+            <Group grow>
+              <Button
+                color="red"
+                variant="light"
+                radius="xl"
+                onClick={() => {
+                  setProfileOpen(false);
+                  confirmDelete(profileDoctor.id);
+                }}
+              >
+                Delete Doctor
+              </Button>
+
+              <Button
+                variant="light"
+                color="teal"
+                radius="xl"
+                onClick={() => setProfileOpen(false)}
+              >
+                Close
+              </Button>
+            </Group>
+
+          </Stack>
+        )}
+      </Modal>
+
       {/* DELETE MODAL */}
-      <Modal opened={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}
-        title={<Text fw={700} c="red" size="lg">Confirm Delete</Text>} centered radius="xl" size="sm">
+      <Modal
+        opened={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        title={<Text fw={700} c="red" size="lg">Confirm Delete</Text>}
+        centered radius="xl" size="sm"
+      >
         <Text c="dimmed" mb="lg">Are you sure you want to delete this doctor?</Text>
         <Group justify="flex-end" gap="sm">
           <Button variant="light" radius="xl" onClick={() => setDeleteModalOpen(false)} disabled={deleteLoading}>Cancel</Button>
@@ -249,8 +462,13 @@ const AdminDoctor = () => {
         </Group>
       </Modal>
 
-      <Modal opened={addModalOpen} onClose={handleCloseAddModal}
-        title={<Text fw={700} size="lg" c="teal">Add New Doctor</Text>} centered radius="xl" size="sm">
+      {/* ADD DOCTOR MODAL */}
+      <Modal
+        opened={addModalOpen}
+        onClose={handleCloseAddModal}
+        title={<Text fw={700} size="lg" c="teal">Add New Doctor</Text>}
+        centered radius="xl" size="sm"
+      >
         <Stack gap="sm">
           <TextInput
             label="Full Name" placeholder="Dr. John Smith" required

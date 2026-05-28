@@ -11,6 +11,7 @@ import { Button, } from "@mantine/core";import {
   IconFolderHeart,
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
+import AIChatBot from "../components/utility/AIChatBot";
 
 const features = [
   {
@@ -721,6 +722,7 @@ const HomePage = () => {
           ))}
         </div>
       </footer>
+      <AIChatBot/>
     </div>
   );
 };
