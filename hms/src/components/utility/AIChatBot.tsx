@@ -29,20 +29,15 @@ const renderText = (text: string) => {
         ? <strong key={j} style={{ fontWeight: 600 }}>{p}</strong>
         : p
     );
-
     if (line.trimStart().startsWith("- ") || line.trimStart().startsWith("• ")) {
       const content = line.replace(/^[\s\-•]+/, "");
       return (
         <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginTop: 4 }}>
-          <span style={{
-            width: 4, height: 4, borderRadius: "50%",
-            background: "#6B7280", marginTop: 7, flexShrink: 0,
-          }} />
+          <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#6B7280", marginTop: 7, flexShrink: 0 }} />
           <span>{content}</span>
         </div>
       );
     }
-
     return (
       <span key={i}>
         {rendered}
@@ -132,6 +127,48 @@ const AIChatBot = () => {
 
   return (
     <>
+      {!open && (
+        <span style={{
+          position: "fixed",
+          bottom: 20, right: 20,
+          width: 56, height: 56,
+          borderRadius: "50%",
+          background: "rgba(36, 174, 158, 0.35)",
+          zIndex: 9998,
+          animation: "pulse-ring 2s ease-out infinite",
+          pointerEvents: "none",
+        }} />
+      )}
+
+      {!open && (
+        <div style={{
+          position: "fixed",
+          bottom: 32, right: 80,
+          background: "#1F2937",
+          color: "#F9FAFB",
+          fontSize: 11.5,
+          fontWeight: 600,
+          padding: "5px 10px",
+          borderRadius: 8,
+          zIndex: 9999,
+          whiteSpace: "nowrap",
+          boxShadow: "0 4px 14px rgba(0,0,0,0.25)",
+          pointerEvents: "none",
+          animation: "label-in 0.3s ease-out",
+        }}>
+          🩺 AI Assistant
+          <div style={{
+            position: "absolute",
+            right: -6, top: "50%",
+            transform: "translateY(-50%)",
+            width: 0, height: 0,
+            borderTop: "5px solid transparent",
+            borderBottom: "5px solid transparent",
+            borderLeft: "6px solid #1F2937",
+          }} />
+        </div>
+      )}
+
       <button
         onClick={() => setOpen((v) => !v)}
         title="Medical AI Assistant"
@@ -148,6 +185,7 @@ const AIChatBot = () => {
           boxShadow: "0 4px 14px rgba(0,0,0,0.25)",
           zIndex: 9999,
           transition: "background 0.2s, transform 0.2s",
+          animation: open ? "none" : "bot-pulse 2s ease-in-out infinite",
         }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.07)";
@@ -180,7 +218,6 @@ const AIChatBot = () => {
           animation: "chat-in 0.18s ease-out",
           fontFamily: "'Inter', system-ui, sans-serif",
         }}>
-
           <div style={{
             padding: "12px 14px",
             background: "#1F2937",
@@ -201,123 +238,48 @@ const AIChatBot = () => {
                   Medical AI Assistant
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 2 }}>
-                  <span style={{
-                    width: 5, height: 5, borderRadius: "50%",
-                    background: "#4ADE80", display: "inline-block",
-                  }} />
+                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#4ADE80", display: "inline-block" }} />
                   <span style={{ fontSize: 10.5, color: "#9CA3AF" }}>Online</span>
                 </div>
               </div>
             </div>
-
             <div style={{ display: "flex", gap: 5 }}>
-              <button
-                onClick={clearChat}
-                title="Clear chat"
-                style={{
-                  width: 28, height: 28, borderRadius: 6,
-                  background: "#374151",
-                  border: "none", color: "#9CA3AF",
-                  cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  transition: "background 0.15s",
-                }}
+              <button onClick={clearChat} title="Clear chat" style={{ width: 28, height: 28, borderRadius: 6, background: "#374151", border: "none", color: "#9CA3AF", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s" }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4B5563"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#374151"; }}
-              >
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#374151"; }}>
                 <IconTrash size={13} stroke={2} />
               </button>
-              <button
-                onClick={() => setOpen(false)}
-                style={{
-                  width: 28, height: 28, borderRadius: 6,
-                  background: "#374151",
-                  border: "none", color: "#9CA3AF",
-                  cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  transition: "background 0.15s",
-                }}
+              <button onClick={() => setOpen(false)} style={{ width: 28, height: 28, borderRadius: 6, background: "#374151", border: "none", color: "#9CA3AF", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s" }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4B5563"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#374151"; }}
-              >
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#374151"; }}>
                 <IconX size={13} stroke={2.5} />
               </button>
             </div>
           </div>
 
-          <div style={{
-            flex: 1, overflowY: "auto",
-            padding: "14px 12px",
-            display: "flex", flexDirection: "column", gap: 10,
-            background: "#F9FAFB",
-          }}>
+          <div style={{ flex: 1, overflowY: "auto", padding: "14px 12px", display: "flex", flexDirection: "column", gap: 10, background: "#F9FAFB" }}>
             {messages.map((msg) => (
-              <div key={msg.id} style={{
-                display: "flex",
-                flexDirection: msg.role === "user" ? "row-reverse" : "row",
-                alignItems: "flex-end",
-                gap: 7,
-                animation: "msg-in 0.16s ease-out",
-              }}>
-                {/* Avatar */}
-                <div style={{
-                  width: 26, height: 26, borderRadius: 8, flexShrink: 0,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  background: msg.role === "user" ? "#374151" : "#E5E7EB",
-                }}>
+              <div key={msg.id} style={{ display: "flex", flexDirection: msg.role === "user" ? "row-reverse" : "row", alignItems: "flex-end", gap: 7, animation: "msg-in 0.16s ease-out" }}>
+                <div style={{ width: 26, height: 26, borderRadius: 8, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: msg.role === "user" ? "#374151" : "#E5E7EB" }}>
                   {msg.role === "user"
                     ? <span style={{ fontSize: 10, fontWeight: 700, color: "#F9FAFB" }}>P</span>
                     : <IconRobot size={13} color="#6B7280" stroke={1.8} />
                   }
                 </div>
-
-                {/* Bubble */}
-                <div style={{
-                  maxWidth: "75%",
-                  padding: "9px 12px",
-                  borderRadius: msg.role === "user"
-                    ? "12px 3px 12px 12px"
-                    : "3px 12px 12px 12px",
-                  background: msg.role === "user" ? "#1F2937" : "#fff",
-                  color: msg.role === "user" ? "#F3F4F6" : "#374151",
-                  fontSize: 12.5,
-                  lineHeight: 1.6,
-                  border: msg.role === "assistant" ? "1px solid #E5E7EB" : "none",
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-                }}>
+                <div style={{ maxWidth: "75%", padding: "9px 12px", borderRadius: msg.role === "user" ? "12px 3px 12px 12px" : "3px 12px 12px 12px", background: msg.role === "user" ? "#1F2937" : "#fff", color: msg.role === "user" ? "#F3F4F6" : "#374151", fontSize: 12.5, lineHeight: 1.6, border: msg.role === "assistant" ? "1px solid #E5E7EB" : "none", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
                   <div>{renderText(msg.text)}</div>
-                  <div style={{
-                    fontSize: 10, marginTop: 4,
-                    color: msg.role === "user" ? "#6B7280" : "#9CA3AF",
-                    textAlign: msg.role === "user" ? "right" : "left",
-                  }}>
+                  <div style={{ fontSize: 10, marginTop: 4, color: msg.role === "user" ? "#6B7280" : "#9CA3AF", textAlign: msg.role === "user" ? "right" : "left" }}>
                     {fmt(msg.ts)}
                   </div>
                 </div>
               </div>
             ))}
-
-            {/* Typing indicator */}
             {loading && (
-              <div style={{
-                display: "flex", alignItems: "flex-end", gap: 7,
-                animation: "msg-in 0.16s ease-out",
-              }}>
-                <div style={{
-                  width: 26, height: 26, borderRadius: 8,
-                  background: "#E5E7EB",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0,
-                }}>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 7, animation: "msg-in 0.16s ease-out" }}>
+                <div style={{ width: 26, height: 26, borderRadius: 8, background: "#E5E7EB", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <IconRobot size={13} color="#6B7280" stroke={1.8} />
                 </div>
-                <div style={{
-                  padding: "10px 13px",
-                  borderRadius: "3px 12px 12px 12px",
-                  background: "#fff",
-                  border: "1px solid #E5E7EB",
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-                }}>
+                <div style={{ padding: "10px 13px", borderRadius: "3px 12px 12px 12px", background: "#fff", border: "1px solid #E5E7EB", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
                   <TypingDots />
                 </div>
               </div>
@@ -326,105 +288,32 @@ const AIChatBot = () => {
           </div>
 
           {messages.length <= 1 && !loading && (
-            <div style={{
-              padding: "0 12px 10px",
-              display: "flex", flexWrap: "wrap", gap: 5,
-              background: "#F9FAFB", flexShrink: 0,
-            }}>
+            <div style={{ padding: "0 12px 10px", display: "flex", flexWrap: "wrap", gap: 5, background: "#F9FAFB", flexShrink: 0 }}>
               {SUGGESTIONS.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => handleAsk(s)}
-                  style={{
-                    padding: "4px 9px",
-                    fontSize: 11, fontWeight: 500,
-                    borderRadius: 6,
-                    border: "1px solid #E5E7EB",
-                    background: "#fff",
-                    color: "#374151",
-                    cursor: "pointer",
-                    transition: "background 0.15s, border-color 0.15s",
-                    whiteSpace: "nowrap",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background = "#F3F4F6";
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "#D1D5DB";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background = "#fff";
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "#E5E7EB";
-                  }}
-                >
+                <button key={s} onClick={() => handleAsk(s)} style={{ padding: "4px 9px", fontSize: 11, fontWeight: 500, borderRadius: 6, border: "1px solid #E5E7EB", background: "#fff", color: "#374151", cursor: "pointer", transition: "background 0.15s, border-color 0.15s", whiteSpace: "nowrap" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#F3F4F6"; (e.currentTarget as HTMLButtonElement).style.borderColor = "#D1D5DB"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#fff"; (e.currentTarget as HTMLButtonElement).style.borderColor = "#E5E7EB"; }}>
                   {s}
                 </button>
               ))}
             </div>
           )}
 
-          <div style={{
-            padding: "6px 12px",
-            background: "#FFF8E1",
-            borderTop: "1px solid #FDE68A",
-            display: "flex", alignItems: "center", gap: 5,
-            flexShrink: 0,
-          }}>
+          <div style={{ padding: "6px 12px", background: "#FFF8E1", borderTop: "1px solid #FDE68A", display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
             <span style={{ fontSize: 11 }}>⚠️</span>
-            <span style={{ fontSize: 10, color: "#92400E" }}>
-              For information only. Always consult your doctor.
-            </span>
+            <span style={{ fontSize: 10, color: "#92400E" }}>For information only. Always consult your doctor.</span>
           </div>
 
-          <div style={{
-            padding: "10px 12px",
-            background: "#fff",
-            borderTop: "1px solid #F3F4F6",
-            display: "flex", gap: 8, alignItems: "center",
-            flexShrink: 0,
-          }}>
-            <input
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKey}
-              disabled={loading}
-              placeholder="Ask about a medicine…"
-              style={{
-                flex: 1, padding: "9px 12px",
-                borderRadius: 8,
-                border: "1.5px solid #E5E7EB",
-                fontSize: 12.5, outline: "none",
-                color: "#111827",
-                background: loading ? "#F9FAFB" : "#fff",
-                fontFamily: "inherit",
-                transition: "border-color 0.15s",
-              }}
-              onFocus={(e) => {
-                (e.currentTarget as HTMLInputElement).style.borderColor = "#9CA3AF";
-              }}
-              onBlur={(e) => {
-                (e.currentTarget as HTMLInputElement).style.borderColor = "#E5E7EB";
-              }}
+          <div style={{ padding: "10px 12px", background: "#fff", borderTop: "1px solid #F3F4F6", display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
+            <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKey} disabled={loading} placeholder="Ask about a medicine…"
+              style={{ flex: 1, padding: "9px 12px", borderRadius: 8, border: "1.5px solid #E5E7EB", fontSize: 12.5, outline: "none", color: "#111827", background: loading ? "#F9FAFB" : "#fff", fontFamily: "inherit", transition: "border-color 0.15s" }}
+              onFocus={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = "#9CA3AF"; }}
+              onBlur={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = "#E5E7EB"; }}
             />
-            <button
-              onClick={() => handleAsk()}
-              disabled={!canSend}
-              style={{
-                width: 34, height: 34,
-                borderRadius: 8,
-                background: canSend ? "#1F2937" : "#F3F4F6",
-                border: "none",
-                cursor: canSend ? "pointer" : "not-allowed",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0,
-                transition: "background 0.15s",
-              }}
-              onMouseEnter={(e) => {
-                if (canSend) (e.currentTarget as HTMLButtonElement).style.background = "#111827";
-              }}
-              onMouseLeave={(e) => {
-                if (canSend) (e.currentTarget as HTMLButtonElement).style.background = "#1F2937";
-              }}
-            >
+            <button onClick={() => handleAsk()} disabled={!canSend}
+              style={{ width: 34, height: 34, borderRadius: 8, background: canSend ? "#1F2937" : "#F3F4F6", border: "none", cursor: canSend ? "pointer" : "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background 0.15s" }}
+              onMouseEnter={(e) => { if (canSend) (e.currentTarget as HTMLButtonElement).style.background = "#111827"; }}
+              onMouseLeave={(e) => { if (canSend) (e.currentTarget as HTMLButtonElement).style.background = "#1F2937"; }}>
               <IconSend size={14} color={canSend ? "#fff" : "#9CA3AF"} stroke={2} />
             </button>
           </div>
@@ -432,6 +321,19 @@ const AIChatBot = () => {
       )}
 
       <style>{`
+        @keyframes bot-pulse {
+          0%   { transform: scale(1);    box-shadow: 0 4px 14px rgba(0,0,0,0.25); }
+          50%  { transform: scale(1.15); box-shadow: 0 6px 20px rgba(36,174,158,0.5); }
+          100% { transform: scale(1);    box-shadow: 0 4px 14px rgba(0,0,0,0.25); }
+        }
+        @keyframes pulse-ring {
+          0%   { transform: scale(0.8); opacity: 0.8; }
+          100% { transform: scale(1.7); opacity: 0;   }
+        }
+        @keyframes label-in {
+          from { opacity: 0; transform: translateX(6px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
         @keyframes dot-bounce {
           0%, 80%, 100% { transform: scale(0.65); opacity: 0.35; }
           40%            { transform: scale(1);    opacity: 1;    }
