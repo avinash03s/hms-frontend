@@ -1,14 +1,4 @@
-import {
-    ActionIcon,
-    Button,
-    Fieldset,
-    MultiSelect,
-    NumberInput,
-    Select,
-    Textarea,
-    TextInput
-} from "@mantine/core";
-
+import {ActionIcon,Button,Fieldset,MultiSelect,NumberInput,Select,Textarea,TextInput} from "@mantine/core";
 import {
     dosageFrequencies,
     symptoms,
@@ -187,7 +177,7 @@ const AppointmentReport = ({ appointment, onClose }: any) => {
     return (
         <form onSubmit={form.onSubmit(handleSubmit)} className="grid gap-5 pb-24">
 
-            {/* ── Patient Information ── */}
+ 
             <Fieldset
                 className="grid grid-cols-2 gap-5"
                 legend={
@@ -233,7 +223,7 @@ const AppointmentReport = ({ appointment, onClose }: any) => {
                 />
             </Fieldset>
 
-            {/* ── Prescription ── */}
+  
             <Fieldset
                 className="grid gap-5"
                 legend={
@@ -362,7 +352,7 @@ const AppointmentReport = ({ appointment, onClose }: any) => {
                 </div>
             </Fieldset>
 
-            {/* ── Sticky Submit Bar ── */}
+    
             <div className="sticky bottom-0 bg-white py-3 border-t z-50">
                 <div className="flex gap-5 justify-center items-center">
                     <Button loading={loading} type="submit" className="w-[300px]">

@@ -567,7 +567,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-3 w-full xl:w-auto">
+          <div className="grid grid-cols-3 gap-3 w-full xl:w-auto">
             {[
               { val: appointments.length, lbl: "Total Visits" },
               { val: upcoming.length, lbl: "Upcoming" },
@@ -575,9 +575,9 @@ const Dashboard = () => {
             ].map(({ val, lbl }) => (
               <div
                 key={lbl}
-                className="min-w-[90px] px-5 py-4 bg-white/10 border border-white/20 rounded-2xl text-center"
+                className="px-3 sm:px-5 py-4 bg-white/10 border border-white/20 rounded-2xl text-center"
               >
-                <div className="text-3xl font-bold text-white leading-none">
+                <div className="text-2xl sm:text-3xl font-bold text-white leading-none">
                   {val}
                 </div>
 
@@ -590,7 +590,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
           label="Total Visits"
           value={appointments.length}
@@ -667,7 +667,7 @@ const Dashboard = () => {
           ) : (
             <div className="flex flex-col lg:flex-row items-center gap-6">
 
-              <div className="relative w-[180px] h-[180px] shrink-0">
+              <div className="relative w-full max-w-[180px] aspect-square shrink-0">
                 <canvas ref={donutRef} />
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
@@ -757,7 +757,6 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* TODAY */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
 
           <div className="flex items-center justify-between mb-5 gap-4">

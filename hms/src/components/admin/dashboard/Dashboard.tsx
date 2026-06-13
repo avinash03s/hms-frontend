@@ -1,1454 +1,419 @@
 import {
-    useCallback,
-    useEffect,
-    useMemo,
-    useState,
+  useCallback, useEffect, useMemo, useState,
 } from "react";
-
 import {
-    AreaChart,
-    Area,
-    PieChart,
-    Pie,
-    Cell,
-    Tooltip,
-    ResponsiveContainer,
+  AreaChart, Area, PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
 } from "recharts";
-
 import {
-    getAllAppointments,
-    getAllDoctors,
-    getAllPatients,
+  getAllAppointments, getAllDoctors, getAllPatients,
 } from "../../../service/AdminService";
+import {
+  IconUsers, IconStethoscope, IconCalendarTime, IconRefresh,
+} from "@tabler/icons-react";
+
 
 function pick(obj: any, ...keys: string[]): string {
-    for (const k of keys) {
-        const v = obj?.[k];
-
-        if (
-            v !== undefined &&
-            v !== null &&
-            v !== ""
-        ) {
-            return String(v);
-        }
-    }
-
-    return "—";
+  for (const k of keys) {
+    const v = obj?.[k];
+    if (v !== undefined && v !== null && v !== "") return String(v);
+  }
+  return "—";
 }
 
-function pickNum(
-    obj: any,
-    ...keys: string[]
-): number {
-    for (const k of keys) {
-        const v = obj?.[k];
-
-        if (
-            v !== undefined &&
-            v !== null &&
-            !isNaN(Number(v))
-        ) {
-            return Number(v);
-        }
-    }
-
-    return 0;
+function pickNum(obj: any, ...keys: string[]): number {
+  for (const k of keys) {
+    const v = obj?.[k];
+    if (v !== undefined && v !== null && !isNaN(Number(v))) return Number(v);
+  }
+  return 0;
 }
 
 function safeArray(data: any) {
-    if (Array.isArray(data)) return data;
-
-    if (Array.isArray(data?.data))
-        return data.data;
-
-    if (Array.isArray(data?.content))
-        return data.content;
-
-    return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.data)) return data.data;
+  if (Array.isArray(data?.content)) return data.content;
+  return [];
 }
 
-// NORMALIZE
 function normalizeAppointment(raw: any) {
-    return {
-        id: pickNum(
-            raw,
-            "id",
-            "appointmentId",
-            "appointment_id"
-        ),
-
-        patientName: pick(
-            raw,
-            "patientName",
-            "patient_name",
-            "patient",
-            "patientFullName"
-        ),
-
-        doctorName: pick(
-            raw,
-            "doctorName",
-            "doctor_name",
-            "doctor",
-            "doctorFullName"
-        ),
-
-        specialization: pick(
-            raw,
-            "specialization",
-            "department",
-            "doctorSpecialization"
-        ),
-
-        appointmentDate: pick(
-            raw,
-            "appointmentDate",
-            "appointment_date",
-            "date",
-            "scheduledDate",
-            "createdAt"
-        ),
-
-        appointmentTime: pick(
-            raw,
-            "appointmentTime",
-            "appointment_time",
-            "time",
-            "scheduledTime"
-        ),
-
-        status: pick(
-            raw,
-            "status",
-            "appointmentStatus",
-            "state"
-        ),
-    };
+  return {
+    id: pickNum(raw, "id", "appointmentId"),
+    patientName: pick(raw, "patientName", "patient_name", "patient"),
+    doctorName: pick(raw, "doctorName", "doctor_name", "doctor"),
+    specialization: pick(raw, "specialization", "department"),
+    appointmentDate: pick(raw, "appointmentDate", "appointment_date", "date", "createdAt"),
+    appointmentTime: pick(raw, "appointmentTime", "appointment_time", "time"),
+    status: pick(raw, "status", "appointmentStatus"),
+  };
 }
 
 function normalizePatient(raw: any) {
-    return {
-        patientId: pickNum(
-            raw,
-            "patientId",
-            "id"
-        ),
-
-        fullName: pick(
-            raw,
-            "fullName",
-            "name",
-            "patientName"
-        ),
-
-        age: pickNum(raw, "age"),
-
-        bloodGroup: pick(
-            raw,
-            "bloodGroup",
-            "blood_type"
-        ),
-
-        disease: pick(
-            raw,
-            "disease",
-            "diagnosis",
-            "condition"
-        ),
-
-        doctorName: pick(
-            raw,
-            "doctorName",
-            "doctor"
-        ),
-
-        email: pick(raw, "email"),
-
-        address: pick(
-            raw,
-            "address",
-            "city",
-            "location"
-        ),
-
-        status: pick(raw, "status"),
-    };
+  return {
+    patientId: pickNum(raw, "patientId", "id"),
+    fullName: pick(raw, "fullName", "name", "patientName"),
+    bloodGroup: pick(raw, "bloodGroup", "blood_type"),
+    disease: pick(raw, "disease", "diagnosis", "condition"),
+    email: pick(raw, "email"),
+    address: pick(raw, "address", "city"),
+  };
 }
 
 function normalizeDoctor(raw: any) {
-    return {
-        doctorId: pickNum(
-            raw,
-            "doctorId",
-            "id"
-        ),
-
-        fullName: pick(
-            raw,
-            "fullName",
-            "name",
-            "doctorName"
-        ),
-
-        specialization: pick(
-            raw,
-            "specialization",
-            "department"
-        ),
-
-        qualification: pick(
-            raw,
-            "qualification",
-            "degree"
-        ),
-
-        experience: pick(
-            raw,
-            "experience",
-            "exp"
-        ),
-
-        email: pick(raw, "email"),
-
-        address: pick(
-            raw,
-            "address",
-            "city"
-        ),
-
-        status: pick(raw, "status"),
-    };
+  return {
+    doctorId: pickNum(raw, "doctorId", "id"),
+    fullName: pick(raw, "fullName", "name", "doctorName"),
+    specialization: pick(raw, "specialization", "department"),
+    email: pick(raw, "email"),
+  };
 }
 
-type NAppointment = ReturnType<
-    typeof normalizeAppointment
->;
+type NAppointment = ReturnType<typeof normalizeAppointment>;
+type NPatient = ReturnType<typeof normalizePatient>;
+type NDoctor = ReturnType<typeof normalizeDoctor>;
 
-type NPatient = ReturnType<
-    typeof normalizePatient
->;
-
-type NDoctor = ReturnType<
-    typeof normalizeDoctor
->;
-
-// CHART HELPERS
-function buildMonthlyData(
-    appointments: NAppointment[]
-) {
-    const months = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-    ];
-
-    const counts: Record<
-        string,
-        number
-    > = {};
-
-    appointments.forEach((a) => {
-        if (a.appointmentDate === "—")
-            return;
-
-        const d = new Date(
-            a.appointmentDate.replace(
-                " ",
-                "T"
-            )
-        );
-
-        if (isNaN(d.getTime())) return;
-
-        const k = months[d.getMonth()];
-
-        counts[k] = (counts[k] || 0) + 1;
-    });
-
-    return months
-        .filter((m) => counts[m])
-        .map((m) => ({
-            month: m,
-            value: counts[m],
-        }));
+function buildMonthlyData(appointments: NAppointment[]) {
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const counts: Record<string, number> = {};
+  appointments.forEach((a) => {
+    if (a.appointmentDate === "—") return;
+    const d = new Date(a.appointmentDate.replace(" ", "T"));
+    if (isNaN(d.getTime())) return;
+    const k = months[d.getMonth()];
+    counts[k] = (counts[k] || 0) + 1;
+  });
+  return months.filter((m) => counts[m]).map((m) => ({ month: m, value: counts[m] }));
 }
 
-function buildDiseaseData(
-    patients: NPatient[]
-) {
-    const counts: Record<
-        string,
-        number
-    > = {};
-
-    patients.forEach((p) => {
-        const key =
-            p.disease === "—"
-                ? "Other"
-                : p.disease;
-
-        counts[key] =
-            (counts[key] || 0) + 1;
-    });
-
-    return Object.entries(counts).map(
-        ([name, value]) => ({
-            name,
-            value,
-        })
-    );
-}
-
-function buildSpecData(
-    doctors: NDoctor[]
-) {
-    const counts: Record<
-        string,
-        number
-    > = {};
-
-    doctors.forEach((d) => {
-        const key =
-            d.specialization === "—"
-                ? "Other"
-                : d.specialization;
-
-        counts[key] =
-            (counts[key] || 0) + 1;
-    });
-
-    return Object.entries(counts).map(
-        ([name, value]) => ({
-            name,
-            value,
-        })
-    );
+function buildSpecData(doctors: NDoctor[]) {
+  const counts: Record<string, number> = {};
+  doctors.forEach((d) => {
+    const key = d.specialization === "—" ? "Other" : d.specialization;
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  return Object.entries(counts).map(([name, value]) => ({ name, value }));
 }
 
 function fmtDateTime(raw: string) {
-    if (!raw || raw === "—") {
-        return {
-            date: "—",
-            time: "",
-        };
-    }
-
-    const d = new Date(
-        raw.replace(" ", "T")
-    );
-
-    if (isNaN(d.getTime())) {
-        return {
-            date: raw,
-            time: "",
-        };
-    }
-
-    return {
-        date: d.toLocaleDateString(
-            "en-IN",
-            {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-            }
-        ),
-
-        time: d.toLocaleTimeString(
-            "en-IN",
-            {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-            }
-        ),
-    };
+  if (!raw || raw === "—") return { date: "—", time: "" };
+  const d = new Date(raw.replace(" ", "T"));
+  if (isNaN(d.getTime())) return { date: raw, time: "" };
+  return {
+    date: d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
+    time: d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }),
+  };
 }
 
-// COLORS
-const PIE_COLORS = [
-    "#7c6fde",
-    "#e8724a",
-    "#4caf8e",
-    "#5ba8f5",
-    "#f5a623",
-    "#9575cd",
-    "#66bb6a",
-];
+const PIE_COLORS = ["#1a6fa8","#0d9488","#7c3aed","#0891b2","#d97706","#dc2626","#16a34a"];
 
-// SKELETON
-const Skeleton = ({
-    h = 50,
-}: {
-    h?: number;
-}) => (
-    <div
-        style={{
-            height: h,
-            borderRadius: 12,
-            background:
-                "linear-gradient(90deg,#f3f4f6 25%,#e9ebee 50%,#f3f4f6 75%)",
-            backgroundSize: "200% 100%",
-            animation:
-                "shimmer 1.5s infinite",
-            marginBottom: 10,
-        }}
-    />
-);
-
-// TOOLTIP
-const CustomTooltip = ({
-    active,
-    payload,
-    label,
-}: any) => {
-    if (
-        !active ||
-        !payload?.length
-    )
-        return null;
-
-    return (
-        <div
-            style={{
-                background: "#fff",
-                border:
-                    "1px solid #e5e7eb",
-                borderRadius: 10,
-                padding: "8px 12px",
-                fontSize: 12,
-            }}
-        >
-            <p
-                style={{
-                    fontWeight: 700,
-                    marginBottom: 4,
-                }}
-            >
-                {label}
-            </p>
-
-            {payload.map(
-                (p: any, i: number) => (
-                    <div key={i}>
-                        {p.value}
-                    </div>
-                )
-            )}
-        </div>
-    );
-};
-
-// MINI AREA
-const MiniArea = ({
-    data,
-    color,
-    gradId,
-}: any) => (
-    <ResponsiveContainer
-        width="100%"
-        height={70}
-    >
-        <AreaChart data={data}>
-            <defs>
-                <linearGradient
-                    id={gradId}
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                >
-                    <stop
-                        offset="5%"
-                        stopColor={color}
-                        stopOpacity={0.4}
-                    />
-
-                    <stop
-                        offset="95%"
-                        stopColor={color}
-                        stopOpacity={0}
-                    />
-                </linearGradient>
-            </defs>
-
-            <Area
-                type="monotone"
-                dataKey="value"
-                stroke={color}
-                strokeWidth={2}
-                fill={`url(#${gradId})`}
-            />
-        </AreaChart>
-    </ResponsiveContainer>
-);
-
-// STATUS BADGE
-function statusBadge(
-    status = ""
-) {
-    const s = status.toLowerCase();
-
-    if (
-        [
-            "confirmed",
-            "active",
-            "completed",
-        ].includes(s)
-    ) {
-        return {
-            bg: "#dcfce7",
-            color: "#16a34a",
-        };
-    }
-
-    if (
-        [
-            "pending",
-            "scheduled",
-        ].includes(s)
-    ) {
-        return {
-            bg: "#eff6ff",
-            color: "#2563eb",
-        };
-    }
-
-    return {
-        bg: "#f3f4f6",
-        color: "#6b7280",
-    };
+function statusBadge(status = "") {
+  const s = status.toLowerCase();
+  if (["confirmed","active","completed"].includes(s)) return { bg: "#dcfce7", color: "#16a34a" };
+  if (["pending","scheduled"].includes(s)) return { bg: "#dbeafe", color: "#1d4ed8" };
+  return { bg: "#f3f4f6", color: "#6b7280" };
 }
 
-// STAT CARD
-const StatCard = ({
-    label,
-    count,
-    chartData,
-    color,
-    bgColor,
-    iconBg,
-    icon,
-    gradId,
-}: any) => (
-    <div
-        style={{
-            background: bgColor,
-            borderRadius: 20,
-            padding:
-                "18px 20px 0 20px",
-            overflow: "hidden",
-            width: "100%",
-        }}
-    >
-        <div
-            style={{
-                display: "flex",
-                justifyContent:
-                    "space-between",
-                alignItems: "center",
-                gap: 12,
-                flexWrap: "wrap",
-            }}
-        >
-            <div
-                style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 10,
-                    background: iconBg,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent:
-                        "center",
-                    flexShrink: 0,
-                }}
-            >
-                {icon}
-            </div>
 
-            <div
-                style={{
-                    textAlign: "right",
-                    minWidth: 0,
-                    flex: 1,
-                }}
-            >
-                <div
-                    style={{
-                        fontSize: 12,
-                        color: "#6b7280",
-                        wordBreak: "break-word",
-                    }}
-                >
-                    {label}
-                </div>
-
-                <div
-                    style={{
-                        fontSize: 32,
-                        fontWeight: 800,
-                        wordBreak: "break-word",
-                    }}
-                >
-                    {count}
-                </div>
-            </div>
-        </div>
-
-        <MiniArea
-            data={chartData}
-            color={color}
-            gradId={gradId}
-        />
-    </div>
+const Skeleton = ({ h = 50 }: { h?: number }) => (
+  <div
+    className="rounded-xl mb-2 animate-pulse bg-gray-100"
+    style={{ height: h }}
+  />
 );
 
-// SECTION CARD
-const SectionCard = ({
-    title,
-    children,
-}: any) => (
-    <div
-        style={{
-            background: "#fff",
-            borderRadius: 20,
-            padding: 18,
-            boxShadow:
-                "0 1px 4px rgba(0,0,0,0.05)",
-            width: "100%",
-            overflow: "hidden",
-        }}
-    >
-        <div
-            style={{
-                fontWeight: 700,
-                marginBottom: 14,
-                wordBreak: "break-word",
-            }}
-        >
-            {title}
-        </div>
 
-        {children}
-    </div>
+const MiniArea = ({ data, color, gradId }: any) => (
+  <ResponsiveContainer width="100%" height={60}>
+    <AreaChart data={data}>
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="5%" stopColor={color} stopOpacity={0.3} />
+          <stop offset="95%" stopColor={color} stopOpacity={0} />
+        </linearGradient>
+      </defs>
+      <Area type="monotone" dataKey="value" stroke={color} strokeWidth={2} fill={`url(#${gradId})`} />
+    </AreaChart>
+  </ResponsiveContainer>
 );
 
-// APPOINTMENT ROW
-const AppointRow = ({
-    a,
-}: {
-    a: NAppointment;
-}) => {
-    const sb = statusBadge(
-        a.status
-    );
 
-    const { date, time } =
-        fmtDateTime(
-            a.appointmentDate
-        );
-
-    return (
+const StatCard = ({ label, count, chartData, color, icon }: any) => (
+  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="h-1 w-full rounded-t-2xl" style={{ background: color }} />
+    <div className="px-5 pt-4 pb-0">
+      <div className="flex items-center justify-between mb-3">
         <div
-            style={{
-                display: "flex",
-                justifyContent:
-                    "space-between",
-                flexWrap: "wrap",
-                gap: 10,
-                padding: 12,
-                borderRadius: 12,
-                background: "#fdf6ee",
-                marginBottom: 8,
-            }}
+          className="w-10 h-10 rounded-xl flex items-center justify-center"
+          style={{ background: color + "18", color }}
         >
-            <div
-                style={{
-                    flex: 1,
-                    minWidth: 0,
-                }}
-            >
-                <div
-                    style={{
-                        fontWeight: 700,
-                        fontSize: 13,
-                        wordBreak: "break-word",
-                    }}
-                >
-                    {a.patientName}
-                </div>
-
-                <div
-                    style={{
-                        fontSize: 11,
-                        color: "#9ca3af",
-                        wordBreak: "break-word",
-                    }}
-                >
-                    {a.doctorName}
-                </div>
-            </div>
-
-            <div
-                style={{
-                    textAlign: "right",
-                    minWidth: 110,
-                }}
-            >
-                <div
-                    style={{
-                        fontSize: 11,
-                    }}
-                >
-                    {date}
-                </div>
-
-                <div
-                    style={{
-                        fontSize: 11,
-                        color: "#9ca3af",
-                    }}
-                >
-                    {time}
-                </div>
-
-                <span
-                    style={{
-                        display:
-                            "inline-block",
-                        marginTop: 3,
-                        padding:
-                            "2px 8px",
-                        borderRadius: 99,
-                        background: sb.bg,
-                        color: sb.color,
-                        fontSize: 10,
-                        fontWeight: 700,
-                    }}
-                >
-                    {a.status}
-                </span>
-            </div>
+          {icon}
         </div>
-    );
+        <div className="text-right">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{label}</p>
+          <p className="text-3xl font-extrabold text-gray-900">{count}</p>
+        </div>
+      </div>
+      <MiniArea data={chartData} color={color} gradId={`grad-${label}`} />
+    </div>
+  </div>
+);
+
+const SectionCard = ({ title, children }: any) => (
+  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+    <div className="h-1 w-10 bg-[#1a6fa8] rounded-full mb-4" />
+    <h3 className="font-bold text-gray-900 text-base mb-4">{title}</h3>
+    {children}
+  </div>
+);
+
+
+const AppointRow = ({ a }: { a: NAppointment }) => {
+  const sb = statusBadge(a.status);
+  const { date, time } = fmtDateTime(a.appointmentDate);
+  return (
+    <div className="flex items-start justify-between gap-3 bg-[#f4f7fb] rounded-xl px-4 py-3 mb-2">
+      <div className="flex-1 min-w-0">
+        <p className="font-bold text-gray-900 text-sm truncate">{a.patientName}</p>
+        <p className="text-xs text-gray-400 truncate">{a.doctorName}</p>
+      </div>
+      <div className="text-right shrink-0">
+        <p className="text-xs text-gray-500">{date}</p>
+        <p className="text-xs text-gray-400">{time}</p>
+        <span
+          className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-bold"
+          style={{ background: sb.bg, color: sb.color }}
+        >
+          {a.status}
+        </span>
+      </div>
+    </div>
+  );
 };
 
-// DASHBOARD
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-white border border-gray-100 rounded-xl px-3 py-2 shadow text-xs">
+      <p className="font-bold mb-1">{label}</p>
+      {payload.map((p: any, i: number) => <div key={i}>{p.value}</div>)}
+    </div>
+  );
+};
+
+
+const fallback = [{ value: 0 }, { value: 2 }, { value: 4 }, { value: 2 }, { value: 1 }];
+
 const AdminDashboard = () => {
-    const [
-        appointments,
-        setAppointments,
-    ] = useState<
-        NAppointment[]
-    >([]);
+  const [appointments, setAppointments] = useState<NAppointment[]>([]);
+  const [patients, setPatients] = useState<NPatient[]>([]);
+  const [doctors, setDoctors] = useState<NDoctor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    const [
-        patients,
-        setPatients,
-    ] = useState<NPatient[]>([]);
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const [aRes, pRes, dRes] = await Promise.all([
+        getAllAppointments(), getAllPatients(), getAllDoctors(),
+      ]);
+      setAppointments(safeArray(aRes.data).map(normalizeAppointment));
+      setPatients(safeArray(pRes.data).map(normalizePatient));
+      setDoctors(safeArray(dRes.data).map(normalizeDoctor));
+    } catch {
+      setError("Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    const [
-        doctors,
-        setDoctors,
-    ] = useState<NDoctor[]>([]);
+  useEffect(() => {
+    loadData();
+    const interval = setInterval(loadData, 30000);
+    return () => clearInterval(interval);
+  }, [loadData]);
 
-    const [loading, setLoading] =
-        useState(true);
+  const monthlyData = useMemo(() => buildMonthlyData(appointments), [appointments]);
+  const specData = useMemo(() => buildSpecData(doctors), [doctors]);
 
-    const [error, setError] =
-        useState("");
+  return (
+    <div className="min-h-screen bg-[#f4f7fb] p-4 sm:p-6">
 
-    const loadData =
-        useCallback(async () => {
-            try {
-                setLoading(true);
-                setError("");
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <span className="inline-block bg-blue-100 text-[#1a6fa8] text-xs font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full mb-2">
+            Overview
+          </span>
+          <h1 className="text-2xl font-extrabold text-gray-900">Admin Dashboard</h1>
+        </div>
+        <button
+          onClick={loadData}
+          className="flex items-center gap-2 text-sm font-semibold text-[#1a6fa8] border border-[#1a6fa8]/30 px-4 py-2 rounded-xl hover:bg-[#1a6fa8]/5 transition-colors"
+        >
+          <IconRefresh size={15} /> Refresh
+        </button>
+      </div>
 
-                const [
-                    aRes,
-                    pRes,
-                    dRes,
-                ] = await Promise.all([
-                    getAllAppointments(),
-                    getAllPatients(),
-                    getAllDoctors(),
-                ]);
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-600 text-sm font-semibold px-4 py-3 rounded-xl mb-5">
+          {error}
+        </div>
+      )}
 
-                const rawA = safeArray(
-                    aRes.data
-                );
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
+        <StatCard
+          label="Appointments"
+          count={appointments.length}
+          chartData={monthlyData.length ? monthlyData : fallback}
+          color="#1a6fa8"
+          icon={<IconCalendarTime size={20} stroke={1.5} />}
+        />
+        <StatCard
+          label="Patients"
+          count={patients.length}
+          chartData={fallback}
+          color="#0d9488"
+          icon={<IconUsers size={20} stroke={1.5} />}
+        />
+        <StatCard
+          label="Doctors"
+          count={doctors.length}
+          chartData={fallback}
+          color="#7c3aed"
+          icon={<IconStethoscope size={20} stroke={1.5} />}
+        />
+      </div>
 
-                const rawP = safeArray(
-                    pRes.data
-                );
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-5">
 
-                const rawD = safeArray(
-                    dRes.data
-                );
+        <SectionCard title="Doctor Specializations">
+          {loading ? (
+            <Skeleton h={240} />
+          ) : specData.length === 0 ? (
+            <div className="h-60 flex items-center justify-center text-gray-400 text-sm">No Data</div>
+          ) : (
+            <>
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie data={specData} dataKey="value" innerRadius={55} outerRadius={85}>
+                    {specData.map((_, i) => (
+                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {specData.slice(0, 6).map((s, i) => (
+                  <span
+                    key={i}
+                    className="text-xs px-2 py-1 rounded-full font-semibold"
+                    style={{ background: PIE_COLORS[i % PIE_COLORS.length] + "18", color: PIE_COLORS[i % PIE_COLORS.length] }}
+                  >
+                    {s.name} ({s.value})
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
+        </SectionCard>
 
-                setAppointments(
-                    rawA.map(
-                        normalizeAppointment
-                    )
-                );
+        <SectionCard title="Recent Appointments">
+          {loading ? (
+            <>{Array(4).fill(0).map((_, i) => <Skeleton key={i} />)}</>
+          ) : appointments.length === 0 ? (
+            <div className="text-center text-gray-400 text-sm py-8">No appointments</div>
+          ) : (
+            appointments.slice(0, 5).map((a, i) => <AppointRow key={`${a.id}-${i}`} a={a} />)
+          )}
+        </SectionCard>
 
-                setPatients(
-                    rawP.map(
-                        normalizePatient
-                    )
-                );
-
-                setDoctors(
-                    rawD.map(
-                        normalizeDoctor
-                    )
-                );
-            } catch (err) {
-                console.error(err);
-
-                setError(
-                    "Failed to load dashboard data"
-                );
-            } finally {
-                setLoading(false);
-            }
-        }, []);
-
-    useEffect(() => {
-        loadData();
-
-        const interval =
-            setInterval(() => {
-                loadData();
-            }, 30000);
-
-        return () =>
-            clearInterval(interval);
-    }, [loadData]);
-
-    const monthlyData =
-        useMemo(
-            () =>
-                buildMonthlyData(
-                    appointments
-                ),
-            [appointments]
-        );
-
-    const diseaseData =
-        useMemo(
-            () =>
-                buildDiseaseData(
-                    patients
-                ),
-            [patients]
-        );
-
-    const specData = useMemo(
-        () =>
-            buildSpecData(doctors),
-        [doctors]
-    );
-
-    const fallback = [
-        { value: 0 },
-        { value: 2 },
-        { value: 4 },
-        { value: 2 },
-        { value: 1 },
-    ];
-
-    return (
-        <>
-            <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap');
-
-        @keyframes shimmer {
-          0% {
-            background-position: 200% 0;
-          }
-
-          100% {
-            background-position: -200% 0;
-          }
-        }
-
-        *{
-          box-sizing:border-box;
-        }
-
-        body {
-          margin: 0;
-          background: #f0f2f7;
-          font-family: 'DM Sans', sans-serif;
-        }
-
-        ::-webkit-scrollbar{
-          width:4px;
-          height:4px;
-        }
-
-        ::-webkit-scrollbar-thumb{
-          background:#d1d5db;
-          border-radius:20px;
-        }
-      `}</style>
-
-            {/* MAIN WRAPPER */}
-            <div
-                style={{
-                    background: "#f0f2f7",
-                    minHeight: "100vh",
-                    marginLeft: "0px",
-                    width: "100%",
-                    overflowX: "hidden",
-                }}
-            >
+        <SectionCard title="Dept. Breakdown">
+          {loading ? (
+            <>{Array(4).fill(0).map((_, i) => <Skeleton key={i} />)}</>
+          ) : (
+            <div className="space-y-2">
+              {specData.slice(0, 6).map((s, i) => (
                 <div
-                    style={{
-                        padding:
-                            window.innerWidth <
-                            768
-                                ? "12px"
-                                : "22px",
-                    }}
+                  key={i}
+                  className="flex items-center justify-between bg-[#f4f7fb] border border-gray-100 px-4 py-3 rounded-xl"
                 >
-                    {error && (
-                        <div
-                            style={{
-                                background:
-                                    "#fee2e2",
-                                color:
-                                    "#dc2626",
-                                padding:
-                                    "12px 16px",
-                                borderRadius: 12,
-                                marginBottom: 18,
-                                fontSize: 13,
-                                fontWeight: 600,
-                                wordBreak:
-                                    "break-word",
-                            }}
-                        >
-                            {error}
-                        </div>
-                    )}
-
-                    {/* STATS */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 mb-5">
-                        <StatCard
-                            label="Appointments"
-                            count={
-                                appointments.length
-                            }
-                            chartData={
-                                monthlyData.length
-                                    ? monthlyData
-                                    : fallback
-                            }
-                            color="#7c6fde"
-                            bgColor="#ede9fb"
-                            iconBg="#d8d3f8"
-                            icon="📅"
-                            gradId="g1"
-                        />
-
-                        <StatCard
-                            label="Patients"
-                            count={
-                                patients.length
-                            }
-                            chartData={
-                                fallback
-                            }
-                            color="#e8724a"
-                            bgColor="#fef0e9"
-                            iconBg="#fdd9c9"
-                            icon="🏥"
-                            gradId="g2"
-                        />
-
-                        <StatCard
-                            label="Doctors"
-                            count={
-                                doctors.length
-                            }
-                            chartData={
-                                fallback
-                            }
-                            color="#4caf8e"
-                            bgColor="#e8f7f2"
-                            iconBg="#c5ece0"
-                            icon="👨‍⚕️"
-                            gradId="g3"
-                        />
-                    </div>
-
-                    {/* CHARTS */}
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-5">
-                        {/* PIE */}
-                        <SectionCard title="Reason Distribution">
-                            {loading ? (
-                                <>
-                                    <Skeleton h={240} />
-                                </>
-                            ) : diseaseData.length ===
-                              0 ? (
-                                <div className="h-[250px] flex items-center justify-center text-slate-400">
-                                    No Data
-                                </div>
-                            ) : (
-                                <ResponsiveContainer
-                                    width="100%"
-                                    height={250}
-                                >
-                                    <PieChart>
-                                        <Pie
-                                            data={
-                                                diseaseData
-                                            }
-                                            dataKey="value"
-                                            innerRadius={
-                                                60
-                                            }
-                                            outerRadius={
-                                                90
-                                            }
-                                        >
-                                            {diseaseData.map(
-                                                (
-                                                    _,
-                                                    i
-                                                ) => (
-                                                    <Cell
-                                                        key={
-                                                            i
-                                                        }
-                                                        fill={
-                                                            PIE_COLORS[
-                                                                i %
-                                                                    PIE_COLORS.length
-                                                            ]
-                                                        }
-                                                    />
-                                                )
-                                            )}
-                                        </Pie>
-
-                                        <Tooltip
-                                            content={
-                                                <CustomTooltip />
-                                            }
-                                        />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            )}
-                        </SectionCard>
-
-                        {/* APPOINTMENTS */}
-                        <SectionCard title="Appointments">
-                            {loading ? (
-                                <>
-                                    <Skeleton />
-                                    <Skeleton />
-                                    <Skeleton />
-                                </>
-                            ) : (
-                                appointments
-                                    .slice(
-                                        0,
-                                        6
-                                    )
-                                    .map(
-                                        (
-                                            a,
-                                            i
-                                        ) => (
-                                            <AppointRow
-                                                key={`${a.id}-${i}`}
-                                                a={
-                                                    a
-                                                }
-                                            />
-                                        )
-                                    )
-                            )}
-                        </SectionCard>
-
-                        {/* SPECIALIZATION */}
-                        <SectionCard title="Doctor Specializations">
-                            {loading ? (
-                                <>
-                                    <Skeleton />
-                                    <Skeleton />
-                                    <Skeleton />
-                                </>
-                            ) : (
-                                <div className="space-y-3">
-                                    {specData
-                                        .slice(
-                                            0,
-                                            6
-                                        )
-                                        .map(
-                                            (
-                                                s,
-                                                i
-                                            ) => (
-                                                <div
-                                                    key={
-                                                        i
-                                                    }
-                                                    className="flex flex-wrap items-center justify-between gap-3 bg-[#fff7ed] border border-orange-100 px-4 py-3 rounded-xl"
-                                                >
-                                                    <div
-                                                        style={{
-                                                            minWidth: 0,
-                                                            flex: 1,
-                                                        }}
-                                                    >
-                                                        <div className="font-semibold text-sm break-words">
-                                                            {
-                                                                s.name
-                                                            }
-                                                        </div>
-
-                                                        <div className="text-xs text-slate-400">
-                                                            Department
-                                                        </div>
-                                                    </div>
-
-                                                    <span
-                                                        className="px-3 py-1 rounded-full text-xs font-bold"
-                                                        style={{
-                                                            background:
-                                                                PIE_COLORS[
-                                                                    i %
-                                                                        PIE_COLORS.length
-                                                                ] +
-                                                                "22",
-
-                                                            color:
-                                                                PIE_COLORS[
-                                                                    i %
-                                                                        PIE_COLORS.length
-                                                                ],
-                                                        }}
-                                                    >
-                                                        {
-                                                            s.value
-                                                        }
-                                                    </span>
-                                                </div>
-                                            )
-                                        )}
-                                </div>
-                            )}
-                        </SectionCard>
-                    </div>
-
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-                        {/* PATIENTS */}
-                        <div
-                            style={{
-                                background:
-                                    "#f5efe6",
-                                borderRadius: 20,
-                                padding: 16,
-                                boxShadow:
-                                    "0 2px 8px rgba(0,0,0,0.06)",
-                                maxHeight: 360,
-                                overflowY:
-                                    "auto",
-                                overflowX:
-                                    "hidden",
-                            }}
-                        >
-                            <h3
-                                style={{
-                                    margin: 0,
-                                    marginBottom: 14,
-                                    fontSize: 18,
-                                    fontWeight: 800,
-                                }}
-                            >
-                                Patients
-                            </h3>
-
-                            {loading ? (
-                                <>
-                                    <Skeleton />
-                                    <Skeleton />
-                                    <Skeleton />
-                                </>
-                            ) : (
-                                patients
-                                    .slice(
-                                        0,
-                                        8
-                                    )
-                                    .map(
-                                        (
-                                            p,
-                                            i
-                                        ) => (
-                                            <div
-                                                key={
-                                                    i
-                                                }
-                                                style={{
-                                                    background:
-                                                        "#fff7ed",
-                                                    border:
-                                                        "2px solid #f97316",
-                                                    borderRadius: 16,
-                                                    padding:
-                                                        "14px 16px",
-                                                    marginBottom: 12,
-                                                    display:
-                                                        "flex",
-                                                    justifyContent:
-                                                        "space-between",
-                                                    alignItems:
-                                                        "flex-start",
-                                                    flexWrap:
-                                                        "wrap",
-                                                    gap: 12,
-                                                }}
-                                            >
-                                                <div
-                                                    style={{
-                                                        flex: 1,
-                                                        minWidth: 0,
-                                                    }}
-                                                >
-                                                    <div
-                                                        style={{
-                                                            fontWeight: 800,
-                                                            fontSize: 16,
-                                                            marginBottom: 4,
-                                                            wordBreak:
-                                                                "break-word",
-                                                        }}
-                                                    >
-                                                        {
-                                                            p.fullName
-                                                        }
-                                                    </div>
-
-                                                    <div
-                                                        style={{
-                                                            fontSize: 14,
-                                                            color: "#6b7280",
-                                                            wordBreak:
-                                                                "break-word",
-                                                        }}
-                                                    >
-                                                        {
-                                                            p.email
-                                                        }
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    style={{
-                                                        textAlign:
-                                                            "right",
-                                                        minWidth: 120,
-                                                    }}
-                                                >
-                                                    <div
-                                                        style={{
-                                                            fontSize: 14,
-                                                            color: "#6b7280",
-                                                            wordBreak:
-                                                                "break-word",
-                                                        }}
-                                                    >
-                                                        {
-                                                            p.address
-                                                        }
-                                                    </div>
-
-                                                    <div
-                                                        style={{
-                                                            fontSize: 14,
-                                                            fontWeight: 600,
-                                                            marginTop: 4,
-                                                            wordBreak:
-                                                                "break-word",
-                                                        }}
-                                                    >
-                                                        Blood
-                                                        Group:{" "}
-                                                        {
-                                                            p.bloodGroup
-                                                        }
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )
-                                    )
-                            )}
-                        </div>
-
-                        {/* DOCTORS */}
-                        <div
-                            style={{
-                                background:
-                                    "#efedf7",
-                                borderRadius: 20,
-                                padding: 16,
-                                boxShadow:
-                                    "0 2px 8px rgba(0,0,0,0.06)",
-                                maxHeight: 360,
-                                overflowY:
-                                    "auto",
-                                overflowX:
-                                    "hidden",
-                            }}
-                        >
-                            <h3
-                                style={{
-                                    margin: 0,
-                                    marginBottom: 14,
-                                    fontSize: 18,
-                                    fontWeight: 800,
-                                }}
-                            >
-                                Doctors
-                            </h3>
-
-                            {loading ? (
-                                <>
-                                    <Skeleton />
-                                    <Skeleton />
-                                    <Skeleton />
-                                </>
-                            ) : (
-                                doctors
-                                    .slice(
-                                        0,
-                                        8
-                                    )
-                                    .map(
-                                        (
-                                            d,
-                                            i
-                                        ) => (
-                                            <div
-                                                key={
-                                                    i
-                                                }
-                                                style={{
-                                                    background:
-                                                        "#f5f3ff",
-                                                    border:
-                                                        "2px solid #8b5cf6",
-                                                    borderRadius: 16,
-                                                    padding:
-                                                        "14px 16px",
-                                                    marginBottom: 12,
-                                                    display:
-                                                        "flex",
-                                                    justifyContent:
-                                                        "space-between",
-                                                    alignItems:
-                                                        "flex-start",
-                                                    flexWrap:
-                                                        "wrap",
-                                                    gap: 12,
-                                                }}
-                                            >
-                                                <div
-                                                    style={{
-                                                        flex: 1,
-                                                        minWidth: 0,
-                                                    }}
-                                                >
-                                                    <div
-                                                        style={{
-                                                            fontWeight: 800,
-                                                            fontSize: 16,
-                                                            marginBottom: 4,
-                                                            wordBreak:
-                                                                "break-word",
-                                                        }}
-                                                    >
-                                                        {
-                                                            d.fullName
-                                                        }
-                                                    </div>
-
-                                                    <div
-                                                        style={{
-                                                            fontSize: 14,
-                                                            color: "#6b7280",
-                                                            wordBreak:
-                                                                "break-word",
-                                                        }}
-                                                    >
-                                                        {
-                                                            d.email
-                                                        }
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    style={{
-                                                        textAlign:
-                                                            "right",
-                                                        minWidth: 120,
-                                                    }}
-                                                >
-                                                    <div
-                                                        style={{
-                                                            fontSize: 14,
-                                                            color: "#6b7280",
-                                                            wordBreak:
-                                                                "break-word",
-                                                        }}
-                                                    >
-                                                        {
-                                                            d.address
-                                                        }
-                                                    </div>
-
-                                                    <div
-                                                        style={{
-                                                            fontSize: 14,
-                                                            fontWeight: 600,
-                                                            marginTop: 4,
-                                                            wordBreak:
-                                                                "break-word",
-                                                        }}
-                                                    >
-                                                        {
-                                                            d.specialization
-                                                        }
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )
-                                    )
-                            )}
-                        </div>
-                    </div>
+                  <div>
+                    <p className="font-semibold text-sm text-gray-900">{s.name}</p>
+                    <p className="text-xs text-gray-400">Department</p>
+                  </div>
+                  <span
+                    className="px-3 py-1 rounded-full text-xs font-bold"
+                    style={{
+                      background: PIE_COLORS[i % PIE_COLORS.length] + "18",
+                      color: PIE_COLORS[i % PIE_COLORS.length],
+                    }}
+                  >
+                    {s.value}
+                  </span>
                 </div>
+              ))}
             </div>
-        </>
-    );
+          )}
+        </SectionCard>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+
+        <SectionCard title="Recent Patients">
+          {loading ? (
+            <>{Array(3).fill(0).map((_, i) => <Skeleton key={i} h={70} />)}</>
+          ) : (
+            <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+              {patients.slice(0, 8).map((p, i) => (
+                <div key={i} className="flex items-center justify-between bg-[#f4f7fb] border border-gray-100 rounded-xl px-4 py-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-sm text-gray-900 truncate">{p.fullName}</p>
+                    <p className="text-xs text-gray-400 truncate">{p.email}</p>
+                  </div>
+                  <div className="text-right shrink-0 ml-3">
+                    <p className="text-xs text-gray-500 truncate max-w-[120px]">{p.address}</p>
+                    {p.bloodGroup !== "—" && (
+                      <span className="inline-block mt-1 text-xs font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-600">
+                        {p.bloodGroup}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </SectionCard>
+
+        {/* Doctors */}
+        <SectionCard title="Recent Doctors">
+          {loading ? (
+            <>{Array(3).fill(0).map((_, i) => <Skeleton key={i} h={70} />)}</>
+          ) : (
+            <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+              {doctors.slice(0, 8).map((d, i) => (
+                <div key={i} className="flex items-center justify-between bg-[#f4f7fb] border border-gray-100 rounded-xl px-4 py-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-sm text-gray-900 truncate">Dr. {d.fullName}</p>
+                    <p className="text-xs text-gray-400 truncate">{d.email}</p>
+                  </div>
+                  <div className="shrink-0 ml-3">
+                    <span
+                      className="text-xs font-bold px-2 py-1 rounded-full"
+                      style={{ background: "#1a6fa8" + "18", color: "#1a6fa8" }}
+                    >
+                      {d.specialization}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </SectionCard>
+
+      </div>
+    </div>
+  );
 };
 
 export default AdminDashboard;

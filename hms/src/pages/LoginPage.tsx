@@ -1,5 +1,106 @@
+// import { TextInput, PasswordInput, Button } from '@mantine/core';
+// import { IconHeartbeat, IconArrowLeft } from "@tabler/icons-react";
+// import { useForm } from '@mantine/form';
+// import { Link, useNavigate } from "react-router-dom";
+// import { loginUser } from '../service/UserService';
+// import { errorNotification, successNotification } from '../utility/Notification';
+// import { useState } from 'react';
+// import { jwtDecode } from 'jwt-decode';
+// import { useDispatch } from 'react-redux';
+// import { setJwt } from '../slices/JwtSlices';
+// import { setUser } from '../slices/UserSlices';
+
+// const LogiPage = () => {
+
+//   const dispatch = useDispatch();
+//   const navigate = useNavigate();
+//   const [loading, setLoading] = useState(false);
+//   const form = useForm({
+//     initialValues: {
+//       email: '',
+//       password: '',
+//     },
+//     validate: {
+//       email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+//       password: (value) => (!value ? "Password is required" : null)
+//     },
+//   });
+
+//   const handleSubmit = (values: typeof form.values) => {
+//     setLoading(true);
+//     loginUser(values).then((_data) => {
+//         const decoded: any = jwtDecode(_data);
+//         console.log("Token payload:", decoded);
+
+//         dispatch(setJwt(_data));
+//         dispatch(setUser(decoded));
+//         successNotification("Login Successfully");
+
+//         if (decoded.role === 'ADMIN') {
+//             navigate('/admin/dashboard');
+//         } else if (decoded.role === 'DOCTOR') {
+//             navigate('/doctor/dashboard');
+//         } else if (decoded.role === 'PATIENT') {
+//             navigate('/patient/dashboard');
+//         }
+
+//     }).catch((error) => {
+//         errorNotification(error?.response?.data?.errorMessage);
+//     }).finally(() => setLoading(false));
+//   };
+
+//   return (
+//     <div className="min-h-screen w-screen flex flex-col items-center justify-center relative overflow-y-auto py-8 px-4">
+
+//       <img
+//         src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&q=90"
+//         alt="bg"
+//         className="absolute inset-0 w-full h-full object-cover object-center"
+//         style={{ filter: 'brightness(0.55)' }}
+//       />
+
+//       <div className="absolute inset-0"
+//         style={{ background: 'linear-gradient(135deg, rgba(10,15,30,0.85) 0%, rgba(190,24,93,0.15) 100%)' }}
+//       />
+
+//       <button
+//         onClick={() => navigate("/")}
+//         className="absolute top-5 left-5 z-10 flex items-center gap-1.5 text-white/70 hover:text-white transition-colors duration-200 group"
+//       >
+//         <IconArrowLeft size={18} stroke={2} className="group-hover:-translate-x-0.5 transition-transform duration-200" />
+//         <span className="text-sm font-medium">Back</span>
+//       </button>
+
+//       <div className="relative z-10 flex flex-col items-center w-full">
+//         <div className="py-3 text-primary-500 flex gap-1 items-center">
+//           <IconHeartbeat size={45} stroke={3} />
+//           <span className="font-heading font-semibold text-4xl sm:text-5xl">PulseCare</span>
+//         </div>
+
+//         <div className="w-full max-w-[450px] backdrop-blur-md px-6 sm:px-10 py-8 rounded-lg">
+//           <form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col gap-5 [&_input]:placeholder-neutral-100 [&_.mantine-Input-input]:!border-white focus-within:[&_.mantine-Input-input]:!border-primary-400 [&_.mantine-Input-input]:!border [&_input]:!pl-2 [&_svg]:text-white [&_input]:text-white'>
+//             <div className='self-center font-medium font-heading text-white text-xl'>Login</div>
+//             <TextInput {...form.getInputProps('email')} className='transition duration-300' variant="unstyled" size="md" placeholder="Email" />
+//             <PasswordInput {...form.getInputProps('password')} className='transition duration-300' variant="unstyled" size="md" placeholder="Password" />
+
+//             <div className='text-right -mt-3'>
+//               <Link to="/forgot-password" className='text-white/60 text-xs hover:text-primary-400 transition-colors duration-200'>
+//                 Forgot password?
+//               </Link>
+//             </div>
+
+//             <Button loading={loading} fullWidth radius="md" size="md" type='submit' color='#24AE9E'>Login</Button>
+//             <div className='text-neutral-100 text-sm self-center'>Don't have an account? <Link to="/register" className='hover:underline'>Create account</Link></div>
+//           </form>
+//         </div>
+//       </div>
+
+//     </div>
+//   )
+// }
+// export default LogiPage
+
 import { TextInput, PasswordInput, Button } from '@mantine/core';
-import { IconHeartbeat, IconArrowLeft } from "@tabler/icons-react";
 import { useForm } from '@mantine/form';
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from '../service/UserService';
@@ -9,111 +110,126 @@ import { jwtDecode } from 'jwt-decode';
 import { useDispatch } from 'react-redux';
 import { setJwt } from '../slices/JwtSlices';
 import { setUser } from '../slices/UserSlices';
+import Navbar from '../components/layout/Navbar';
 
-const LogiPage = () => {
-
+const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+
   const form = useForm({
-    initialValues: {
-      email: '',
-      password: '',
-    },
+    initialValues: { email: '', password: '' },
     validate: {
       email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-      password: (value) => (!value ? "Password is required" : null)
+      password: (value) => (!value ? "Password is required" : null),
     },
   });
 
-  // const handleSubmit = (values: typeof form.values) => {
-  //   setLoading(true);
-  //   loginUser(values).then((_data) => {
-  //     console.log(jwtDecode(_data))
-  //     successNotification("Login Successfully")
-  //     dispatch(setJwt(_data))
-  //     dispatch(setUser(jwtDecode(_data)))
-
-  //   }).catch((eroor) => {
-  //     errorNotification(eroor?.response?.data?.errorMessage);
-  //   }).finally(() => setLoading(false))
-  // };
-
   const handleSubmit = (values: typeof form.values) => {
     setLoading(true);
-    loginUser(values).then((_data) => {
+    loginUser(values)
+      .then((_data) => {
         const decoded: any = jwtDecode(_data);
-        console.log("Token payload:", decoded); // ✅ role check karo
-
         dispatch(setJwt(_data));
         dispatch(setUser(decoded));
         successNotification("Login Successfully");
-
-        // ✅ Role ke hisaab se redirect
-        if (decoded.role === 'ADMIN') {
-            navigate('/admin/dashboard');
-        } else if (decoded.role === 'DOCTOR') {
-            navigate('/doctor/dashboard');
-        } else if (decoded.role === 'PATIENT') {
-            navigate('/patient/dashboard');
-        }
-
-    }).catch((error) => {
-        errorNotification(error?.response?.data?.errorMessage);
-    }).finally(() => setLoading(false));
-};
+        if (decoded.role === 'ADMIN') navigate('/admin/dashboard');
+        else if (decoded.role === 'DOCTOR') navigate('/doctor/dashboard');
+        else if (decoded.role === 'PATIENT') navigate('/patient/profile');
+      })
+      .catch((error) => errorNotification(error?.response?.data?.errorMessage))
+      .finally(() => setLoading(false));
+  };
 
   return (
-    <div className="h-screen w-screen flex flex-col items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen bg-[#f4f7fb] flex flex-col">
+      <Navbar />
 
-      {/* ✅ Background Image */}
-      <img
-        src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1920&q=90"
-        alt="bg"
-        className="absolute inset-0 w-full h-full object-cover object-center"
-        style={{ filter: 'brightness(0.55)' }}
-      />
+      <div className="flex-1 flex items-center justify-center px-4 py-16">
+        <div className="w-full max-w-md">
 
-      {/* ✅ Dark gradient overlay — public page jaisa */}
-      <div className="absolute inset-0"
-        style={{ background: 'linear-gradient(135deg, rgba(10,15,30,0.85) 0%, rgba(190,24,93,0.15) 100%)' }}
-      />
+          {/* Card */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-xl p-8 sm:p-10">
 
-      {/* ✅ Back Button — top-left */}
-      <button
-        onClick={() => navigate("/")}
-        className="absolute top-5 left-5 z-10 flex items-center gap-1.5 text-white/70 hover:text-white transition-colors duration-200 group"
-      >
-        <IconArrowLeft size={18} stroke={2} className="group-hover:-translate-x-0.5 transition-transform duration-200" />
-        <span className="text-sm font-medium">Back</span>
-      </button>
+            {/* Top accent bar */}
+            <div className="h-1 w-16 bg-[#1a6fa8] rounded-full mb-7" />
 
-      {/* ✅ Content — relative z-10 taaki image ke upar rahe */}
-      <div className="relative z-10 flex flex-col items-center">
-        <div className="py-3 text-primary-500 flex gap-1 items-center">
-          <IconHeartbeat size={45} stroke={3} />
-          <span className="font-heading font-semibold text-5xl">PulseCare</span>
-        </div>
+            <h1 className="text-2xl font-extrabold text-gray-900 mb-1">Welcome back</h1>
+            <p className="text-gray-400 text-sm mb-8">Sign in to your PulseCare account</p>
 
-        <div className="w-[450px] backdrop-blur-md p-10 py-8 rounded-lg">
-          <form onSubmit={form.onSubmit(handleSubmit)} className='flex flex-col gap-5 [&_input]:placeholder-neutral-100 [&_.mantine-Input-input]:!border-white focus-within:[&_.mantine-Input-input]:!border-primary-400 [&_.mantine-Input-input]:!border [&_input]:!pl-2 [&_svg]:text-white [&_input]:text-white'>
-            <div className='self-center font-medium font-heading text-white text-xl'>Login</div>
-            <TextInput {...form.getInputProps('email')} className='transition duration-300' variant="unstyled" size="md" placeholder="Email" />
-            <PasswordInput {...form.getInputProps('password')} className='transition duration-300' variant="unstyled" size="md" placeholder="Password" />
+            <form onSubmit={form.onSubmit(handleSubmit)} className="flex flex-col gap-5">
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">
+                  Email
+                </label>
+                <TextInput
+                  {...form.getInputProps('email')}
+                  placeholder="you@example.com"
+                  radius="md"
+                  size="md"
+                  styles={{
+                    input: {
+                      border: '1.5px solid #e5e7eb',
+                      background: '#f9fafb',
+                      fontSize: 14,
+                    },
+                  }}
+                />
+              </div>
 
-            <div className='text-right -mt-3'>
-              <Link to="/forgot-password" className='text-white/60 text-xs hover:text-primary-400 transition-colors duration-200'>
-                Forgot password?
-              </Link>
-            </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">
+                  Password
+                </label>
+                <PasswordInput
+                  {...form.getInputProps('password')}
+                  placeholder="Enter your password"
+                  radius="md"
+                  size="md"
+                  styles={{
+                    input: {
+                      border: '1.5px solid #e5e7eb',
+                      background: '#f9fafb',
+                      fontSize: 14,
+                    },
+                  }}
+                />
+                <div className="text-right mt-2">
+                  <Link to="/forgot-password" className="text-xs text-[#1a6fa8] hover:underline font-medium">
+                    Forgot password?
+                  </Link>
+                </div>
+              </div>
 
-            <Button loading={loading} radius="md" size="md" type='submit' color='#24AE9E'>Login</Button>
-            <div className='text-neutral-100 text-sm self-center'>Don't have an account? <Link to="/register" className='hover:underline'>Create account</Link></div>
-          </form>
+              <Button
+                loading={loading}
+                fullWidth
+                radius="md"
+                size="md"
+                type="submit"
+                color="#1a6fa8"
+                className="mt-1"
+              >
+                Sign In
+              </Button>
+
+              <p className="text-center text-sm text-gray-500">
+                Don't have an account?{' '}
+                <Link to="/register" className="text-[#1a6fa8] font-semibold hover:underline">
+                  Create account
+                </Link>
+              </p>
+            </form>
+          </div>
+
+          {/* Bottom note */}
+          <p className="text-center text-xs text-gray-400 mt-6">
+            © 2026 PulseCare. Your health, our priority.
+          </p>
         </div>
       </div>
-
     </div>
-  )
-}
-export default LogiPage
+  );
+};
+
+export default LoginPage;

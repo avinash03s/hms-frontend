@@ -196,19 +196,20 @@ const AIChatBot = () => {
           (e.currentTarget as HTMLButtonElement).style.background = "#1F2937";
         }}
       >
-        {open
-          ? <IconX size={17} stroke={2.5} />
-          : <IconRobot size={20} stroke={1.8} />
-        }
+        {open ? <IconX size={17} stroke={2.5} /> : <IconRobot size={20} stroke={1.8} />}
       </button>
 
       {open && (
         <div style={{
           position: "fixed",
-          bottom: 82, right: 24,
-          width: 350,
-          maxHeight: "70vh",
-          display: "flex", flexDirection: "column",
+          /* Sits just above the FAB, anchored to bottom-right */
+          bottom: 82,
+          right: 16,
+          /* Shrinks to fit any screen — never wider than viewport, never taller than 75vh */
+          width: "min(340px, calc(100vw - 32px))",
+          maxHeight: "min(75vh, 560px)",
+          display: "flex",
+          flexDirection: "column",
           background: "#fff",
           borderRadius: 12,
           border: "1px solid #E5E7EB",
@@ -217,7 +218,9 @@ const AIChatBot = () => {
           overflow: "hidden",
           animation: "chat-in 0.18s ease-out",
           fontFamily: "'Inter', system-ui, sans-serif",
+          boxSizing: "border-box",
         }}>
+          {/* Header */}
           <div style={{
             padding: "12px 14px",
             background: "#1F2937",
@@ -244,12 +247,12 @@ const AIChatBot = () => {
               </div>
             </div>
             <div style={{ display: "flex", gap: 5 }}>
-              <button onClick={clearChat} title="Clear chat" style={{ width: 28, height: 28, borderRadius: 6, background: "#374151", border: "none", color: "#9CA3AF", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s" }}
+              <button onClick={clearChat} title="Clear chat" style={{ width: 28, height: 28, borderRadius: 6, background: "#374151", border: "none", color: "#9CA3AF", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4B5563"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#374151"; }}>
                 <IconTrash size={13} stroke={2} />
               </button>
-              <button onClick={() => setOpen(false)} style={{ width: 28, height: 28, borderRadius: 6, background: "#374151", border: "none", color: "#9CA3AF", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s" }}
+              <button onClick={() => setOpen(false)} style={{ width: 28, height: 28, borderRadius: 6, background: "#374151", border: "none", color: "#9CA3AF", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#4B5563"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#374151"; }}>
                 <IconX size={13} stroke={2.5} />
@@ -257,7 +260,17 @@ const AIChatBot = () => {
             </div>
           </div>
 
-          <div style={{ flex: 1, overflowY: "auto", padding: "14px 12px", display: "flex", flexDirection: "column", gap: 10, background: "#F9FAFB" }}>
+          {/* Messages */}
+          <div style={{
+            flex: 1,
+            overflowY: "auto",
+            WebkitOverflowScrolling: "touch",
+            padding: "14px 12px",
+            display: "flex", flexDirection: "column",
+            gap: 10,
+            background: "#F9FAFB",
+            minHeight: 0, /* critical — lets flex child shrink and scroll */
+          }}>
             {messages.map((msg) => (
               <div key={msg.id} style={{ display: "flex", flexDirection: msg.role === "user" ? "row-reverse" : "row", alignItems: "flex-end", gap: 7, animation: "msg-in 0.16s ease-out" }}>
                 <div style={{ width: 26, height: 26, borderRadius: 8, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: msg.role === "user" ? "#374151" : "#E5E7EB" }}>
@@ -266,7 +279,19 @@ const AIChatBot = () => {
                     : <IconRobot size={13} color="#6B7280" stroke={1.8} />
                   }
                 </div>
-                <div style={{ maxWidth: "75%", padding: "9px 12px", borderRadius: msg.role === "user" ? "12px 3px 12px 12px" : "3px 12px 12px 12px", background: msg.role === "user" ? "#1F2937" : "#fff", color: msg.role === "user" ? "#F3F4F6" : "#374151", fontSize: 12.5, lineHeight: 1.6, border: msg.role === "assistant" ? "1px solid #E5E7EB" : "none", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
+                <div style={{
+                  maxWidth: "75%",
+                  padding: "9px 12px",
+                  borderRadius: msg.role === "user" ? "12px 3px 12px 12px" : "3px 12px 12px 12px",
+                  background: msg.role === "user" ? "#1F2937" : "#fff",
+                  color: msg.role === "user" ? "#F3F4F6" : "#374151",
+                  fontSize: 12.5,
+                  lineHeight: 1.6,
+                  border: msg.role === "assistant" ? "1px solid #E5E7EB" : "none",
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                  wordBreak: "break-word",
+                  overflowWrap: "break-word",
+                }}>
                   <div>{renderText(msg.text)}</div>
                   <div style={{ fontSize: 10, marginTop: 4, color: msg.role === "user" ? "#6B7280" : "#9CA3AF", textAlign: msg.role === "user" ? "right" : "left" }}>
                     {fmt(msg.ts)}
@@ -287,31 +312,73 @@ const AIChatBot = () => {
             <div ref={bottomRef} />
           </div>
 
+          {/* Suggestions — horizontal scroll, no wrap */}
           {messages.length <= 1 && !loading && (
-            <div style={{ padding: "0 12px 10px", display: "flex", flexWrap: "wrap", gap: 5, background: "#F9FAFB", flexShrink: 0 }}>
+            <div style={{
+              padding: "0 12px 10px",
+              display: "flex",
+              gap: 5,
+              overflowX: "auto",
+              flexWrap: "nowrap",
+              background: "#F9FAFB",
+              flexShrink: 0,
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}>
               {SUGGESTIONS.map((s) => (
-                <button key={s} onClick={() => handleAsk(s)} style={{ padding: "4px 9px", fontSize: 11, fontWeight: 500, borderRadius: 6, border: "1px solid #E5E7EB", background: "#fff", color: "#374151", cursor: "pointer", transition: "background 0.15s, border-color 0.15s", whiteSpace: "nowrap" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#F3F4F6"; (e.currentTarget as HTMLButtonElement).style.borderColor = "#D1D5DB"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#fff"; (e.currentTarget as HTMLButtonElement).style.borderColor = "#E5E7EB"; }}>
+                <button key={s} onClick={() => handleAsk(s)} style={{
+                  padding: "4px 9px", fontSize: 11, fontWeight: 500,
+                  borderRadius: 6, border: "1px solid #E5E7EB",
+                  background: "#fff", color: "#374151", cursor: "pointer",
+                  whiteSpace: "nowrap", flexShrink: 0,
+                }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#F3F4F6"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#fff"; }}>
                   {s}
                 </button>
               ))}
             </div>
           )}
 
+          {/* Disclaimer */}
           <div style={{ padding: "6px 12px", background: "#FFF8E1", borderTop: "1px solid #FDE68A", display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
             <span style={{ fontSize: 11 }}>⚠️</span>
             <span style={{ fontSize: 10, color: "#92400E" }}>For information only. Always consult your doctor.</span>
           </div>
 
+          {/* Input bar */}
           <div style={{ padding: "10px 12px", background: "#fff", borderTop: "1px solid #F3F4F6", display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
-            <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKey} disabled={loading} placeholder="Ask about a medicine…"
-              style={{ flex: 1, padding: "9px 12px", borderRadius: 8, border: "1.5px solid #E5E7EB", fontSize: 12.5, outline: "none", color: "#111827", background: loading ? "#F9FAFB" : "#fff", fontFamily: "inherit", transition: "border-color 0.15s" }}
+            <input
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKey}
+              disabled={loading}
+              placeholder="Ask about a medicine…"
+              style={{
+                flex: 1,
+                minWidth: 0,
+                padding: "9px 12px",
+                borderRadius: 8,
+                border: "1.5px solid #E5E7EB",
+                fontSize: 16, /* 16px = no auto-zoom on iOS */
+                outline: "none",
+                color: "#111827",
+                background: loading ? "#F9FAFB" : "#fff",
+                fontFamily: "inherit",
+              }}
               onFocus={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = "#9CA3AF"; }}
               onBlur={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = "#E5E7EB"; }}
             />
             <button onClick={() => handleAsk()} disabled={!canSend}
-              style={{ width: 34, height: 34, borderRadius: 8, background: canSend ? "#1F2937" : "#F3F4F6", border: "none", cursor: canSend ? "pointer" : "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background 0.15s" }}
+              style={{
+                width: 34, height: 34, borderRadius: 8,
+                background: canSend ? "#1F2937" : "#F3F4F6",
+                border: "none", cursor: canSend ? "pointer" : "not-allowed",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0,
+              }}
               onMouseEnter={(e) => { if (canSend) (e.currentTarget as HTMLButtonElement).style.background = "#111827"; }}
               onMouseLeave={(e) => { if (canSend) (e.currentTarget as HTMLButtonElement).style.background = "#1F2937"; }}>
               <IconSend size={14} color={canSend ? "#fff" : "#9CA3AF"} stroke={2} />

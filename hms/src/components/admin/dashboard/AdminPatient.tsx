@@ -1,95 +1,35 @@
 import {
-  Avatar,
-  Badge,
-  Box,
-  Button,
-  Card,
-  Divider,
-  Group,
-  Loader,
-  Modal,
-  SimpleGrid,
-  Stack,
-  Text,
-  TextInput,
-  Title,
+  Avatar, Badge, Box, Button, Divider, Group, Loader,
+  Modal, SimpleGrid, Stack, Text, TextInput,
 } from "@mantine/core";
-
 import { useEffect, useState } from "react";
-
-import {
-  deletePatient,
-  getAllPatients,
-} from "../../../service/AdminService";
+import { deletePatient, getAllPatients } from "../../../service/AdminService";
+import { errorNotification, successNotification } from "../../../utility/Notification";
+import { IconSearch, IconTrash, IconX } from "@tabler/icons-react";
 
 const bloodGroupColor: Record<string, string> = {
-  "A+": "red",
-  "A-": "pink",
-  "B+": "blue",
-  "B-": "cyan",
-  "AB+": "grape",
-  "AB-": "violet",
-  "O+": "teal",
-  "O-": "green",
-
-  A_POSITIVE: "red",
-  A_NEGATIVE: "pink",
-  B_POSITIVE: "blue",
-  B_NEGATIVE: "cyan",
-  AB_POSITIVE: "grape",
-  AB_NEGATIVE: "violet",
-  O_POSITIVE: "teal",
-  O_NEGATIVE: "green",
+  "A+": "red","A-": "pink","B+": "blue","B-": "cyan",
+  "AB+": "grape","AB-": "violet","O+": "teal","O-": "green",
+  A_POSITIVE: "red",A_NEGATIVE: "pink",B_POSITIVE: "blue",B_NEGATIVE: "cyan",
+  AB_POSITIVE: "grape",AB_NEGATIVE: "violet",O_POSITIVE: "teal",O_NEGATIVE: "green",
 };
 
-const avatarColors = [
-  "teal",
-  "blue",
-  "violet",
-  "grape",
-  "pink",
-  "red",
-  "orange",
-  "cyan",
-];
-
+const avatarColors = ["blue","violet","grape","pink","cyan","indigo"];
 const getInitials = (name: string) =>
-  name
-    ?.split(" ")
-    .map((n: string) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) || "P";
-
+  name?.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "P";
 const getAvatarColor = (name: string) =>
-  avatarColors[(name?.charCodeAt(0) || 0) % avatarColors.length] || "teal";
+  avatarColors[(name?.charCodeAt(0) || 0) % avatarColors.length] || "blue";
 
 const formatArrayData = (value: any) => {
   if (!value) return "None";
-
-  if (Array.isArray(value)) {
-    return value.length ? value.join(", ") : "None";
-  }
-
+  if (Array.isArray(value)) return value.length ? value.join(", ") : "None";
   if (typeof value === "string") {
     try {
       const parsed = JSON.parse(value);
-
-      if (Array.isArray(parsed)) {
-        return parsed.length
-          ? parsed.join(", ")
-          : "None";
-      }
-    } catch {
-      // ignore
-    }
-
-    return (
-      value.replace(/[\[\]"]/g, "").trim() ||
-      "None"
-    );
+      if (Array.isArray(parsed)) return parsed.length ? parsed.join(", ") : "None";
+    } catch {}
+    return value.replace(/[\[\]"]/g, "").trim() || "None";
   }
-
   return String(value);
 };
 
@@ -98,27 +38,16 @@ const AdminPatient = () => {
   const [filtered, setFiltered] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-
-  // PROFILE MODAL
-  const [profilePatient, setProfilePatient] =
-    useState<any | null>(null);
-
-  const [profileOpen, setProfileOpen] =
-    useState(false);
-
-  // DELETE MODAL
-  const [deleteId, setDeleteId] =
-    useState<number | null>(null);
-
-  const [deleteModalOpen, setDeleteModalOpen] =
-    useState(false);
+  const [profilePatient, setProfilePatient] = useState<any | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const loadPatients = async () => {
     setLoading(true);
-
     try {
       const res = await getAllPatients();
-
       setPatients(res.data);
       setFiltered(res.data);
     } finally {
@@ -126,695 +55,171 @@ const AdminPatient = () => {
     }
   };
 
-  useEffect(() => {
-    loadPatients();
-  }, []);
+  useEffect(() => { loadPatients(); }, []);
 
   const handleSearch = (value: string) => {
     setSearch(value);
-
     const q = value.toLowerCase();
-
-    setFiltered(
-      patients.filter(
-        (p) =>
-          p.name?.toLowerCase().includes(q) ||
-          p.email?.toLowerCase().includes(q) ||
-          p.phoneNo?.toLowerCase().includes(q)
-      )
-    );
-  };
-
-  const openProfile = (patient: any) => {
-    setProfilePatient(patient);
-    setProfileOpen(true);
-  };
-
-  const confirmDelete = (id: number) => {
-    setDeleteId(id);
-    setDeleteModalOpen(true);
+    setFiltered(patients.filter((p) =>
+      p.name?.toLowerCase().includes(q) ||
+      p.email?.toLowerCase().includes(q) ||
+      p.phoneNo?.toLowerCase().includes(q)
+    ));
   };
 
   const handleDelete = async () => {
-    if (deleteId !== null) {
+    if (deleteId === null) return;
+    setDeleteLoading(true);
+    try {
       await deletePatient(deleteId);
-
+      successNotification("Patient deleted successfully");
       setDeleteModalOpen(false);
       setDeleteId(null);
       setProfileOpen(false);
-
       loadPatients();
+    } catch {
+      errorNotification("Failed to delete patient");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
   return (
-    <Box
-      style={{
-        minHeight: "100vh",
-        background: "#f8fafb",
-        padding: "clamp(12px,2vw,24px)",
-      }}
-    >
-      {/* HEADER */}
-      <Group
-        justify="space-between"
-        mb="xl"
-        align="center"
-        wrap="wrap"
-        gap="md"
-      >
-        <Title
-          order={2}
-          style={{
-            color: "#20c997",
-            fontWeight: 700,
-            fontSize:
-              "clamp(1.4rem, 2vw, 2rem)",
-          }}
-        >
-          Patients
-        </Title>
+    <div className="min-h-screen bg-[#f4f7fb] p-4 sm:p-6">
 
-        <Group
-          gap="sm"
-          wrap="wrap"
-          style={{
-            width: "100%",
-            justifyContent: "flex-end",
-          }}
-        >
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <span className="inline-block bg-blue-100 text-[#1a6fa8] text-xs font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full mb-2">
+            Management
+          </span>
+          <h1 className="text-2xl font-extrabold text-gray-900">Patients</h1>
+        </div>
+        <div className="flex items-center gap-3 flex-wrap">
           <TextInput
             placeholder="Search patients..."
             value={search}
-            onChange={(e) =>
-              handleSearch(
-                e.currentTarget.value
-              )
-            }
-            radius="xl"
-            styles={{
-              root: {
-                width: "100%",
-                maxWidth: 280,
-              },
-
-              input: {
-                border:
-                  "1.5px solid #e0f5ef",
-                background: "#fff",
-              },
-            }}
+            onChange={(e) => handleSearch(e.currentTarget.value)}
+            leftSection={<IconSearch size={15} stroke={1.5} className="text-gray-400" />}
+            radius="md"
+            styles={{ input: { border: "1.5px solid #e5e7eb", background: "white", fontSize: 14 } }}
           />
-
-          <Badge
-            size="lg"
-            radius="xl"
-            color="teal"
-            variant="light"
-            style={{
-              fontWeight: 600,
-              fontSize: 14,
-            }}
-          >
+          <span className="bg-blue-50 text-[#1a6fa8] text-sm font-bold px-3 py-1.5 rounded-xl border border-blue-100">
             {filtered.length} Patients
-          </Badge>
-        </Group>
-      </Group>
+          </span>
+        </div>
+      </div>
 
-      {/* LOADING */}
       {loading && (
-        <Group justify="center" mt={80}>
-          <Loader
-            color="teal"
-            size="xl"
-          />
-        </Group>
+        <div className="flex justify-center mt-20">
+          <Loader color="#1a6fa8" size="lg" />
+        </div>
       )}
 
-      {/* PATIENT GRID */}
       {!loading && (
-        <SimpleGrid
-          cols={{
-            base: 1,
-            sm: 2,
-            lg: 3,
-            xl: 4,
-          }}
-          spacing="lg"
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {filtered.map((patient) => (
-            <Box key={patient.id}>
-              <Card
-                shadow="sm"
-                radius="xl"
-                p={0}
-                onClick={() =>
-                  openProfile(patient)
-                }
-                style={{
-                  border:
-                    "1.5px solid #e8f5f0",
-                  overflow: "hidden",
-                  height: "100%",
-                  cursor: "pointer",
-                  transition: "0.2s",
-                }}
-                onMouseEnter={(e) => {
-                  (
-                    e.currentTarget as HTMLDivElement
-                  ).style.boxShadow =
-                    "0 6px 24px rgba(32,201,151,0.15)";
-
-                  (
-                    e.currentTarget as HTMLDivElement
-                  ).style.transform =
-                    "translateY(-2px)";
-                }}
-                onMouseLeave={(e) => {
-                  (
-                    e.currentTarget as HTMLDivElement
-                  ).style.boxShadow =
-                    "";
-
-                  (
-                    e.currentTarget as HTMLDivElement
-                  ).style.transform =
-                    "";
-                }}
-              >
-                {/* TOP BAR */}
-                <Box
-                  style={{
-                    height: 4,
-                    background:
-                      "linear-gradient(90deg, #20c997, #12b886)",
-                  }}
-                />
-
-                <Box
-                  style={{
-                    padding:
-                      "clamp(14px,2vw,22px)",
-                  }}
+            <div
+              key={patient.id}
+              className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+              onClick={() => { setProfilePatient(patient); setProfileOpen(true); }}
+            >
+              <div className="h-1 bg-[#1a6fa8]" />
+              <div className="p-5">
+                <div className="flex items-start gap-3 mb-4">
+                  <Avatar size={52} radius="xl" color={getAvatarColor(patient.name || "")}
+                    src={patient.profilePictureUrl || null}
+                    style={{ border: "2px solid #e8f1fb", flexShrink: 0, fontWeight: 700 }}>
+                    {getInitials(patient.name || "P")}
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-gray-900 text-sm leading-tight truncate">{patient.name}</p>
+                    <Badge size="sm" radius="md"
+                      color={bloodGroupColor[patient.bloodGroup] || "blue"}
+                      variant="light" mt={4} style={{ width: "fit-content" }}>
+                      {patient.bloodGroup || "—"}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="h-px bg-gray-100 mb-3" />
+                <p className="text-xs text-gray-400 truncate mb-4">{patient.email || "—"}</p>
+                <Button
+                  fullWidth size="xs" radius="md" color="red" variant="light"
+                  leftSection={<IconTrash size={13} />}
+                  onClick={(e) => { e.stopPropagation(); setDeleteId(patient.id); setDeleteModalOpen(true); }}
                 >
-                  {/* PROFILE */}
-                  <Group
-                    gap="md"
-                    mb="md"
-                    align="flex-start"
-                    wrap="nowrap"
-                  >
-                    <Avatar
-                      src={
-                        patient.profilePictureUrl ||
-                        patient.profileImage ||
-                        null
-                      }
-                      size={56}
-                      radius="xl"
-                      color={getAvatarColor(
-                        patient.name || ""
-                      )}
-                      style={{
-                        border:
-                          "2.5px solid #e0f5ef",
-                        boxShadow:
-                          "0 2px 8px rgba(32,201,151,0.15)",
-                        fontWeight: 700,
-                        flexShrink: 0,
-                      }}
-                    >
-                      {getInitials(
-                        patient.name || "P"
-                      )}
-                    </Avatar>
-
-                    <Stack
-                      gap={2}
-                      style={{
-                        flex: 1,
-                        minWidth: 0,
-                      }}
-                    >
-                      <Text
-                        fw={700}
-                        size="md"
-                        lineClamp={2}
-                        style={{
-                          color: "#1a1a2e",
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        {patient.name}
-                      </Text>
-
-                      <Badge
-                        size="sm"
-                        radius="md"
-                        color={
-                          bloodGroupColor[
-                            patient.bloodGroup
-                          ] || "teal"
-                        }
-                        variant="light"
-                        style={{
-                          width:
-                            "fit-content",
-                        }}
-                      >
-                        {patient.bloodGroup ||
-                          "—"}
-                      </Badge>
-                    </Stack>
-                  </Group>
-
-                  <Box
-                    style={{
-                      height: 1,
-                      background: "#e8f5f0",
-                      marginBottom: 14,
-                    }}
-                  />
-
-                  <Text
-                    size="xs"
-                    c="dimmed"
-                    lineClamp={1}
-                    style={{
-                      wordBreak:
-                        "break-word",
-                    }}
-                  >
-                    {patient.email || "—"}
-                  </Text>
-
-                  <Button
-                    fullWidth
-                    mt="md"
-                    radius="xl"
-                    size="sm"
-                    color="red"
-                    variant="light"
-                    onClick={(e) => {
-                      e.stopPropagation();
-
-                      confirmDelete(
-                        patient.id
-                      );
-                    }}
-                  >
-                    Delete Patient
-                  </Button>
-                </Box>
-              </Card>
-            </Box>
+                  Delete Patient
+                </Button>
+              </div>
+            </div>
           ))}
 
-          {/* EMPTY */}
           {filtered.length === 0 && (
-            <Box
-              style={{
-                gridColumn: "1 / -1",
-                textAlign: "center",
-                padding: "80px 20px",
-              }}
-            >
-              <Text
-                size="lg"
-                fw={600}
-                c="dimmed"
-              >
-                No patients found
-              </Text>
-            </Box>
+            <div className="col-span-4 text-center py-20 text-gray-400">
+              <p className="font-semibold">No patients found</p>
+            </div>
           )}
-        </SimpleGrid>
+        </div>
       )}
 
-      {/* PROFILE MODAL */}
-      <Modal
-        opened={profileOpen}
-        onClose={() =>
-          setProfileOpen(false)
-        }
-        title={
-          <Text
-            fw={700}
-            size="lg"
-            c="teal"
-          >
-            Patient Profile
-          </Text>
-        }
-        centered
-        radius="xl"
-        size="md"
-        styles={{
-          body: {
-            overflowX: "hidden",
-          },
-        }}
-      >
+      <Modal opened={profileOpen} onClose={() => setProfileOpen(false)}
+        title={<p className="font-bold text-lg text-[#1a6fa8]">Patient Profile</p>}
+        centered radius="xl" size="md">
         {profilePatient && (
           <Stack gap="lg">
-
-            {/* TOP PROFILE */}
-            <Group
-              gap="md"
-              align="center"
-              wrap="nowrap"
-            >
-              <Avatar
-                src={
-                  profilePatient.profilePictureUrl ||
-                  profilePatient.profileImage ||
-                  null
-                }
-                size={90}
-                radius="xl"
-                color={getAvatarColor(
-                  profilePatient.name || ""
-                )}
-                style={{
-                  border:
-                    "4px solid #e0f5ef",
-                  boxShadow:
-                    "0 4px 18px rgba(32,201,151,0.18)",
-                  fontWeight: 700,
-                  flexShrink: 0,
-                }}
-              >
-                {getInitials(
-                  profilePatient.name || "P"
-                )}
+            <Group gap="md" align="center" wrap="nowrap">
+              <Avatar size={80} radius="xl" color={getAvatarColor(profilePatient.name || "")}
+                src={profilePatient.profilePictureUrl || null}
+                style={{ border: "3px solid #e8f1fb", fontWeight: 700, flexShrink: 0 }}>
+                {getInitials(profilePatient.name || "P")}
               </Avatar>
-
-              <Stack
-                gap={4}
-                style={{
-                  flex: 1,
-                  minWidth: 0,
-                }}
-              >
-                <Text
-                  fw={800}
-                  size="xl"
-                  style={{
-                    wordBreak:
-                      "break-word",
-                  }}
-                >
-                  {profilePatient.name}
-                </Text>
-
-                <Badge
-                  size="lg"
-                  radius="xl"
-                  color={
-                    bloodGroupColor[
-                      profilePatient
-                        .bloodGroup
-                    ] || "teal"
-                  }
-                  variant="light"
-                  style={{
-                    width: "fit-content",
-                  }}
-                >
-                  BLOOD GROUP :{" "}
-                  {profilePatient.bloodGroup ||
-                    "—"}
+              <Stack gap={4} style={{ flex: 1 }}>
+                <Text fw={800} size="xl">{profilePatient.name}</Text>
+                <Badge size="md" radius="xl" color={bloodGroupColor[profilePatient.bloodGroup] || "blue"}
+                  variant="light" style={{ width: "fit-content" }}>
+                  Blood: {profilePatient.bloodGroup || "—"}
                 </Badge>
-
-                <Text
-                  size="sm"
-                  c="dimmed"
-                  style={{
-                    wordBreak:
-                      "break-word",
-                    overflowWrap:
-                      "anywhere",
-                  }}
-                >
-                  {profilePatient.email}
-                </Text>
+                <Text size="sm" c="dimmed">{profilePatient.email}</Text>
               </Stack>
             </Group>
 
-            <Divider />
-
-            {/* PERSONAL INFO */}
-            <Box>
-              <Text
-                fw={700}
-                mb="sm"
-                c="teal"
-              >
-                Personal Information
-              </Text>
-
-              <SimpleGrid
-                cols={{
-                  base: 1,
-                  sm: 2,
-                }}
-                spacing="md"
-                verticalSpacing="md"
-              >
-                <Box>
-                  <Text
-                    size="xs"
-                    c="dimmed"
-                  >
-                    Patient ID
-                  </Text>
-
-                  <Text fw={600}>
-                    #{profilePatient.id}
-                  </Text>
+            <Divider label="Personal Information" labelPosition="left" />
+            <SimpleGrid cols={2} spacing="md">
+              {[
+                { label: "Patient ID", value: `#${profilePatient.id}` },
+                { label: "Blood Group", value: profilePatient.bloodGroup || "—" },
+                { label: "Allergies", value: formatArrayData(profilePatient.allergies) },
+                { label: "Chronic Disease", value: formatArrayData(profilePatient.chronicDisease) },
+              ].map((item) => (
+                <Box key={item.label}>
+                  <Text size="xs" c="dimmed">{item.label}</Text>
+                  <Text fw={600} size="sm">{item.value}</Text>
                 </Box>
+              ))}
+            </SimpleGrid>
 
-                <Box>
-                  <Text
-                    size="xs"
-                    c="dimmed"
-                  >
-                    Blood Group
-                  </Text>
+            <Divider label="Contact Information" labelPosition="left" />
+            <SimpleGrid cols={2} spacing="md">
+              <Box><Text size="xs" c="dimmed">Phone</Text><Text fw={600} size="sm">{profilePatient.phoneNo || "Not Available"}</Text></Box>
+              <Box><Text size="xs" c="dimmed">Email</Text><Text fw={600} size="sm">{profilePatient.email || "—"}</Text></Box>
+              <Box style={{ gridColumn: "1 / -1" }}>
+                <Text size="xs" c="dimmed">Address</Text>
+                <Text fw={600} size="sm">{profilePatient.address || "Not added"}</Text>
+              </Box>
+            </SimpleGrid>
 
-                  <Text fw={600}>
-                    {profilePatient.bloodGroup ||
-                      "—"}
-                  </Text>
-                </Box>
-
-                <Box>
-                  <Text
-                    size="xs"
-                    c="dimmed"
-                  >
-                    Allergies
-                  </Text>
-
-                  <Text
-                    fw={600}
-                    style={{
-                      wordBreak:
-                        "break-word",
-                      overflowWrap:
-                        "anywhere",
-                    }}
-                  >
-                    {formatArrayData(
-                      profilePatient.allergies
-                    )}
-                  </Text>
-                </Box>
-
-                <Box>
-                  <Text
-                    size="xs"
-                    c="dimmed"
-                  >
-                    Chronic Disease
-                  </Text>
-
-                  <Text
-                    fw={600}
-                    style={{
-                      wordBreak:
-                        "break-word",
-                      overflowWrap:
-                        "anywhere",
-                    }}
-                  >
-                    {formatArrayData(
-                      profilePatient.chronicDisease
-                    )}
-                  </Text>
-                </Box>
-              </SimpleGrid>
-            </Box>
+            <Divider label="Account" labelPosition="left" />
+            <Badge color={profilePatient.active === false ? "red" : "teal"} radius="xl" variant="light" style={{ width: "fit-content" }}>
+              {profilePatient.active === false ? "Inactive" : "Active"}
+            </Badge>
 
             <Divider />
-
-            {/* CONTACT INFO */}
-            <Box>
-              <Text
-                fw={700}
-                mb="sm"
-                c="teal"
-              >
-                Contact Information
-              </Text>
-
-              <SimpleGrid
-                cols={{
-                  base: 1,
-                  sm: 2,
-                }}
-                spacing="md"
-                verticalSpacing="md"
-              >
-                <Box>
-                  <Text
-                    size="xs"
-                    c="dimmed"
-                  >
-                    Phone
-                  </Text>
-
-                  <Text fw={600}>
-                    {profilePatient.phoneNo ||
-                      "Not Available"}
-                  </Text>
-                </Box>
-
-                <Box>
-                  <Text
-                    size="xs"
-                    c="dimmed"
-                  >
-                    Email
-                  </Text>
-
-                  <Text
-                    fw={600}
-                    style={{
-                      wordBreak:
-                        "break-word",
-                      overflowWrap:
-                        "anywhere",
-                    }}
-                  >
-                    {profilePatient.email ||
-                      "—"}
-                  </Text>
-                </Box>
-
-                <Box
-                  style={{
-                    gridColumn:
-                      "1 / -1",
-                  }}
-                >
-                  <Text
-                    size="xs"
-                    c="dimmed"
-                  >
-                    Address
-                  </Text>
-
-                  <Text
-                    fw={600}
-                    style={{
-                      wordBreak:
-                        "break-word",
-                      overflowWrap:
-                        "anywhere",
-                    }}
-                  >
-                    {profilePatient.address ||
-                      "Address not added"}
-                  </Text>
-                </Box>
-              </SimpleGrid>
-            </Box>
-
-            <Divider />
-
-            {/* ACCOUNT INFO */}
-            <Box>
-              <Text
-                fw={700}
-                mb="sm"
-                c="teal"
-              >
-                Account Information
-              </Text>
-
-              <SimpleGrid
-                cols={{
-                  base: 1,
-                  sm: 2,
-                }}
-                spacing="md"
-                verticalSpacing="md"
-              >
-                <Box>
-                  <Text
-                    size="xs"
-                    c="dimmed"
-                  >
-                    Status
-                  </Text>
-
-                  <Badge
-                    color={
-                      profilePatient.active ===
-                      false
-                        ? "red"
-                        : "teal"
-                    }
-                    radius="xl"
-                    variant="light"
-                  >
-                    {profilePatient.active ===
-                    false
-                      ? "Inactive"
-                      : "Active"}
-                  </Badge>
-                </Box>
-              </SimpleGrid>
-            </Box>
-
-            <Divider />
-
-            {/* BUTTONS */}
             <Group grow>
-              <Button
-                color="red"
-                variant="light"
-                radius="xl"
-                onClick={() => {
-                  setProfileOpen(false);
-
-                  confirmDelete(
-                    profilePatient.id
-                  );
-                }}
-              >
-                Delete Patient
+              <Button color="red" variant="light" radius="xl" leftSection={<IconTrash size={14} />}
+                onClick={() => { setProfileOpen(false); setDeleteId(profilePatient.id); setDeleteModalOpen(true); }}>
+                Delete
               </Button>
-
-              <Button
-                variant="light"
-                color="teal"
-                radius="xl"
-                onClick={() =>
-                  setProfileOpen(false)
-                }
-              >
+              <Button variant="light" color="gray" radius="xl" leftSection={<IconX size={14} />}
+                onClick={() => setProfileOpen(false)}>
                 Close
               </Button>
             </Group>
@@ -822,54 +227,16 @@ const AdminPatient = () => {
         )}
       </Modal>
 
-      {/* DELETE MODAL */}
-      <Modal
-        opened={deleteModalOpen}
-        onClose={() =>
-          setDeleteModalOpen(false)
-        }
-        title={
-          <Text
-            fw={700}
-            c="red"
-            size="lg"
-          >
-            Confirm Delete
-          </Text>
-        }
-        centered
-        radius="xl"
-        size="sm"
-      >
-        <Text c="dimmed" mb="lg">
-          Are you sure you want to
-          delete this patient?
-        </Text>
-
-        <Group
-          justify="flex-end"
-          gap="sm"
-        >
-          <Button
-            variant="light"
-            radius="xl"
-            onClick={() =>
-              setDeleteModalOpen(false)
-            }
-          >
-            Cancel
-          </Button>
-
-          <Button
-            color="red"
-            radius="xl"
-            onClick={handleDelete}
-          >
-            Yes, Delete
-          </Button>
+      <Modal opened={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}
+        title={<p className="font-bold text-lg text-red-500">Confirm Delete</p>}
+        centered radius="xl" size="sm">
+        <Text c="dimmed" mb="lg" size="sm">Are you sure you want to delete this patient?</Text>
+        <Group justify="flex-end" gap="sm">
+          <Button variant="light" radius="xl" color="gray" onClick={() => setDeleteModalOpen(false)} disabled={deleteLoading}>Cancel</Button>
+          <Button color="red" radius="xl" loading={deleteLoading} onClick={handleDelete}>Yes, Delete</Button>
         </Group>
       </Modal>
-    </Box>
+    </div>
   );
 };
 

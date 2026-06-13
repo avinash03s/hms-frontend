@@ -76,6 +76,19 @@ const getPrescriptionsByPatient = async (patientId: any) => {
         .catch((err: any) => { throw err; });
 }
 
+export const getAvailableSlots = async (doctorId: number, date: string) => {
+    return axiosInstance.get(`/appointment/slots/available?doctorId=${doctorId}&date=${date}`)
+        .then((response: any) => response)
+        .catch((error: any) => { 
+            console.log("getAvailableSlots RAW error:", error);
+            console.log("error.message:", error.message);
+            throw error; 
+        });
+};
+
+export const getAllSlots = async (doctorId: number, date: string) => {
+    return axiosInstance.get(`/appointment/slots/all?doctorId=${doctorId}&date=${date}`);
+};
 
 export {
     scheduleAppointment, cancelAppointment, getAppointment,

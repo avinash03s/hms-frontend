@@ -4,18 +4,27 @@ import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 
 interface PublicRouteProps {
-    children: JSX.Element
+  children: JSX.Element;
 }
 
 const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
-    const token = useSelector((state: any) => state.jwt)
-    if (token) {
-        const user: any=jwtDecode(token);
-              
-        return <Navigate to={`/${user?.role?.toLowerCase()}/dashboard`} />
-    }
+  const token = useSelector((state: any) => state.jwt);
 
-    return children;
-}
+  if (token) {
+    try {
+      const user: any = jwtDecode(token);
+
+      if (user?.role === "PATIENT") {
+        return <Navigate to="/find-doctor" />;
+      }
+
+      return <Navigate to={`/${user?.role?.toLowerCase()}/dashboard`} />;
+    } catch {
+      return children;
+    }
+  }
+
+  return children;
+};
 
 export default PublicRoute;

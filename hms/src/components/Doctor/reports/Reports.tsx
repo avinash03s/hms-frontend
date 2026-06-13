@@ -1314,15 +1314,15 @@ const Reports = () => {
               ))}
             </div>
 
-            {dateFilter === "1m" ? (
+            {/* {dateFilter === "1m" ? (
               <span style={{ fontSize: 11, color: "#92400E", background: "#FEF3C7", padding: "4px 10px", borderRadius: 6, fontWeight: 500 }}>
-                📦 Showing S3 archived records
+                 Showing S3 archived records
               </span>
             ) : (
               <span style={{ fontSize: 11, color: "#0F6E56", background: "#E1F5EE", padding: "4px 10px", borderRadius: 6, fontWeight: 500 }}>
                 🗂 Showing current records
               </span>
-            )}
+            )} */}
 
             {/* Clear search */}
             {search && (
@@ -1409,7 +1409,7 @@ const Reports = () => {
                         </p>
                         {r.archived && (
                           <span style={{ background: "#FEF3C7", color: "#92400E", fontSize: 10, fontWeight: 600, padding: "2px 7px", borderRadius: 99 }}>
-                            📦 S3
+                            {/* 📦 S3 */}
                           </span>
                         )}
                       </div>

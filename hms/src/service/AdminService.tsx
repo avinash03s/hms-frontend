@@ -23,3 +23,11 @@ export const getAllAppointments = async () => {
 export const registerDoctor = async (data: any) => {
     return axiosInstance.post('/user/create-doctor', data);
 };
+
+export const setDoctorSchedule = async (data: any) => {
+    return axiosInstance.post('/appointment/schedule/set', data);
+};
+
+export const getDoctorSchedule = async (doctorId: number) => {
+    return axiosInstance.get(`/appointment/schedule/doctor/${doctorId}`);
+};

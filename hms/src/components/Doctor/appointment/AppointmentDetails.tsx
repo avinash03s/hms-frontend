@@ -1,23 +1,8 @@
-import {
-    Badge,
-    Breadcrumbs,
-    Button,
-    Card,
-    Divider,
-    Group,
-    Tabs,
-    Text,
-    Title
-} from "@mantine/core";
-
+import {Badge,Breadcrumbs,Button,Card,Divider,Group,Tabs,Text,Title} from "@mantine/core";
 import { useEffect, useState } from "react";
-
 import { Link, useParams } from "react-router-dom";
-
 import { getAppointmentDetails } from "../../../service/AppointmentService";
-
 import { formatDateWithTime } from "../../../utility/DateUtility";
-
 import {
     IconClipboardHeart,
     IconPlus
