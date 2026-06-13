@@ -19,47 +19,47 @@ import { DateInput } from "@mantine/dates";
 type StockStatus = "ACTIVE" | "EXPIRED" | "LOW";
 
 type MedicineOption = {
-    value:        string;
-    label:        string;
+    value: string;
+    label: string;
     manufacturer: string;
 };
 
 type StockFormValues = {
     medicineId: string | null;
-    batchNo:    string;
-    quantity:   number;
+    batchNo: string;
+    quantity: number;
     expireDate: Date | null;
 };
 
 type Stock = {
-    id:              number;
-    medicineId:      number;
-    batchNo:         string;
-    quantity:        number;
+    id: number;
+    medicineId: number;
+    batchNo: string;
+    quantity: number;
     initialQuantity: number;
-    expireDate:      string;
-    addedDate:       string;
-    stockStatus:     StockStatus;
+    expireDate: string;
+    addedDate: string;
+    stockStatus: StockStatus;
 };
 
 const STATUS_COLORS: Record<StockStatus, string> = {
-    ACTIVE:  "teal",
+    ACTIVE: "teal",
     EXPIRED: "red",
-    LOW:     "orange",
+    LOW: "orange",
 };
 
 const FORM_INITIAL_VALUES: StockFormValues = {
     medicineId: null,
-    batchNo:    "",
-    quantity:   0,
+    batchNo: "",
+    quantity: 0,
     expireDate: null,
 };
 
 const FORM_VALIDATE = {
-    medicineId: (v: string | null) => (v        ? null : "Medicine is required"),
-    batchNo:    (v: string)        => (v.trim() ? null : "Batch number is required"),
-    quantity:   (v: number)        => (v > 0    ? null : "Quantity must be greater than 0"),
-    expireDate: (v: Date | null)   => (v        ? null : "Expiry date is required"),
+    medicineId: (v: string | null) => (v ? null : "Medicine is required"),
+    batchNo: (v: string) => (v.trim() ? null : "Batch number is required"),
+    quantity: (v: number) => (v > 0 ? null : "Quantity must be greater than 0"),
+    expireDate: (v: Date | null) => (v ? null : "Expiry date is required"),
 };
 
 const toDateString = (date: Date | string | null): string => {
@@ -78,7 +78,7 @@ const toDateObject = (str: string): Date | null => {
 };
 
 type StockFormFieldsProps = {
-    form:            UseFormReturnType<StockFormValues>;
+    form: UseFormReturnType<StockFormValues>;
     medicineOptions: MedicineOption[];
 };
 
@@ -123,29 +123,29 @@ const StockFormFields = ({ form, medicineOptions }: StockFormFieldsProps) => (
 
 const Inventory = () => {
 
-    const [stocks,          setStocks]          = useState<Stock[]>([]);
+    const [stocks, setStocks] = useState<Stock[]>([]);
     const [medicineOptions, setMedicineOptions] = useState<MedicineOption[]>([]);
-    const [search,          setSearch]          = useState("");
-    const [page,            setPage]            = useState(1);
-    const [perPage]                             = useState(10);
-    const [sortField,       setSortField]       = useState<keyof Stock | null>(null);
-    const [sortDir,         setSortDir]         = useState<"asc" | "desc">("asc");
-    const [viewMode,        setViewMode]        = useState<"grid" | "list">("grid");
-    const [editTarget,      setEditTarget]      = useState<Stock | null>(null);
-    const [loading,         setLoading]         = useState(false);
-    const [fetching,        setFetching]        = useState(true);
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const [perPage] = useState(10);
+    const [sortField, setSortField] = useState<keyof Stock | null>(null);
+    const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+    const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+    const [editTarget, setEditTarget] = useState<Stock | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [fetching, setFetching] = useState(true);
 
-    const [addOpened,  { open: openAdd,  close: closeAdd  }] = useDisclosure(false);
+    const [addOpened, { open: openAdd, close: closeAdd }] = useDisclosure(false);
     const [editOpened, { open: openEdit, close: closeEdit }] = useDisclosure(false);
 
     const addForm = useForm<StockFormValues>({
         initialValues: FORM_INITIAL_VALUES,
-        validate:      FORM_VALIDATE,
+        validate: FORM_VALIDATE,
     });
 
     const editForm = useForm<StockFormValues>({
         initialValues: FORM_INITIAL_VALUES,
-        validate:      FORM_VALIDATE,
+        validate: FORM_VALIDATE,
     });
 
     const fetchStocks = () => {
@@ -160,8 +160,8 @@ const Inventory = () => {
         getAllMedicines()
             .then((res) => {
                 const opts: MedicineOption[] = res.map((m: any) => ({
-                    value:        String(m.id),
-                    label:        `${m.name} (${m.dosage})`,
+                    value: String(m.id),
+                    label: `${m.name} (${m.dosage})`,
                     manufacturer: m.manufacturer,
                 }));
                 setMedicineOptions(opts);
@@ -193,8 +193,8 @@ const Inventory = () => {
         setLoading(true);
         const payload = {
             medicineId: Number(values.medicineId),
-            batchNo:    values.batchNo,
-            quantity:   values.quantity,
+            batchNo: values.batchNo,
+            quantity: values.quantity,
             expireDate: toDateString(values.expireDate),
         };
         addStock(payload)
@@ -213,8 +213,8 @@ const Inventory = () => {
         setEditTarget(stock);
         editForm.setValues({
             medicineId: String(stock.medicineId),
-            batchNo:    stock.batchNo,
-            quantity:   stock.quantity,
+            batchNo: stock.batchNo,
+            quantity: stock.quantity,
             expireDate: toDateObject(stock.expireDate),
         });
         openEdit();
@@ -224,10 +224,10 @@ const Inventory = () => {
         if (!editTarget) return;
         setLoading(true);
         const payload = {
-            id:         editTarget.id,
+            id: editTarget.id,
             medicineId: Number(values.medicineId),
-            batchNo:    values.batchNo,
-            quantity:   values.quantity,
+            batchNo: values.batchNo,
+            quantity: values.quantity,
             expireDate: toDateString(values.expireDate),
         };
         updateStock(payload)
@@ -242,12 +242,12 @@ const Inventory = () => {
     };
 
     const filtered = stocks.filter((s) => {
-        const q    = search.toLowerCase();
+        const q = search.toLowerCase();
         const name = getMedicineName(s.medicineId).toLowerCase();
-        const mfr  = getManufacturer(s.medicineId).toLowerCase();
+        const mfr = getManufacturer(s.medicineId).toLowerCase();
         return (
             name.includes(q) ||
-            mfr.includes(q)  ||
+            mfr.includes(q) ||
             s.batchNo.toLowerCase().includes(q) ||
             s.stockStatus?.toLowerCase().includes(q)
         );
@@ -265,13 +265,14 @@ const Inventory = () => {
     });
 
     const totalPages = Math.max(1, Math.ceil(sorted.length / perPage));
-    const paginated  = sorted.slice((page - 1) * perPage, page * perPage);
+    const paginated = sorted.slice((page - 1) * perPage, page * perPage);
 
     return (
-        <div className="p-6 flex flex-col gap-5">
+        // <div className="p-6 flex flex-col gap-5">
+        <div className="min-h-screen bg-[#f4f7fb] p-4 sm:p-6 flex flex-col gap-5">
 
             {/* ── Toolbar ── */}
-            <div className="flex items-center gap-3">
+            {/* <div className="flex items-center gap-3">
                 <Button
                     leftSection={<IconPlus size={16} />}
                     color="teal"
@@ -289,9 +290,30 @@ const Inventory = () => {
                     onChange={(e) => { setSearch(e.currentTarget.value); setPage(1); }}
                     w={240}
                 />
+            </div> */}
+
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center gap-3 mb-1">
+                <div>
+                    <span className="inline-block bg-blue-100 text-[#1a6fa8] text-xs font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full mb-2">
+                        Inventory
+                    </span>
+                    <h1 className="text-2xl font-extrabold text-gray-900">Stock Management</h1>
+                </div>
+                <div className="flex-1" />
+                <Button leftSection={<IconPlus size={16} />} color="#1a6fa8" radius="md" onClick={openAdd}>
+                    Add Stock
+                </Button>
+                <TextInput
+                    leftSection={<IconSearch size={16} />}
+                    placeholder="Search medicine / batch"
+                    value={search}
+                    onChange={(e) => { setSearch(e.currentTarget.value); setPage(1); }}
+                    w={240}
+                    radius="md"
+                    styles={{ input: { border: "1.5px solid #e5e7eb", background: "white" } }}
+                />
             </div>
 
-            {/* ── Table ── */}
             <Fieldset p={0} style={{ overflow: "hidden" }}>
                 <Table
                     striped

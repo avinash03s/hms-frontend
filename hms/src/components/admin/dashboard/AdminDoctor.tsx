@@ -1,48 +1,31 @@
 import {
-  Avatar,
-  Badge,
-  Box,
-  Button,
-  Card,
-  Group,
-  Loader,
-  Modal,
-  PasswordInput,
-  SimpleGrid,
-  Stack,
-  Text,
-  TextInput,
-  Title,
-  Divider,
+  Avatar, Badge, Box, Button, Card, Checkbox, Group, Loader,
+  Modal, PasswordInput, SimpleGrid, Stack, Text, TextInput, Divider,
 } from "@mantine/core";
+import { TimeInput } from "@mantine/dates";
 import { useEffect, useState } from "react";
 import {
-  deleteDoctor,
-  getAllDoctors,
-  registerDoctor,
+  deleteDoctor, getAllDoctors, registerDoctor,
+  setDoctorSchedule, getDoctorSchedule,
 } from "../../../service/AdminService";
 import { errorNotification, successNotification } from "../../../utility/Notification";
+import {
+  IconCalendar, IconTrash, IconX, IconUser, IconMail, IconPhone,
+  IconMapPin, IconId, IconStethoscope, IconCertificate, IconBriefcase, IconSearch, IconPlus,
+} from "@tabler/icons-react";
 
-const avatarColors = ["teal", "blue", "violet", "grape", "pink", "red", "orange", "cyan"];
-
-const specializationColors: Record<string, string> = {
-  Cardiology: "red", Neurology: "violet", Orthopedics: "blue",
-  Pediatrics: "yellow", Dermatology: "pink", Oncology: "grape",
-  Radiology: "cyan", Psychiatry: "indigo", Surgery: "orange", General: "teal",
-};
-
+const avatarColors = ["blue", "violet", "grape", "pink", "cyan", "indigo"];
 const getInitials = (name: string) =>
   name?.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) || "D";
-
 const getAvatarColor = (name: string) =>
-  avatarColors[(name?.charCodeAt(0) || 0) % avatarColors.length] || "teal";
-
-const getSpecColor = (spec: string) =>
-  specializationColors[spec] ||
-  avatarColors[(spec?.charCodeAt(0) || 0) % avatarColors.length] ||
-  "teal";
+  avatarColors[(name?.charCodeAt(0) || 0) % avatarColors.length] || "blue";
 
 const EMPTY_FORM = { name: "", email: "", password: "" };
+const ALL_DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY","SUNDAY"];
+const emptySchedule = () =>
+  ALL_DAYS.map((day) => ({ dayOfWeek: day, startTime: "09:00", endTime: "17:00", available: false }));
+
+const inputStyles = { input: { border: "1.5px solid #e5e7eb", background: "#f9fafb", fontSize: 14 } };
 
 const AdminDoctor = () => {
   const [doctors, setDoctors] = useState<any[]>([]);
@@ -50,20 +33,21 @@ const AdminDoctor = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Profile modal
   const [profileDoctor, setProfileDoctor] = useState<any | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  // Delete modal
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // Add modal
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
   const [doctorForm, setDoctorForm] = useState(EMPTY_FORM);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [scheduleLoading, setScheduleLoading] = useState(false);
+  const [schedule, setSchedule] = useState(emptySchedule());
 
   const loadDoctors = async () => {
     setLoading(true);
@@ -83,25 +67,14 @@ const AdminDoctor = () => {
   const handleSearch = (value: string) => {
     setSearch(value);
     const q = value.toLowerCase();
-    setFiltered(
-      doctors.filter((d) =>
-        d.name?.toLowerCase().includes(q) ||
-        d.email?.toLowerCase().includes(q) ||
-        d.specialization?.toLowerCase().includes(q)
-      )
-    );
+    setFiltered(doctors.filter((d) =>
+      d.name?.toLowerCase().includes(q) ||
+      d.email?.toLowerCase().includes(q) ||
+      d.specialization?.toLowerCase().includes(q)
+    ));
   };
 
-  // Open profile modal on card click
-  const openProfile = (doctor: any) => {
-    setProfileDoctor(doctor);
-    setProfileOpen(true);
-  };
-
-  const confirmDelete = (id: number) => {
-    setDeleteId(id);
-    setDeleteModalOpen(true);
-  };
+  const confirmDelete = (id: number) => { setDeleteId(id); setDeleteModalOpen(true); };
 
   const handleDelete = async () => {
     if (deleteId === null) return;
@@ -120,18 +93,58 @@ const AdminDoctor = () => {
     }
   };
 
+  const openSchedule = async (doctor: any) => {
+    setProfileOpen(false);
+    setProfileDoctor(doctor);
+    setScheduleLoading(true);
+    setScheduleOpen(true);
+    try {
+      const res = await getDoctorSchedule(doctor.id);
+      if (res.data && res.data.length > 0) {
+        const merged = emptySchedule().map((emptyRow) => {
+          const existing = res.data.find((s: any) => s.dayOfWeek === emptyRow.dayOfWeek);
+          return existing
+            ? { dayOfWeek: existing.dayOfWeek, startTime: existing.startTime.slice(0, 5), endTime: existing.endTime.slice(0, 5), available: existing.available }
+            : emptyRow;
+        });
+        setSchedule(merged);
+      } else {
+        setSchedule(emptySchedule());
+      }
+    } catch {
+      setSchedule(emptySchedule());
+    } finally {
+      setScheduleLoading(false);
+    }
+  };
+
+  const handleScheduleSave = async () => {
+    if (!profileDoctor) return;
+    setScheduleLoading(true);
+    try {
+      for (const row of schedule) {
+        await setDoctorSchedule({ ...row, doctorId: profileDoctor.id });
+      }
+      successNotification("Schedule saved successfully!");
+      setScheduleOpen(false);
+    } catch (error: any) {
+      errorNotification(error?.response?.data?.errorMessage || "Failed to save schedule");
+    } finally {
+      setScheduleLoading(false);
+    }
+  };
+
+  const updateScheduleRow = (index: number, field: string, value: any) => {
+    setSchedule((prev) => prev.map((row, i) => i === index ? { ...row, [field]: value } : row));
+  };
+
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
-    if (!doctorForm.name.trim())
-      errors.name = "Name is required";
-    if (!doctorForm.email.trim())
-      errors.email = "Email is required";
-    else if (!/^\S+@\S+\.\S+$/.test(doctorForm.email))
-      errors.email = "Invalid email format";
-    if (!doctorForm.password)
-      errors.password = "Password is required";
-    else if (doctorForm.password.length < 6)
-      errors.password = "Min. 6 characters";
+    if (!doctorForm.name.trim()) errors.name = "Name is required";
+    if (!doctorForm.email.trim()) errors.email = "Email is required";
+    else if (!/^\S+@\S+\.\S+$/.test(doctorForm.email)) errors.email = "Invalid email format";
+    if (!doctorForm.password) errors.password = "Password is required";
+    else if (doctorForm.password.length < 6) errors.password = "Min. 6 characters";
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -145,361 +158,261 @@ const AdminDoctor = () => {
     if (!validateForm()) return;
     setAddLoading(true);
     try {
-      await registerDoctor({
-        name: doctorForm.name.trim(),
-        email: doctorForm.email.trim(),
-        password: doctorForm.password,
-        role: "DOCTOR",
-      });
+      await registerDoctor({ name: doctorForm.name.trim(), email: doctorForm.email.trim(), password: doctorForm.password, role: "DOCTOR" });
       successNotification("Doctor created successfully!");
       setAddModalOpen(false);
       setDoctorForm(EMPTY_FORM);
       setFormErrors({});
       loadDoctors();
     } catch (error: any) {
-      const msg =
-        error?.response?.data?.errorMessage ||
-        error?.response?.data?.message ||
-        "Failed to create doctor";
-      errorNotification(msg);
+      errorNotification(error?.response?.data?.errorMessage || "Failed to create doctor");
     } finally {
       setAddLoading(false);
     }
   };
 
-  const handleCloseAddModal = () => {
-    setAddModalOpen(false);
-    setDoctorForm(EMPTY_FORM);
-    setFormErrors({});
-  };
-
   return (
-    <Box style={{ minHeight: "100vh", background: "#f8fafb", padding: "clamp(12px, 2vw, 24px)" }}>
+    <div className="min-h-screen bg-[#f4f7fb] p-4 sm:p-6">
 
-      {/* Header */}
-      <Group justify="space-between" mb="xl" align="center" wrap="wrap" gap="md">
-        <Title order={2} style={{ color: "#20c997", fontWeight: 700, fontSize: "clamp(1.4rem, 2vw, 2rem)" }}>
-          Doctors
-        </Title>
-
-        <Group gap="sm" wrap="wrap" style={{ width: "100%", justifyContent: "flex-end" }}>
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <span className="inline-block bg-blue-100 text-[#1a6fa8] text-xs font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full mb-2">
+            Management
+          </span>
+          <h1 className="text-2xl font-extrabold text-gray-900">Doctors</h1>
+        </div>
+        <div className="flex items-center gap-3 flex-wrap">
           <TextInput
             placeholder="Search doctors..."
             value={search}
             onChange={(e) => handleSearch(e.currentTarget.value)}
-            radius="xl"
-            styles={{
-              root: { width: "100%", maxWidth: 280 },
-              input: { border: "1.5px solid #e0f5ef", background: "#fff" },
-            }}
-            leftSection={
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="7" stroke="#20c997" strokeWidth="2" />
-                <path d="M16.5 16.5L21 21" stroke="#20c997" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            }
+            leftSection={<IconSearch size={15} stroke={1.5} className="text-gray-400" />}
+            radius="md"
+            styles={{ input: { border: "1.5px solid #e5e7eb", background: "white", fontSize: 14 } }}
           />
-          <Button radius="xl" color="teal" onClick={() => setAddModalOpen(true)}>
-            + Add Doctor
-          </Button>
-          <Badge size="lg" radius="xl" color="teal" variant="light" style={{ fontWeight: 600, fontSize: 14 }}>
+          <button
+            onClick={() => setAddModalOpen(true)}
+            className="flex items-center gap-2 bg-[#1a6fa8] text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-[#155d8f] transition-colors"
+          >
+            <IconPlus size={16} /> Add Doctor
+          </button>
+          <span className="bg-blue-50 text-[#1a6fa8] text-sm font-bold px-3 py-1.5 rounded-xl border border-blue-100">
             {filtered.length} Doctors
-          </Badge>
-        </Group>
-      </Group>
+          </span>
+        </div>
+      </div>
 
-      {loading && <Group justify="center" mt={80}><Loader color="teal" size="xl" /></Group>}
+      {loading && (
+        <div className="flex justify-center mt-20">
+          <Loader color="#1a6fa8" size="lg" />
+        </div>
+      )}
 
       {!loading && (
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3, xl: 4 }} spacing="lg">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {filtered.map((doctor) => (
-            <Box key={doctor.id} style={{ width: "100%", minWidth: 0 }}>
-              <Card
-                shadow="sm"
-                radius="xl"
-                p={0}
-                onClick={() => openProfile(doctor)}
-                style={{
-                  border: "1.5px solid #e8f5f0",
-                  overflow: "hidden",
-                  height: "100%",
-                  cursor: "pointer",
-                  transition: "box-shadow 0.2s, transform 0.15s",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = "0 6px 24px rgba(32,201,151,0.15)";
-                  (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = "";
-                  (e.currentTarget as HTMLDivElement).style.transform = "";
-                }}
-              >
-                <Box style={{ height: 4, background: "linear-gradient(90deg, #20c997, #12b886)" }} />
-                <Box style={{ padding: "clamp(14px, 2vw, 22px)" }}>
-                  <Group gap="md" mb="md" align="flex-start" wrap="nowrap">
-                    <Avatar
-                      size={56} radius="xl"
-                      color={getAvatarColor(doctor.name || "")}
-                      style={{ border: "2.5px solid #e0f5ef", boxShadow: "0 2px 8px rgba(32,201,151,0.15)", fontWeight: 700, flexShrink: 0 }}
-                    >
-                      {getInitials(doctor.name || "D")}
-                    </Avatar>
-                    <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-                      <Text fw={700} size="md" lineClamp={2} style={{ color: "#1a1a2e", lineHeight: 1.2 }}>
-                        {doctor.name}
-                      </Text>
-                      <Badge size="sm" radius="md" color={getSpecColor(doctor.specialization)} variant="light" style={{ width: "fit-content" }}>
-                        {doctor.specialization || "—"}
-                      </Badge>
-                    </Stack>
-                  </Group>
-
-                  <Box style={{ height: 1, background: "#e8f5f0", marginBottom: 14 }} />
-
-                  <Text size="xs" c="dimmed" lineClamp={1}>{doctor.email || "—"}</Text>
-
-                  <Button
-                    fullWidth mt="md" radius="xl" size="sm" color="red" variant="light"
-                    onClick={(e) => {
-                      e.stopPropagation(); // card click trigger na ho
-                      confirmDelete(doctor.id);
-                    }}
-                    style={{ fontWeight: 600 }}
-                  >
-                    Delete Doctor
+            <div
+              key={doctor.id}
+              className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+            >
+              <div className="h-1 bg-[#1a6fa8]" />
+              <div className="p-5">
+                <div className="flex items-start gap-3 mb-4">
+                  <Avatar size={52} radius="xl" color={getAvatarColor(doctor.name || "")}
+                    style={{ border: "2px solid #e8f1fb", flexShrink: 0, fontWeight: 700 }}>
+                    {getInitials(doctor.name || "D")}
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-gray-900 text-sm leading-tight truncate">{doctor.name}</p>
+                    <Badge size="sm" radius="md" color="blue" variant="light" mt={4} style={{ width: "fit-content" }}>
+                      {doctor.specialization || "—"}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="h-px bg-gray-100 mb-3" />
+                <p className="text-xs text-gray-400 truncate mb-4">{doctor.email || "—"}</p>
+                <div className="flex gap-2">
+                  <Button flex={1} size="xs" radius="md" color="#1a6fa8" variant="light"
+                    leftSection={<IconUser size={13} />}
+                    onClick={() => { setProfileDoctor(doctor); setProfileOpen(true); }}>
+                    Profile
                   </Button>
-                </Box>
-              </Card>
-            </Box>
+                  <Button flex={1} size="xs" radius="md" color="#1a6fa8" variant="filled"
+                    leftSection={<IconCalendar size={13} />}
+                    onClick={() => openSchedule(doctor)}>
+                    Schedule
+                  </Button>
+                  <Button size="xs" radius="md" color="red" variant="light" px="sm"
+                    onClick={() => confirmDelete(doctor.id)}>
+                    <IconTrash size={13} />
+                  </Button>
+                </div>
+              </div>
+            </div>
           ))}
 
           {filtered.length === 0 && (
-            <Box style={{ gridColumn: "1 / -1", textAlign: "center", padding: "80px 20px" }}>
-              <Text size="lg" fw={600} c="dimmed">No doctors found</Text>
-            </Box>
+            <div className="col-span-4 text-center py-20 text-gray-400">
+              <p className="font-semibold">No doctors found</p>
+            </div>
           )}
-        </SimpleGrid>
+        </div>
       )}
 
-      {/* PROFILE MODAL */}
-      <Modal
-        opened={profileOpen}
-        onClose={() => setProfileOpen(false)}
-        title={<Text fw={700} size="lg" c="teal">Doctor Profile</Text>}
-        centered
-        radius="xl"
-        size="md"
-      >
+      <Modal opened={profileOpen} onClose={() => setProfileOpen(false)}
+        title={<p className="font-bold text-lg text-[#1a6fa8]">Doctor Profile</p>}
+        centered radius="xl" size="md">
         {profileDoctor && (
           <Stack gap="lg">
-
-            {/* TOP PROFILE */}
             <Group gap="md" align="center" wrap="nowrap">
-              <Avatar
-                size={90}
-                radius="xl"
-                color={getAvatarColor(profileDoctor.name || "")}
-                style={{
-                  border: "4px solid #e0f5ef",
-                  boxShadow: "0 4px 18px rgba(32,201,151,0.18)",
-                  fontWeight: 700,
-                  flexShrink: 0,
-                }}
-              >
+              <Avatar size={80} radius="xl" color={getAvatarColor(profileDoctor.name || "")}
+                style={{ border: "3px solid #e8f1fb", fontWeight: 700, flexShrink: 0 }}>
                 {getInitials(profileDoctor.name || "D")}
               </Avatar>
-
               <Stack gap={4} style={{ flex: 1 }}>
-                <Text fw={800} size="xl">
-                  Dr. {profileDoctor.name}
-                </Text>
-
-                <Badge
-                  size="lg"
-                  radius="xl"
-                  color={getSpecColor(profileDoctor.specialization)}
-                  variant="light"
-                  style={{ width: "fit-content" }}
-                >
+                <Text fw={800} size="xl">Dr. {profileDoctor.name}</Text>
+                <Badge size="md" radius="xl" color="blue" variant="light" style={{ width: "fit-content" }}>
                   {profileDoctor.specialization || "General"}
                 </Badge>
-
-                <Text size="sm" c="dimmed">
-                  {profileDoctor.email}
-                </Text>
+                <Text size="sm" c="dimmed">{profileDoctor.email}</Text>
               </Stack>
             </Group>
 
-            <Divider />
+            <Divider label="Professional Info" labelPosition="left" />
+            <SimpleGrid cols={2} spacing="md">
+              {[
+                { icon: <IconId size={15} color="#1a6fa8" />, label: "Doctor ID", value: `#${profileDoctor.id}` },
+                { icon: <IconBriefcase size={15} color="#1a6fa8" />, label: "Experience", value: `${profileDoctor.totalExperience || 0} Years` },
+                { icon: <IconStethoscope size={15} color="#1a6fa8" />, label: "Department", value: profileDoctor.department || "General" },
+                { icon: <IconCertificate size={15} color="#1a6fa8" />, label: "License No", value: profileDoctor.licenseNumber || "Not Added" },
+              ].map((item) => (
+                <Group key={item.label} gap="xs">
+                  {item.icon}
+                  <Box>
+                    <Text size="xs" c="dimmed">{item.label}</Text>
+                    <Text fw={600} size="sm">{item.value}</Text>
+                  </Box>
+                </Group>
+              ))}
+            </SimpleGrid>
 
-            {/* PROFESSIONAL INFO */}
-            <Box>
-              <Text fw={700} mb="sm" c="teal">
-                Professional Information
-              </Text>
-
-              <SimpleGrid cols={2} spacing="md">
+            <Divider label="Contact Info" labelPosition="left" />
+            <SimpleGrid cols={2} spacing="md">
+              {[
+                { icon: <IconPhone size={15} color="#1a6fa8" />, label: "Phone", value: profileDoctor.phoneNo || "Not Available" },
+                { icon: <IconMail size={15} color="#1a6fa8" />, label: "Email", value: profileDoctor.email || "—" },
+              ].map((item) => (
+                <Group key={item.label} gap="xs">
+                  {item.icon}
+                  <Box>
+                    <Text size="xs" c="dimmed">{item.label}</Text>
+                    <Text fw={600} size="sm">{item.value}</Text>
+                  </Box>
+                </Group>
+              ))}
+              <Group gap="xs" style={{ gridColumn: "1 / -1" }}>
+                <IconMapPin size={15} color="#1a6fa8" />
                 <Box>
-                  <Text size="xs" c="dimmed">Doctor ID</Text>
-                  <Text fw={600}>#{profileDoctor.id}</Text>
-                </Box>
-
-                <Box>
-                  <Text size="xs" c="dimmed">Experience</Text>
-                  <Text fw={600}>
-                    {profileDoctor.totalExperience || 0} Years
-                  </Text>
-                </Box>
-
-                <Box>
-                  <Text size="xs" c="dimmed">Department</Text>
-                  <Text fw={600}>
-                    {profileDoctor.department || "General"}
-                  </Text>
-                </Box>
-
-                <Box>
-                  <Text size="xs" c="dimmed">License No</Text>
-                  <Text fw={600}>
-                    {profileDoctor.licenseNumber || "Not Added"}
-                  </Text>
-                </Box>
-              </SimpleGrid>
-            </Box>
-
-            <Divider />
-
-            {/* CONTACT INFO */}
-            <Box>
-              <Text fw={700} mb="sm" c="teal">
-                Contact Information
-              </Text>
-
-              <SimpleGrid cols={2} spacing="md">
-                <Box>
-                  <Text size="xs" c="dimmed">Phone</Text>
-                  <Text fw={600}>
-                    {profileDoctor.phoneNo || "Not Available"}
-                  </Text>
-                </Box>
-
-                <Box>
-                  <Text size="xs" c="dimmed">Email</Text>
-                  <Text fw={600}>
-                    {profileDoctor.email || "—"}
-                  </Text>
-                </Box>
-
-                <Box style={{ gridColumn: "1 / -1" }}>
                   <Text size="xs" c="dimmed">Address</Text>
-                  <Text fw={600}>
-                    {profileDoctor.address || "Address not added"}
-                  </Text>
+                  <Text fw={600} size="sm">{profileDoctor.address || "Not Added"}</Text>
                 </Box>
-              </SimpleGrid>
-            </Box>
+              </Group>
+            </SimpleGrid>
 
             <Divider />
-
-            {/* ACCOUNT INFO */}
-            <Box>
-              <Text fw={700} mb="sm" c="teal">
-                Account Information
-              </Text>
-
-              <SimpleGrid cols={2} spacing="md">
-                <Box>
-                  <Text size="xs" c="dimmed">Status</Text>
-                  <Badge color="teal" radius="xl" variant="light">
-                    Active
-                  </Badge>
-                </Box>
-              </SimpleGrid>
-            </Box>
-
-            <Divider />
-
-            {/* BUTTONS */}
             <Group grow>
-              <Button
-                color="red"
-                variant="light"
-                radius="xl"
-                onClick={() => {
-                  setProfileOpen(false);
-                  confirmDelete(profileDoctor.id);
-                }}
-              >
-                Delete Doctor
+              <Button color="red" variant="light" radius="xl" leftSection={<IconTrash size={14} />}
+                onClick={() => { setProfileOpen(false); confirmDelete(profileDoctor.id); }}>
+                Delete
               </Button>
-
-              <Button
-                variant="light"
-                color="teal"
-                radius="xl"
-                onClick={() => setProfileOpen(false)}
-              >
+              <Button variant="light" color="gray" radius="xl" leftSection={<IconX size={14} />}
+                onClick={() => setProfileOpen(false)}>
                 Close
               </Button>
             </Group>
-
           </Stack>
         )}
       </Modal>
 
-      {/* DELETE MODAL */}
-      <Modal
-        opened={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        title={<Text fw={700} c="red" size="lg">Confirm Delete</Text>}
-        centered radius="xl" size="sm"
-      >
-        <Text c="dimmed" mb="lg">Are you sure you want to delete this doctor?</Text>
-        <Group justify="flex-end" gap="sm">
-          <Button variant="light" radius="xl" onClick={() => setDeleteModalOpen(false)} disabled={deleteLoading}>Cancel</Button>
-          <Button color="red" radius="xl" loading={deleteLoading} onClick={handleDelete}>Yes, Delete</Button>
-        </Group>
-      </Modal>
-
-      {/* ADD DOCTOR MODAL */}
-      <Modal
-        opened={addModalOpen}
-        onClose={handleCloseAddModal}
-        title={<Text fw={700} size="lg" c="teal">Add New Doctor</Text>}
-        centered radius="xl" size="sm"
-      >
-        <Stack gap="sm">
-          <TextInput
-            label="Full Name" placeholder="Dr. John Smith" required
-            value={doctorForm.name}
-            onChange={(e) => handleFieldChange("name", e.currentTarget.value)}
-            error={formErrors.name}
-          />
-          <TextInput
-            label="Email" placeholder="doctor@hospital.com" required
-            value={doctorForm.email}
-            onChange={(e) => handleFieldChange("email", e.currentTarget.value)}
-            error={formErrors.email}
-          />
-          <PasswordInput
-            label="Password" placeholder="Min. 6 characters" required
-            value={doctorForm.password}
-            onChange={(e) => handleFieldChange("password", e.currentTarget.value)}
-            error={formErrors.password}
-          />
-          <Group grow mt="sm">
-            <Button color="teal" radius="xl" loading={addLoading} onClick={handleAddDoctor}>
-              Create Doctor
+      <Modal opened={scheduleOpen} onClose={() => setScheduleOpen(false)}
+        title={<p className="font-bold text-lg text-[#1a6fa8]">Schedule — Dr. {profileDoctor?.name}</p>}
+        centered radius="xl" size="lg">
+        <Stack gap="xs">
+          <SimpleGrid cols={4} spacing="xs">
+            {["Day","Available","Start","End"].map((h) => (
+              <Text key={h} fw={700} size="sm" c="dimmed">{h}</Text>
+            ))}
+          </SimpleGrid>
+          <Divider />
+          {schedule.map((row, i) => (
+            <SimpleGrid key={row.dayOfWeek} cols={4} spacing="xs" style={{ alignItems: "center" }}>
+              <Text fw={600} size="sm" style={{ textTransform: "capitalize" }}>
+                {row.dayOfWeek.charAt(0) + row.dayOfWeek.slice(1).toLowerCase()}
+              </Text>
+              <Checkbox checked={row.available} color="#1a6fa8"
+                onChange={(e) => updateScheduleRow(i, "available", e.currentTarget.checked)} />
+              <TimeInput value={row.startTime} disabled={!row.available}
+                onChange={(e) => updateScheduleRow(i, "startTime", e.currentTarget.value)}
+                styles={{ input: { opacity: row.available ? 1 : 0.4 } }} />
+              <TimeInput value={row.endTime} disabled={!row.available}
+                onChange={(e) => updateScheduleRow(i, "endTime", e.currentTarget.value)}
+                styles={{ input: { opacity: row.available ? 1 : 0.4 } }} />
+            </SimpleGrid>
+          ))}
+          <Divider mt="sm" />
+          <Group grow mt="xs">
+            <Button color="#1a6fa8" radius="xl" loading={scheduleLoading} onClick={handleScheduleSave}>
+              Save Schedule
             </Button>
-            <Button variant="light" radius="xl" color="red" onClick={handleCloseAddModal} disabled={addLoading}>
+            <Button variant="light" color="gray" radius="xl" onClick={() => setScheduleOpen(false)}>
               Cancel
             </Button>
           </Group>
         </Stack>
       </Modal>
 
-    </Box>
+      <Modal opened={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}
+        title={<p className="font-bold text-lg text-red-500">Confirm Delete</p>}
+        centered radius="xl" size="sm">
+        <Text c="dimmed" mb="lg" size="sm">Are you sure you want to delete this doctor? This action cannot be undone.</Text>
+        <Group justify="flex-end" gap="sm">
+          <Button variant="light" radius="xl" color="gray" onClick={() => setDeleteModalOpen(false)} disabled={deleteLoading}>Cancel</Button>
+          <Button color="red" radius="xl" loading={deleteLoading} onClick={handleDelete}>Yes, Delete</Button>
+        </Group>
+      </Modal>
+
+      <Modal opened={addModalOpen} onClose={() => { setAddModalOpen(false); setDoctorForm(EMPTY_FORM); setFormErrors({}); }}
+        title={<p className="font-bold text-lg text-[#1a6fa8]">Add New Doctor</p>}
+        centered radius="xl" size="sm">
+        <Stack gap="md">
+          <div>
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Full Name</label>
+            <TextInput placeholder="Dr. John Smith" value={doctorForm.name}
+              onChange={(e) => handleFieldChange("name", e.currentTarget.value)}
+              error={formErrors.name} radius="md" styles={inputStyles} />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Email</label>
+            <TextInput placeholder="doctor@hospital.com" value={doctorForm.email}
+              onChange={(e) => handleFieldChange("email", e.currentTarget.value)}
+              error={formErrors.email} radius="md" styles={inputStyles} />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Password</label>
+            <PasswordInput placeholder="Min. 6 characters" value={doctorForm.password}
+              onChange={(e) => handleFieldChange("password", e.currentTarget.value)}
+              error={formErrors.password} radius="md" styles={inputStyles} />
+          </div>
+          <Group grow mt="sm">
+            <Button color="#1a6fa8" radius="xl" loading={addLoading} onClick={handleAddDoctor}>Create Doctor</Button>
+            <Button variant="light" radius="xl" color="red"
+              onClick={() => { setAddModalOpen(false); setDoctorForm(EMPTY_FORM); setFormErrors({}); }}>
+              Cancel
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+    </div>
   );
 };
 

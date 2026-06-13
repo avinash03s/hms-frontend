@@ -1,49 +1,56 @@
 import { Button } from "@mantine/core";
-import { useNavigate } from "react-router-dom";
+import { IconHeartbeat, IconArrowLeft } from "@tabler/icons-react";
+import { useNavigate, Link } from "react-router-dom";
+import Navbar from '../components/layout/Navbar';
 
 const NotFoundPage = () => {
-    const navigate=useNavigate();
+  const navigate = useNavigate();
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white px-6 text-center">
-      
-      {/* Icon */}
-      <svg
-        className="w-16 h-16 text-gray-400 mb-4"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M9.172 9.172a4 4 0 015.656 0m1.414 1.414a6 6 0 010 8.486M6.343 6.343a8 8 0 0111.314 0"
-        />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M12 20h.01"
-        />
-      </svg>
+    <div className="min-h-screen bg-[#f4f7fb] flex flex-col">
+      <Navbar />
 
-      {/* Heading */}
-      <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-        404 - Page Not Found
-      </h1>
+      <div className="flex-1 flex flex-col items-center justify-center px-4 text-center py-20">
 
-      {/* Description */}
-      <p className="mt-3 text-gray-500 max-w-md">
-        Oops! The page you are looking for doesn’t exist or may have been moved.
-      </p>
+        {/* Big 404 */}
+        <div className="relative mb-6">
+          <span className="text-[9rem] sm:text-[12rem] font-extrabold text-gray-100 leading-none select-none">
+            404
+          </span>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-20 h-20 rounded-2xl bg-[#e8f1fb] flex items-center justify-center">
+              <IconHeartbeat size={40} stroke={1.5} className="text-[#1a6fa8]" />
+            </div>
+          </div>
+        </div>
 
-      {/* Back Button */}
-      <Button
-        onClick={()=>navigate(-1)}
-        className="mt-6 inline-block bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-lg transition"
-      >
-        Back to Home
-      </Button>
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3">
+          Page Not Found
+        </h2>
+        <p className="text-gray-400 max-w-sm text-sm mb-8 leading-relaxed">
+          The page you're looking for doesn't exist or may have been moved. Let's get you back on track.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button
+            onClick={() => navigate(-1)}
+            variant="outline"
+            color="#1a6fa8"
+            radius="md"
+            size="md"
+            leftSection={<IconArrowLeft size={16} />}
+          >
+            Go Back
+          </Button>
+          <Link to="/">
+            <Button color="#1a6fa8" radius="md" size="md">
+              Back to Home
+            </Button>
+          </Link>
+        </div>
+
+        <p className="text-xs text-gray-300 mt-12">© 2026 PulseCare. Your health, our priority.</p>
+      </div>
     </div>
   );
 };

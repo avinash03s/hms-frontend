@@ -44,5 +44,10 @@ const uploadProfilePhoto = async (
             throw error;
         });
 }
+const getAllDoctors = async () => {
+    return axiosInstance.get('/profile/doctor/all')
+        .then((res: any) => res.data)
+        .catch((err: any) => { throw err; });
+}
 
-export { getDoctor, updateDoctor, getDoctorDropdown, uploadProfilePhoto }
+export { getDoctor, updateDoctor, getDoctorDropdown, uploadProfilePhoto, getAllDoctors }

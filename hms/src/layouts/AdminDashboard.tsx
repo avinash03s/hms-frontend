@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom"
 import Header from "../components/header/Header"
 import Sidebar from "../components/admin/sidebar/Sidebar"
 import { useMediaQuery } from "@mantine/hooks";
+import AdminNavbar from "../components/admin/sidebar/AdminNavbar";
 
 
 const AdminDashboard = () => {

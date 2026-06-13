@@ -46,13 +46,13 @@ const FORM_INITIAL_VALUES: MedicineFormValues = {
 };
 
 const FORM_VALIDATE = {
-    name:         (v: string) => (v.trim() ? null : "Medicine name is required"),
-    dosage:       (v: string) => (v.trim() ? null : "Dosage is required"),
-    stock:        (v: number) => (v >= 0   ? null : "Stock cannot be negative"),
-    category:     (v: string) => (v        ? null : "Category is required"),
-    type:         (v: string) => (v        ? null : "Type is required"),
+    name: (v: string) => (v.trim() ? null : "Medicine name is required"),
+    dosage: (v: string) => (v.trim() ? null : "Dosage is required"),
+    stock: (v: number) => (v >= 0 ? null : "Stock cannot be negative"),
+    category: (v: string) => (v ? null : "Category is required"),
+    type: (v: string) => (v ? null : "Type is required"),
     manufacturer: (v: string) => (v.trim() ? null : "Manufacturer is required"),
-    unitPrice:    (v: number) => (v > 0    ? null : "Unit price must be greater than 0"),
+    unitPrice: (v: number) => (v > 0 ? null : "Unit price must be greater than 0"),
 };
 
 type MedicineFormFieldsProps = {
@@ -116,18 +116,18 @@ const MedicineFormFields = ({ form }: MedicineFormFieldsProps) => (
 
 const Medicine = () => {
 
-    const [medicines,  setMedicines]  = useState<Medicine[]>([]);
-    const [search,     setSearch]     = useState("");
-    const [page,       setPage]       = useState(1);
-    const [perPage]                   = useState(10);
-    const [sortField,  setSortField]  = useState<keyof Medicine | null>(null);
-    const [sortDir,    setSortDir]    = useState<"asc" | "desc">("asc");
+    const [medicines, setMedicines] = useState<Medicine[]>([]);
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const [perPage] = useState(10);
+    const [sortField, setSortField] = useState<keyof Medicine | null>(null);
+    const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
     // const [viewMode,   setViewMode]   = useState<"grid" | "list">("grid");
     const [editTarget, setEditTarget] = useState<Medicine | null>(null);
-    const [loading,    setLoading]    = useState(false);
-    const [fetching,   setFetching]   = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [fetching, setFetching] = useState(true);
 
-    const [addOpened,  { open: openAdd,  close: closeAdd  }] = useDisclosure(false);
+    const [addOpened, { open: openAdd, close: closeAdd }] = useDisclosure(false);
     const [editOpened, { open: openEdit, close: closeEdit }] = useDisclosure(false);
 
     const addForm = useForm<MedicineFormValues>({
@@ -194,17 +194,17 @@ const Medicine = () => {
             .finally(() => setLoading(false));
     };
 
-   const handleDelete = (id: number) => {
+    const handleDelete = (id: number) => {
 
-    deleteMedicine(id)
-        .then(() => {
-            successNotification("Medicine deleted successfully");
-            fetchMedicines();
-        })
-        .catch(() => {
-            errorNotification("Failed to delete medicine");
-        });
-};
+        deleteMedicine(id)
+            .then(() => {
+                successNotification("Medicine deleted successfully");
+                fetchMedicines();
+            })
+            .catch(() => {
+                errorNotification("Failed to delete medicine");
+            });
+    };
 
     const filtered = medicines.filter((m) => {
         const q = search.toLowerCase();
@@ -227,12 +227,13 @@ const Medicine = () => {
     });
 
     const totalPages = Math.max(1, Math.ceil(sorted.length / perPage));
-    const paginated  = sorted.slice((page - 1) * perPage, page * perPage);
+    const paginated = sorted.slice((page - 1) * perPage, page * perPage);
 
     return (
-        <div className="p-6 flex flex-col gap-5">
+        // <div className="p-6 flex flex-col gap-5">
+        <div className="min-h-screen bg-[#f4f7fb] p-4 sm:p-6 flex flex-col gap-5">
 
-            <div className="flex items-center gap-3">
+            {/* <div className="flex items-center gap-3">
                 <Button
                     leftSection={<IconPlus size={16} />}
                     color="teal"
@@ -249,6 +250,28 @@ const Medicine = () => {
                     value={search}
                     onChange={(e) => { setSearch(e.currentTarget.value); setPage(1); }}
                     w={220}
+                />
+            </div> */}
+
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center gap-3 mb-1">
+                <div>
+                    <span className="inline-block bg-blue-100 text-[#1a6fa8] text-xs font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full mb-2">
+                        Inventory
+                    </span>
+                    <h1 className="text-2xl font-extrabold text-gray-900">Stock Management</h1>
+                </div>
+                <div className="flex-1" />
+                <Button leftSection={<IconPlus size={16} />} color="#1a6fa8" radius="md" onClick={openAdd}>
+                    Add Medicine
+                </Button>
+                <TextInput
+                    leftSection={<IconSearch size={16} />}
+                    placeholder="Search medicine / batch"
+                    value={search}
+                    onChange={(e) => { setSearch(e.currentTarget.value); setPage(1); }}
+                    w={240}
+                    radius="md"
+                    styles={{ input: { border: "1.5px solid #e5e7eb", background: "white" } }}
                 />
             </div>
 

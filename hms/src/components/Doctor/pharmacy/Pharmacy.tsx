@@ -138,7 +138,7 @@ const Pharmacy = () => {
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
 
                 {/* VIEW TOGGLE */}
-
+{/* 
                 <ActionIcon.Group>
 
                     <ActionIcon
@@ -167,7 +167,7 @@ const Pharmacy = () => {
                         <IconLayoutList size={18} />
                     </ActionIcon>
 
-                </ActionIcon.Group>
+                </ActionIcon.Group> */}
 
                 {/* SEARCH */}
 
