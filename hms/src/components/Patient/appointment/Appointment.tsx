@@ -1,12 +1,11 @@
-import {
-    ActionIcon, SegmentedControl, Text, TextInput
+import { Button, SegmentedControl, Text, TextInput
 } from "@mantine/core";
 import React, { useState, useEffect } from 'react';
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { DataTable, type DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
-import { IconSearch, IconTrash } from '@tabler/icons-react';
+import { IconSearch } from '@tabler/icons-react';
 import { useSelector } from "react-redux";
 import {
     cancelAppointment, getAppointmentsByPatient
@@ -83,9 +82,14 @@ const Appointment = () => {
 
     const actionBodyTemplate = (rowData: any) => (
         rowData.status === 'SCHEDULED' ? (
-            <ActionIcon color="red" variant="light" radius="md" onClick={() => handleDelete(rowData)}>
-                <IconTrash size={18} stroke={1.5} />
-            </ActionIcon>
+            <Button
+                color="red"
+                size="xs"
+                radius="md"
+                onClick={() => handleDelete(rowData)}
+            >
+                Cancel
+            </Button>
         ) : (
             <span className="text-gray-300">—</span>
         )
@@ -109,16 +113,16 @@ const Appointment = () => {
 
             <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 py-10 flex-1">
 
-             
+
                 <div className="mb-6">
                     <h1 className="text-2xl font-extrabold text-gray-900">My Appointments</h1>
                     <p className="text-sm text-gray-400 mt-1">View and manage your scheduled appointments</p>
                 </div>
 
-               
+
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
-               
+
                     <div className="h-2 bg-[#1a6fa8]" />
 
                     <div className="p-6">

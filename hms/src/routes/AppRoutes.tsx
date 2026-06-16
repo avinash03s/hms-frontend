@@ -133,6 +133,7 @@ import AdminHealthPackagesPage from "../pages/admin/AdminHealthPackagesPage";
 import ProfileDoctorPage from "../pages/patient/DoctorProfilePage";
 import HealthPackageDetailPage from "../pages/patient/HealthPackageDetailPage";
 import MyPackagesPage from "../pages/patient/MyPackagesPage";
+import AdminhospitalPage from "../pages/admin/AdminhospitalPage";
 
 const AppRoutes = () => {
   return (
@@ -172,6 +173,7 @@ const AppRoutes = () => {
         <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}>
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="doctors" element={<DoctorsPage />} />
+          <Route path="hospitals" element={<AdminhospitalPage />} />
           <Route path="patients" element={<PatientsPage />} />
           <Route path="packages" element={<AdminHealthPackagesPage />} />
           <Route path="appointments" element={<AppointmentsPage />} />
