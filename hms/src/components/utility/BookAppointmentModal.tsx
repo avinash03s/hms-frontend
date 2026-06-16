@@ -105,6 +105,8 @@ const BookAppointmentModal = ({ opened, onClose, doctorId, doctorName, doctors =
         setSelectedSlot(null);
         setAvailableSlots([]);
         setNoSchedule(false);
+
+      
         const currentDoctorId = doctorId || doctorIdRef.current;
         if (currentDoctorId && parsedDate) fetchSlots(currentDoctorId, parsedDate);
     };
@@ -198,6 +200,12 @@ const BookAppointmentModal = ({ opened, onClose, doctorId, doctorName, doctors =
                 {/* Date */}
                 <div>
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Appointment Date *</label>
+
+                    <div className="flex items-center gap-1.5 mb-2 text-xs text-red-500">
+                        <span>🔴</span>
+                        <span>Saturday & Sundays — Doctor not available</span>
+                    </div>
+
                     <DatePickerInput
                         placeholder="Pick a date"
                         value={selectedDate}
@@ -205,6 +213,18 @@ const BookAppointmentModal = ({ opened, onClose, doctorId, doctorName, doctors =
                         minDate={new Date()}
                         radius="md"
                         styles={inputStyles}
+                        getDayProps={(date) => {
+                            const d = new Date(date);
+                            if (d.getDay() === 0) {
+                                return {
+                                    style: {
+                                        color: '#e03131',
+                                        fontWeight: 400,
+                                    },
+                                };
+                            }
+                            return {};
+                        }}
                     />
                 </div>
 
