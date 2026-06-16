@@ -1,17 +1,16 @@
 import {
-  Avatar, Badge, Button, Divider, Group, Loader,
-  Modal, SimpleGrid, Stack, Text, TextInput, Textarea, Switch,
+  Badge, Button, Divider, Group, Loader,
+  Modal, SimpleGrid, Stack, Text, TextInput, Textarea,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import {
   IconBuildingHospital, IconPhone, IconMail, IconMapPin,
   IconPlus, IconSearch, IconEdit, IconTrash, IconX, IconCheck,
-  IconWifi, IconEye,
+  IconEye,
 } from "@tabler/icons-react";
 import axiosInstance from "../../../interceptor/AxiosInterceptor";
 import { errorNotification, successNotification } from "../../../utility/Notification";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 interface Hospital {
   id: number;
   name: string;
@@ -47,7 +46,6 @@ const getCityColor = (city: string) => {
   return cityColors[city];
 };
 
-// ─── API helpers ──────────────────────────────────────────────────────────────
 const api = {
   getAll: () => axiosInstance.get("/api/hospitals").then((r) => r.data?.data ?? r.data),
   add: (data: typeof EMPTY_FORM) =>
@@ -58,7 +56,6 @@ const api = {
     axiosInstance.delete(`/api/hospitals/${id}`).then((r) => r.data),
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
 const AdminHospital = () => {
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [filtered, setFiltered] = useState<Hospital[]>([]);
@@ -86,7 +83,6 @@ const AdminHospital = () => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // ── Load ────────────────────────────────────────────────────────────────────
   const load = async () => {
     setLoading(true);
     try {
@@ -104,7 +100,6 @@ const AdminHospital = () => {
 
   useEffect(() => { load(); }, []);
 
-  // ── Filter ──────────────────────────────────────────────────────────────────
   const applyFilters = (q: string, city: string, list: Hospital[]) => {
     const lower = q.toLowerCase();
     return list.filter((h) => {
@@ -128,7 +123,6 @@ const AdminHospital = () => {
     setFiltered(applyFilters(search, city, hospitals));
   };
 
-  // ── Form helpers ────────────────────────────────────────────────────────────
   const openAdd = () => {
     setFormMode("add");
     setEditId(null);
@@ -190,7 +184,6 @@ const AdminHospital = () => {
     }
   };
 
-  // ── Delete ──────────────────────────────────────────────────────────────────
   const confirmDelete = (id: number) => {
     setDeleteId(id);
     setViewOpen(false);
@@ -213,7 +206,6 @@ const AdminHospital = () => {
     }
   };
 
-  // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#f4f7fb] p-4 sm:p-6">
 
@@ -358,7 +350,6 @@ const AdminHospital = () => {
         </div>
       )}
 
-      {/* ── View Modal ────────────────────────────────────────────────────────── */}
       <Modal
         opened={viewOpen} onClose={() => setViewOpen(false)}
         title={<p className="font-bold text-lg text-[#1a6fa8]">Hospital Details</p>}
@@ -451,7 +442,6 @@ const AdminHospital = () => {
         )}
       </Modal>
 
-      {/* ── Add / Edit Modal ──────────────────────────────────────────────────── */}
       <Modal
         opened={formOpen}
         onClose={() => setFormOpen(false)}
@@ -593,7 +583,6 @@ const AdminHospital = () => {
         </Stack>
       </Modal>
 
-      {/* ── Delete Confirm Modal ──────────────────────────────────────────────── */}
       <Modal
         opened={deleteOpen} onClose={() => setDeleteOpen(false)}
         title={<p className="font-bold text-lg text-red-500">Deactivate Hospital</p>}

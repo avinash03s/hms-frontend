@@ -1,4 +1,4 @@
-import { Avatar, Badge, Box, Group, Loader, SimpleGrid, Stack, Text, TextInput } from "@mantine/core";
+import { Avatar, Badge, Group, Loader, Stack, Text, TextInput } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { getAllAppointments, getAllDoctors, getAllPatients } from "../../../service/AdminService";
 import { IconSearch, IconCalendarTime, IconClipboard } from "@tabler/icons-react";

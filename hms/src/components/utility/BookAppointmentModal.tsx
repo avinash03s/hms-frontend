@@ -171,7 +171,6 @@ const BookAppointmentModal = ({ opened, onClose, doctorId, doctorName, doctors =
                 console.log("Validation errors:", errors);
             })} className="flex flex-col gap-5">
 
-                {/* Doctor — prefilled or dropdown */}
                 {doctorId ? (
                     <div className="bg-[#f4f7fb] rounded-xl px-4 py-3 flex items-center justify-between border border-gray-100">
                         <div>
@@ -197,7 +196,6 @@ const BookAppointmentModal = ({ opened, onClose, doctorId, doctorName, doctors =
                     </div>
                 )}
 
-                {/* Date */}
                 <div>
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Appointment Date *</label>
 
@@ -266,7 +264,6 @@ const BookAppointmentModal = ({ opened, onClose, doctorId, doctorName, doctors =
                         </div>
                     )}
 
-                {/* Reason */}
                 <div>
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Reason *</label>
                     <Select
@@ -279,7 +276,6 @@ const BookAppointmentModal = ({ opened, onClose, doctorId, doctorName, doctors =
                     />
                 </div>
 
-                {/* Notes */}
                 <div>
                     <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Additional Notes</label>
                     <Textarea

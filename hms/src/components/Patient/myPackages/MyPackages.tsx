@@ -1,5 +1,5 @@
 import {
-    Text, TextInput
+     TextInput
 } from "@mantine/core";
 import React, { useState, useEffect } from 'react';
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
@@ -7,7 +7,6 @@ import { DataTable, type DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { IconSearch } from '@tabler/icons-react';
-import { useSelector } from "react-redux";
 import { getMyBookings } from "../../../service/HealthPackageService";
 import { formatDateWithTime } from "../../../utility/DateUtility";
 import Navbar from "../../layout/Navbar";
