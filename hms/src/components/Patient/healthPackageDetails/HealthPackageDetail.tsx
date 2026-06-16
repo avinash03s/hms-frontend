@@ -104,7 +104,6 @@ const HealthPackageDetail = () => {
     <div className="min-h-screen bg-[#f4f7fb] flex flex-col">
       <Navbar />
 
-      {/* Booking Modal */}
       <Modal
         opened={opened}
         onClose={handleClose}
@@ -155,7 +154,7 @@ const HealthPackageDetail = () => {
           </div>
         </div>
 
-        {/* Package summary */}
+  
         <div className="mt-5 bg-[#f4f7fb] rounded-xl px-4 py-3 flex items-center justify-between border border-gray-100">
           <div>
             <p className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-0.5">Selected Package</p>
@@ -173,7 +172,6 @@ const HealthPackageDetail = () => {
 
       <div className="max-w-4xl mx-auto px-4 py-10 w-full flex-1">
 
-        {/* Back */}
         <button onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#1a6fa8] mb-6 font-medium transition-colors">
           <IconArrowLeft size={16} /> Back to Packages
@@ -181,10 +179,9 @@ const HealthPackageDetail = () => {
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
-          {/* Top color bar */}
+      
           <div className="h-2 w-full" style={{ background: color.text }} />
 
-          {/* Header */}
           <div className="p-8 border-b border-gray-100">
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div className="flex-1">
@@ -201,7 +198,6 @@ const HealthPackageDetail = () => {
                 <p className="text-gray-500 text-sm mt-2 max-w-xl leading-relaxed">{pkg.description}</p>
               </div>
 
-              {/* Price */}
               <div className="text-right shrink-0 bg-[#f4f7fb] rounded-2xl px-6 py-4 border border-gray-100">
                 <p className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">Package Price</p>
                 <p className="text-3xl font-extrabold text-[#1a6fa8]">₹{pkg.price?.toLocaleString()}</p>
@@ -209,7 +205,6 @@ const HealthPackageDetail = () => {
               </div>
             </div>
 
-            {/* Quick info */}
             <div className="flex items-center gap-6 mt-6 flex-wrap">
               <div className="flex items-center gap-2 text-gray-500">
                 <IconTestPipe size={16} stroke={1.5} />
@@ -229,7 +224,7 @@ const HealthPackageDetail = () => {
             </div>
           </div>
 
-          {/* Tests Included */}
+   
           {pkg.tests?.length > 0 && (
             <div className="p-8 border-b border-gray-100">
               <h2 className="text-lg font-bold text-gray-900 mb-1">
@@ -251,7 +246,6 @@ const HealthPackageDetail = () => {
             </div>
           )}
 
-          {/* Benefits */}
           {pkg.benefits?.length > 0 && (
             <div className="p-8 border-b border-gray-100">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Benefits</h2>
@@ -268,7 +262,6 @@ const HealthPackageDetail = () => {
             </div>
           )}
 
-          {/* No tests/benefits fallback */}
           {!pkg.tests?.length && !pkg.benefits?.length && (
             <div className="p-8 border-b border-gray-100 flex flex-col items-center justify-center py-12 text-center">
               <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mb-3">
@@ -278,7 +271,6 @@ const HealthPackageDetail = () => {
             </div>
           )}
 
-          {/* Book Button */}
           <div className="p-8 bg-[#f4f7fb]">
             <Button
               fullWidth size="lg" radius="md" color="#1a6fa8"

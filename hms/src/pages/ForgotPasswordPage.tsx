@@ -74,10 +74,9 @@ const ForgotPasswordPage = () => {
 
           <div className="bg-white rounded-2xl border border-gray-100 shadow-xl p-8 sm:p-10">
 
-            {/* Top accent bar */}
+
             <div className="h-1 w-16 bg-[#1a6fa8] rounded-full mb-7" />
 
-            {/* Step indicators */}
             <div className="flex items-center justify-center gap-2 mb-7">
               {stepOrder.map((s, i) => (
                 <div key={s} className="flex items-center gap-2">
@@ -97,14 +96,12 @@ const ForgotPasswordPage = () => {
               ))}
             </div>
 
-            {/* Step header */}
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[#1a6fa8]">{stepMeta[step].icon}</span>
               <h1 className="text-2xl font-extrabold text-gray-900">{stepMeta[step].title}</h1>
             </div>
             <p className="text-gray-400 text-sm mb-8">{stepMeta[step].subtitle}</p>
 
-            {/* Step: Email */}
             {step === 'email' && (
               <form onSubmit={emailForm.onSubmit(handleVerifyEmail)} className="flex flex-col gap-5">
                 <div>
@@ -118,7 +115,7 @@ const ForgotPasswordPage = () => {
               </form>
             )}
 
-            {/* Step: OTP */}
+
             {step === 'otp' && (
               <div className="flex flex-col gap-5 items-center">
                 <PinInput
@@ -161,7 +158,6 @@ const ForgotPasswordPage = () => {
               </div>
             )}
 
-            {/* Step: New Password */}
             {step === 'password' && (
               <form onSubmit={passwordForm.onSubmit(handleChangePassword)} className="flex flex-col gap-5">
                 <div>

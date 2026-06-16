@@ -48,7 +48,6 @@ const whyCards = [
 const WhyChooseUs = () => {
   return (
     <>
-      {/* ── Stats Band ── */}
       <section className="bg-[#1a6fa8] py-12 px-4 sm:px-6 lg:px-12">
         <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
           {stats.map((stat) => (
@@ -61,12 +60,10 @@ const WhyChooseUs = () => {
         </div>
       </section>
 
-      {/* ── Why Choose Us ── */}
       <section id="about" className="bg-white py-16 px-4 sm:px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
 
-            {/* Left: Image */}
             <div className="relative">
               <img
                 src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=600&q=80"
@@ -74,7 +71,6 @@ const WhyChooseUs = () => {
                 className="rounded-2xl w-full object-cover"
                 style={{ height: 420 }}
               />
-              {/* Floating badge */}
               <div className="absolute bottom-6 left-6 bg-white rounded-xl px-4 py-3 shadow-xl border border-gray-100 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-yellow-50 flex items-center justify-center">
                   <IconAward size={22} className="text-yellow-500" stroke={1.5} />
@@ -90,7 +86,6 @@ const WhyChooseUs = () => {
               </div>
             </div>
 
-            {/* Right: Content */}
             <div>
               <span className="inline-block bg-blue-100 text-[#1a6fa8] text-xs font-bold tracking-[0.2em] uppercase px-3 py-1 rounded-full mb-4">
                 Why PulseCare

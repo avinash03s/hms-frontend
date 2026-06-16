@@ -1,6 +1,6 @@
 import {
-  Avatar, Button, Divider, Modal,
-  NumberInput, Select, Table, TagsInput, TextInput, Badge
+  Avatar, Button, Modal,
+  NumberInput, Select, TagsInput, TextInput, Badge
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import {

@@ -12,7 +12,6 @@ const NotFoundPage = () => {
 
       <div className="flex-1 flex flex-col items-center justify-center px-4 text-center py-20">
 
-        {/* Big 404 */}
         <div className="relative mb-6">
           <span className="text-[9rem] sm:text-[12rem] font-extrabold text-gray-100 leading-none select-none">
             404

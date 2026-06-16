@@ -202,10 +202,8 @@ const AIChatBot = () => {
       {open && (
         <div style={{
           position: "fixed",
-          /* Sits just above the FAB, anchored to bottom-right */
           bottom: 82,
           right: 16,
-          /* Shrinks to fit any screen — never wider than viewport, never taller than 75vh */
           width: "min(340px, calc(100vw - 32px))",
           maxHeight: "min(75vh, 560px)",
           display: "flex",
@@ -220,7 +218,6 @@ const AIChatBot = () => {
           fontFamily: "'Inter', system-ui, sans-serif",
           boxSizing: "border-box",
         }}>
-          {/* Header */}
           <div style={{
             padding: "12px 14px",
             background: "#1F2937",
@@ -260,7 +257,6 @@ const AIChatBot = () => {
             </div>
           </div>
 
-          {/* Messages */}
           <div style={{
             flex: 1,
             overflowY: "auto",
@@ -269,7 +265,7 @@ const AIChatBot = () => {
             display: "flex", flexDirection: "column",
             gap: 10,
             background: "#F9FAFB",
-            minHeight: 0, /* critical — lets flex child shrink and scroll */
+            minHeight: 0, 
           }}>
             {messages.map((msg) => (
               <div key={msg.id} style={{ display: "flex", flexDirection: msg.role === "user" ? "row-reverse" : "row", alignItems: "flex-end", gap: 7, animation: "msg-in 0.16s ease-out" }}>
@@ -312,7 +308,6 @@ const AIChatBot = () => {
             <div ref={bottomRef} />
           </div>
 
-          {/* Suggestions — horizontal scroll, no wrap */}
           {messages.length <= 1 && !loading && (
             <div style={{
               padding: "0 12px 10px",
@@ -341,13 +336,11 @@ const AIChatBot = () => {
             </div>
           )}
 
-          {/* Disclaimer */}
           <div style={{ padding: "6px 12px", background: "#FFF8E1", borderTop: "1px solid #FDE68A", display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
             <span style={{ fontSize: 11 }}>⚠️</span>
             <span style={{ fontSize: 10, color: "#92400E" }}>For information only. Always consult your doctor.</span>
           </div>
 
-          {/* Input bar */}
           <div style={{ padding: "10px 12px", background: "#fff", borderTop: "1px solid #F3F4F6", display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
             <input
               ref={inputRef}
@@ -362,7 +355,7 @@ const AIChatBot = () => {
                 padding: "9px 12px",
                 borderRadius: 8,
                 border: "1.5px solid #E5E7EB",
-                fontSize: 16, /* 16px = no auto-zoom on iOS */
+                fontSize: 16, 
                 outline: "none",
                 color: "#111827",
                 background: loading ? "#F9FAFB" : "#fff",
