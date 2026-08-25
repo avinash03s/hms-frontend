@@ -11,6 +11,7 @@ import Footer from "../../layout/Footer";
 import { getPackageById, bookPackage } from "../../../service/HealthPackageService";
 import { errorNotification, successNotification } from "../../../utility/Notification";
 import { useSelector } from "react-redux";
+import AIChatBot from "../../utility/AIChatBot";
 
 const categoryColor: Record<string, { bg: string; text: string; border: string }> = {
   Cancer: { bg: "#fdf2f8", text: "#9d174d", border: "#fbcfe8" },
@@ -288,6 +289,7 @@ const HealthPackageDetail = () => {
       </div>
 
       <Footer />
+      <AIChatBot />
     </div>
   );
 };

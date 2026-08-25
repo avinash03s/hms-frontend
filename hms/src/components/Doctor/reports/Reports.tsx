@@ -932,7 +932,7 @@
 // export default Reports;
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getPrescriptionsByDoctor } from "../../../service/AppointmentService";
+import { downloadPrescriptionPdf, getPrescriptionsByDoctor } from "../../../service/AppointmentService";
 import { getPatient } from "../../../service/PatientProfileService";
 import { IconReceipt } from "@tabler/icons-react";
 
@@ -982,73 +982,106 @@ const formatBloodGroup = (bg: string) =>
 
 type DateFilter = "all" | "1m";
 
-const downloadPDF = (p: PrescriptionDTO, doctorName: string) => {
-  const win = window.open("", "_blank");
-  if (!win) return;
-  const rows = p.medicines?.map((m, i) => `
-    <tr style="background:${i % 2 === 0 ? "#f9fafb" : "#fff"}">
-      <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">
-        <strong style="display:block;color:#111827">${m.medicineName}</strong>
-        <span style="font-size:12px;color:#6b7280">${m.type} · ${m.routes}</span>
-      </td>
-      <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">${m.dosage}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">${formatFrequency(m.frequency)}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">${m.duration} days</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">${m.instructions ?? "—"}</td>
-    </tr>`).join("");
 
-  win.document.write(`<!DOCTYPE html><html><head><title>Prescription #${p.id}</title>
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Segoe UI',sans-serif;color:#111827;padding:40px}
-    .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid #1D9E75}
-    .logo{font-size:24px;font-weight:700;color:#1D9E75}.logo span{color:#111827}
-    .rx{background:#E1F5EE;color:#0F6E56;font-size:28px;font-weight:700;padding:4px 16px;border-radius:8px;display:inline-block;margin-bottom:6px}
-    .patient-box{background:#f0fdf7;border:1px solid #bbf7d0;border-radius:8px;padding:14px 16px;margin-bottom:24px}
-    .patient-title{font-size:12px;color:#0F6E56;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
-    .patient-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-    .info-label{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
-    .info-value{font-size:15px;font-weight:600}
-    .notes{background:#fffbeb;border-left:4px solid #f59e0b;padding:14px 16px;border-radius:0 8px 8px 0;margin-bottom:24px}
-    table{width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:24px}
-    thead tr{background:#1D9E75}
-    thead th{padding:10px 12px;text-align:left;font-size:12px;color:#fff;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-    .footer{margin-top:48px;padding-top:20px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:flex-end}
-    .sign-box{text-align:center}.sign-name{font-size:15px;font-weight:700;color:#111827;margin-bottom:6px}
-    .sign-line{border-top:1px solid #111827;width:200px;padding-top:8px;font-size:12px;color:#6b7280;text-align:center}
-    .watermark{font-size:11px;color:#9ca3af}
-    @media print{body{padding:20px}}
-  </style></head><body>
-  <div class="header">
-    <div><div class="logo">Pulse<span>Care</span></div><div style="font-size:13px;color:#6b7280;margin-top:4px">Health Management System</div></div>
-    <div style="text-align:right"><div class="rx">℞</div>
-      <div style="font-size:13px;color:#6b7280">Date: ${formatDate(p.prescriptionDate)}</div>
-      <div style="font-size:13px;color:#6b7280">Prescription ID: #${p.id}</div>
-    </div>
-  </div>
-  <div class="patient-box">
-    <div class="patient-title">Patient Information</div>
-    <div class="patient-grid">
-      <div><div class="info-label">Name</div><div class="info-value">${p.patientName ?? `Patient #${p.patientId}`}</div></div>
-      <div><div class="info-label">Email</div><div class="info-value" style="font-size:13px">${p.patientEmail ?? "—"}</div></div>
-      <div><div class="info-label">Phone</div><div class="info-value">${p.patientPhone ?? "—"}</div></div>
-      <div><div class="info-label">Blood Group</div><div class="info-value">${formatBloodGroup(p.patientBloodGroup ?? "") || "—"}</div></div>
-      <div><div class="info-label">Address</div><div class="info-value" style="font-size:13px">${p.patientAddress ?? "—"}</div></div>
-      <div><div class="info-label">Appointment ID</div><div class="info-value">#${p.appointmentId}</div></div>
-    </div>
-  </div>
-  ${p.prescriptionNotes ? `<div class="notes"><div style="font-size:12px;color:#92400e;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">Doctor's Notes</div><div style="font-size:14px;line-height:1.6">${p.prescriptionNotes}</div></div>` : ""}
-  <div style="font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:10px">Prescribed Medicines (${p.medicines?.length ?? 0})</div>
-  <table><thead><tr><th>Medicine</th><th>Dosage</th><th>Frequency</th><th>Duration</th><th>Instructions</th></tr></thead><tbody>${rows}</tbody></table>
-  <div class="footer">
-    <div class="watermark">Generated by PulseCare HMS · ${new Date().toLocaleString("en-IN")}</div>
-    <div class="sign-box"><div class="sign-name">Dr. ${doctorName}</div><div class="sign-line">Doctor's Signature</div></div>
-  </div>
-  </body></html>`);
-  win.document.close();
-  win.focus();
-  setTimeout(() => { win.print(); win.close(); }, 500);
+
+const downloadPDF = async (
+  prescriptionId: number,
+  patientName: string
+): Promise<void> => {
+  try {
+    const blob: Blob = await downloadPrescriptionPdf(prescriptionId);
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link: HTMLAnchorElement = document.createElement("a");
+
+    link.href = url;
+
+    const safeName: string = patientName
+      .trim()
+      .replace(/[^a-zA-Z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    link.download = `Prescription-${safeName}.pdf`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    window.URL.revokeObjectURL(url);
+
+  } catch (error: any) {
+    console.error("PDF download failed:", error);
+    alert("Failed to download prescription PDF");
+  }
 };
+// const downloadPDF = (p: PrescriptionDTO, doctorName: string) => {
+//   const win = window.open("", "_blank");
+//   if (!win) return;
+//   const rows = p.medicines?.map((m, i) => `
+//     <tr style="background:${i % 2 === 0 ? "#f9fafb" : "#fff"}">
+//       <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">
+//         <strong style="display:block;color:#111827">${m.medicineName}</strong>
+//         <span style="font-size:12px;color:#6b7280">${m.type} · ${m.routes}</span>
+//       </td>
+//       <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">${m.dosage}</td>
+//       <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">${formatFrequency(m.frequency)}</td>
+//       <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">${m.duration} days</td>
+//       <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">${m.instructions ?? "—"}</td>
+//     </tr>`).join("");
+
+//   win.document.write(`<!DOCTYPE html><html><head><title>Prescription #${p.id}</title>
+//   <style>
+//     *{margin:0;padding:0;box-sizing:border-box}
+//     body{font-family:'Segoe UI',sans-serif;color:#111827;padding:40px}
+//     .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid #1D9E75}
+//     .logo{font-size:24px;font-weight:700;color:#1D9E75}.logo span{color:#111827}
+//     .rx{background:#E1F5EE;color:#0F6E56;font-size:28px;font-weight:700;padding:4px 16px;border-radius:8px;display:inline-block;margin-bottom:6px}
+//     .patient-box{background:#f0fdf7;border:1px solid #bbf7d0;border-radius:8px;padding:14px 16px;margin-bottom:24px}
+//     .patient-title{font-size:12px;color:#0F6E56;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
+//     .patient-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+//     .info-label{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+//     .info-value{font-size:15px;font-weight:600}
+//     .notes{background:#fffbeb;border-left:4px solid #f59e0b;padding:14px 16px;border-radius:0 8px 8px 0;margin-bottom:24px}
+//     table{width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:24px}
+//     thead tr{background:#1D9E75}
+//     thead th{padding:10px 12px;text-align:left;font-size:12px;color:#fff;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+//     .footer{margin-top:48px;padding-top:20px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:flex-end}
+//     .sign-box{text-align:center}.sign-name{font-size:15px;font-weight:700;color:#111827;margin-bottom:6px}
+//     .sign-line{border-top:1px solid #111827;width:200px;padding-top:8px;font-size:12px;color:#6b7280;text-align:center}
+//     .watermark{font-size:11px;color:#9ca3af}
+//     @media print{body{padding:20px}}
+//   </style></head><body>
+//   <div class="header">
+//     <div><div class="logo">Pulse<span>Care</span></div><div style="font-size:13px;color:#6b7280;margin-top:4px">Health Management System</div></div>
+//     <div style="text-align:right"><div class="rx">℞</div>
+//       <div style="font-size:13px;color:#6b7280">Date: ${formatDate(p.prescriptionDate)}</div>
+//       <div style="font-size:13px;color:#6b7280">Prescription ID: #${p.id}</div>
+//     </div>
+//   </div>
+//   <div class="patient-box">
+//     <div class="patient-title">Patient Information</div>
+//     <div class="patient-grid">
+//       <div><div class="info-label">Name</div><div class="info-value">${p.patientName ?? `Patient #${p.patientId}`}</div></div>
+//       <div><div class="info-label">Email</div><div class="info-value" style="font-size:13px">${p.patientEmail ?? "—"}</div></div>
+//       <div><div class="info-label">Phone</div><div class="info-value">${p.patientPhone ?? "—"}</div></div>
+//       <div><div class="info-label">Blood Group</div><div class="info-value">${formatBloodGroup(p.patientBloodGroup ?? "") || "—"}</div></div>
+//       <div><div class="info-label">Address</div><div class="info-value" style="font-size:13px">${p.patientAddress ?? "—"}</div></div>
+//       <div><div class="info-label">Appointment ID</div><div class="info-value">#${p.appointmentId}</div></div>
+//     </div>
+//   </div>
+//   ${p.prescriptionNotes ? `<div class="notes"><div style="font-size:12px;color:#92400e;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">Doctor's Notes</div><div style="font-size:14px;line-height:1.6">${p.prescriptionNotes}</div></div>` : ""}
+//   <div style="font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:10px">Prescribed Medicines (${p.medicines?.length ?? 0})</div>
+//   <table><thead><tr><th>Medicine</th><th>Dosage</th><th>Frequency</th><th>Duration</th><th>Instructions</th></tr></thead><tbody>${rows}</tbody></table>
+//   <div class="footer">
+//     <div class="watermark">Generated by PulseCare HMS · ${new Date().toLocaleString("en-IN")}</div>
+//     <div class="sign-box"><div class="sign-name">Dr. ${doctorName}</div><div class="sign-line">Doctor's Signature</div></div>
+//   </div>
+//   </body></html>`);
+//   win.document.close();
+//   win.focus();
+//   setTimeout(() => { win.print(); win.close(); }, 500);
+// };
 
 const PrescriptionModal = ({
   prescription: p, onClose, doctorName,
@@ -1076,7 +1109,17 @@ const PrescriptionModal = ({
           </p>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <button onClick={() => downloadPDF(p, doctorName)} className="flex-1 sm:flex-none bg-[#1D9E75] text-white border-none rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium cursor-pointer">
+          {/* <button onClick={() => downloadPDF(p, doctorName)} className="flex-1 sm:flex-none bg-[#1D9E75] text-white border-none rounded-lg px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium cursor-pointer">
+            ⬇ Download PDF
+          </button> */}
+          <button
+            onClick={() =>
+              downloadPDF(
+                p.id,
+                p.patientName ?? `Patient-${p.patientId}`
+              )
+            }
+          >
             ⬇ Download PDF
           </button>
           <button onClick={onClose} className="bg-gray-100 border-none rounded-lg px-3 py-2 text-xs sm:text-sm cursor-pointer text-gray-700">✕</button>
@@ -1165,7 +1208,17 @@ const PrescriptionModal = ({
           ))}
         </div>
 
-        <button onClick={() => downloadPDF(p, doctorName)} className="mt-5 w-full bg-[#1D9E75] text-white border-none rounded-xl py-3 text-sm font-medium cursor-pointer">
+        {/* <button onClick={() => downloadPDF(p, doctorName)} className="mt-5 w-full bg-[#1D9E75] text-white border-none rounded-xl py-3 text-sm font-medium cursor-pointer">
+          ⬇ Download PDF
+        </button> */}
+        <button
+          onClick={() =>
+            downloadPDF(
+              p.id,
+              p.patientName ?? `Patient-${p.patientId}`
+            )
+          }
+        >
           ⬇ Download PDF
         </button>
       </div>
@@ -1246,7 +1299,7 @@ const Reports = () => {
       <div style={{ marginBottom: 22 }}>
         <h2 style={{ fontSize: window.innerWidth < 640 ? 18 : 22, fontWeight: 600, color: "#111827", margin: 0, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <span style={{ width: 36, height: 36, background: "#E1F5EE", borderRadius: 8, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>
-            <IconReceipt/>
+            <IconReceipt />
           </span>
           <span>Prescription Reports</span>
         </h2>
@@ -1451,9 +1504,20 @@ const Reports = () => {
                       {r.medicines?.length ?? 0} medicines
                     </div>
                   </div>
-                  <button
+                  {/* <button
                     onClick={(e) => { e.stopPropagation(); downloadPDF(r, doctorName); }}
                     style={{ background: "transparent", border: "1px solid #1D9E75", color: "#1D9E75", borderRadius: 6, padding: "7px 12px", fontSize: 11, cursor: "pointer", fontWeight: 500, whiteSpace: "nowrap" }}
+                  >
+                    ⬇ PDF
+                  </button> */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      downloadPDF(
+                        r.id,
+                        r.patientName ?? `Patient-${r.patientId}`
+                      );
+                    }}
                   >
                     ⬇ PDF
                   </button>

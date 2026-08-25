@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { askAI } from "../../service/AIService";
+import { askAI, askPatientAI } from "../../service/AIService";
 import { IconRobot, IconSend, IconTrash, IconX } from "@tabler/icons-react";
 
 interface Message {
@@ -100,8 +100,19 @@ const AIChatBot = () => {
     setMessages((prev) => [...prev, makeMsg("user", q)]);
     setLoading(true);
     try {
-      const res = await askAI(q);
-      setMessages((prev) => [...prev, makeMsg("assistant", res)]);
+
+      const isLoggedIn = !!localStorage.getItem("token");
+
+      const res = isLoggedIn
+        ? await askPatientAI(q)
+        : await askAI(q);
+
+      setMessages((prev) => [
+        ...prev,
+        makeMsg("assistant", res)
+      ]);
+      // const res = await askAI(q);
+      // setMessages((prev) => [...prev, makeMsg("assistant", res)]);
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -265,7 +276,7 @@ const AIChatBot = () => {
             display: "flex", flexDirection: "column",
             gap: 10,
             background: "#F9FAFB",
-            minHeight: 0, 
+            minHeight: 0,
           }}>
             {messages.map((msg) => (
               <div key={msg.id} style={{ display: "flex", flexDirection: msg.role === "user" ? "row-reverse" : "row", alignItems: "flex-end", gap: 7, animation: "msg-in 0.16s ease-out" }}>
@@ -355,7 +366,7 @@ const AIChatBot = () => {
                 padding: "9px 12px",
                 borderRadius: 8,
                 border: "1.5px solid #E5E7EB",
-                fontSize: 16, 
+                fontSize: 16,
                 outline: "none",
                 color: "#111827",
                 background: loading ? "#F9FAFB" : "#fff",

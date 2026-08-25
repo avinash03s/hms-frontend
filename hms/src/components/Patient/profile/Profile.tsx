@@ -22,6 +22,7 @@ import { errorNotification, successNotification } from "../../../utility/Notific
 import { arrayToCSV } from "../../../utility/OtherUtility";
 import Navbar from "../../layout/Navbar";
 import Footer from "../../layout/Footer";
+import AIChatBot from "../../utility/AIChatBot";
 
 
 
@@ -386,6 +387,7 @@ const Profile = () => {
       </Modal>
 
       <Footer />
+      <AIChatBot/>
     </div>
   );
 };

@@ -15,6 +15,7 @@ import { formatDateWithTime } from "../../../utility/DateUtility";
 import { modals } from "@mantine/modals";
 import Navbar from "../../layout/Navbar";
 import Footer from "../../layout/Footer";
+import AIChatBot from "../../utility/AIChatBot";
 
 const inputStyles = {
     input: { border: "1.5px solid #e5e7eb", background: "#f9fafb", fontSize: 14 }
@@ -166,6 +167,7 @@ const Appointment = () => {
             </div>
 
             <Footer />
+            <AIChatBot />
         </div>
     );
 };
