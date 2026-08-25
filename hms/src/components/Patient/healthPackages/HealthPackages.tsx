@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { bookPackage } from "../../../service/HealthPackageService";
 import { errorNotification, successNotification } from "../../../utility/Notification";
+import AIChatBot from "../../utility/AIChatBot";
 
 
 interface HealthPackage {
@@ -467,6 +468,7 @@ const HealthPackagesPage = () => {
       </div>
 
       <Footer />
+      <AIChatBot />
     </div>
   );
 };

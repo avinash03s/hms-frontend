@@ -90,11 +90,27 @@ export const getAllSlots = async (doctorId: number, date: string) => {
     return axiosInstance.get(`/appointment/slots/all?doctorId=${doctorId}&date=${date}`);
 };
 
+// DOWNLOAD PRESCRIPTION PDF
+const downloadPrescriptionPdf = async (prescriptionId: number): Promise<Blob> => {
+    try {
+        const response = await axiosInstance.get(
+            `/appointment/report/prescription/${prescriptionId}/pdf`,
+            {
+                responseType: "blob",
+            }
+        );
+
+        return response.data as Blob;
+    } catch (error: any) {
+        throw error;
+    }
+};
+
 export {
     scheduleAppointment, cancelAppointment, getAppointment,
     getAppointmentDetails, getAppointmentsByPatient, getAppointmentsByDoctor,
     createAppointmentReport, createPrescription,
     getPrescriptionsByDoctor,
     getPrescriptionByAppointment,
-    getPrescriptionById, getPrescriptionsByPatient
+    getPrescriptionById, getPrescriptionsByPatient,downloadPrescriptionPdf
 }

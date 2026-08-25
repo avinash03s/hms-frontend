@@ -11,6 +11,7 @@ import axiosInstance from "../../../interceptor/AxiosInterceptor";
 import Navbar from "../../layout/Navbar";
 import Footer from "../../layout/Footer";
 import BookAppointmentModal from "../../utility/BookAppointmentModal";
+import AIChatBot from "../../utility/AIChatBot";
 
 interface Doctor {
   id: number;
@@ -329,6 +330,7 @@ const FindDoctor = () => {
       </div>
 
       <Footer />
+      <AIChatBot />
 
       <BookAppointmentModal
         opened={bookOpen}
