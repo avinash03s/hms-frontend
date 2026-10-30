@@ -9,6 +9,7 @@ import { Provider } from 'react-redux';
 import { Notifications } from '@mantine/notifications';
 import Store from "./Store";
 import { PrimeReactProvider } from 'primereact/api';
+import AIChatBot from "./components/utility/AIChatBot";
 
 
 
@@ -41,6 +42,7 @@ function App() {
         <PrimeReactProvider>
           <Notifications position="top-center" />
           <AppRoutes />
+          <AIChatBot />
         </PrimeReactProvider>
         </ModalsProvider>
       </MantineProvider>
